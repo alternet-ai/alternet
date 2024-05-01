@@ -67,12 +67,12 @@ const TopBar: React.FC<TopBarProps> = ({
         />
       </form>
       <div className="flex space-x-2">
-      <Button variant="ghost" onClick={onBookmark}>
+        <Button variant="ghost" onClick={onBookmark}>
           <Bookmark />
-      </Button>
-      <Button variant="ghost" onClick={onOpenHistory}>
-        <Clock />
-      </Button>
+        </Button>
+        <Button variant="ghost" onClick={onOpenHistory}>
+          <Clock />
+        </Button>
       </div>
     </div>
   );
