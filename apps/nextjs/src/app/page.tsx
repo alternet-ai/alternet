@@ -95,10 +95,13 @@ const ParentComponent = () => {
   const generatePage = (prompt: string) => {
     setHtml("");
 
-    void append({
-      role: "user",
-      content: prompt,
-    }, {options: {body: {lastIndex: navState.current.currentIndex}} });
+    void append(
+      {
+        role: "user",
+        content: prompt,
+      },
+      { options: { body: { lastIndex: navState.current.currentIndex } } },
+    );
 
     const page: Page = {
       title: "Loading...",
@@ -192,7 +195,7 @@ const ParentComponent = () => {
     setShowHistory(!showHistory); // Toggle visibility of the history panel
   };
 
-  const updateCurrentPage = (message: Message, updateCache?: boolean) => {
+  const updateCurrentPage = (message: Message, isFinal?: boolean) => {
     setHtml(message.content);
     const title =
       "alternet: " +
@@ -203,7 +206,32 @@ const ParentComponent = () => {
       "Loading...";
     setCurrentUrl(url);
 
-    if (updateCache) {
+    if (isFinal) {
+      let finalUrl = url;
+      let finalTitle = title;
+
+      if (finalUrl == "Loading...") {
+        const currentIndex = navState.current.currentIndex;
+        const cacheKey = navState.current.history[currentIndex];
+        if (!cacheKey) {
+          throw new Error("Could not find cache key for final URL???");
+        }
+        const currentPage = pageCache.current[cacheKey];
+        if (!currentPage) {
+          throw new Error("Could not find prompt for final URL???");
+        }
+        const prompt = currentPage.prompt;
+        console.log("prompt", prompt);
+
+        finalUrl = prompt;
+        setCurrentUrl(finalUrl);
+      }
+
+      if (finalTitle == "alternet: Loading...") {
+        finalTitle = "alternet: " + finalUrl;
+        setTitle(finalTitle);
+      }
+
       const cacheKey = navState.current.history[navState.current.currentIndex];
       if (!cacheKey) {
         console.log("cache key", cacheKey);
@@ -218,8 +246,8 @@ const ParentComponent = () => {
         [cacheKey]: {
           ...(pageCache.current[cacheKey] ?? ({} as Page)),
           content: message.content,
-          fakeUrl: url,
-          title: title,
+          fakeUrl: finalUrl,
+          title: finalTitle,
         },
       };
     }

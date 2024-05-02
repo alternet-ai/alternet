@@ -13,6 +13,7 @@ interface HistoryPanelProps {
   setOpen: (open: boolean) => void;
 }
 
+//todo: fix long text exceeding width of history panel
 const HistoryPanel: React.FC<HistoryPanelProps> = ({
   history,
   onSelect,
