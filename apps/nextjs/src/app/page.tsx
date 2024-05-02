@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+import { Message } from "ai";
 import { useChat } from "ai/react";
 
 import { Separator } from "@acme/ui/separator";
@@ -17,12 +18,11 @@ const HOME_ENTRY: Page = {
   title: "home",
   prompt: "https://alternet.ai/home",
   fakeUrl: "https://alternet.ai/home",
-  content: "<html><body><h1>Welcome Home</h1></body></html>",
+  content: `<title>home</title><html><body><h1>Welcome Home</h1><link rel="canonical" href="https://alternet.ai/home"></body></html>`,
   cacheKey: HOME_KEY,
 };
 
 const ParentComponent = () => {
-  const cacheWaitingRef = useRef<string>("");
   const [isPortrait, setIsPortrait] = useState(false);
   const [pageCache, setPageCache] = useState<Record<string, Page>>({
     [HOME_KEY]: HOME_ENTRY,
@@ -31,13 +31,13 @@ const ParentComponent = () => {
   //const [siteMap, setSiteMap] = useState<Record<string, string>>({});
 
   const [navState, setNavState] = useState<NavigationState>({
-    currentIndex: -1,
-    history: [],
+    currentIndex: 0,
+    history: [HOME_KEY],
   });
 
   const [html, setHtml] = useState("");
-
   const [currentUrl, setCurrentUrl] = useState("");
+  const [title, setTitle] = useState("");
 
   const { append, isLoading, messages, setMessages } = useChat({
     initialMessages: [
@@ -50,16 +50,9 @@ const ParentComponent = () => {
     ],
 
     onFinish: (message) => {
-      setHtml(message.content);
-      if (cacheWaitingRef.current) {
-        setPageCache((prevCache) => ({
-          ...prevCache,
-          [cacheWaitingRef.current]: {
-            ...(prevCache[cacheWaitingRef.current] ?? ({} as Page)),
-            content: message.content,
-          },
-        }));
-      }
+      updateCurrentPage(message, true);
+      console.log(navState);
+      console.log(pageCache);
     },
 
     onError: (error) => {
@@ -94,6 +87,8 @@ const ParentComponent = () => {
 
     if (cachedPage) {
       setHtml(cachedPage.content);
+      setCurrentUrl(cachedPage.fakeUrl);
+      setTitle(cachedPage.title);
     } else {
       throw new Error("Cache key is not valid");
     }
@@ -102,29 +97,22 @@ const ParentComponent = () => {
       ...navState,
       currentIndex: index,
     });
-
   };
 
   const generatePage = (prompt: string) => {
     setHtml("");
-    
+
     void append({
       role: "user",
       content: prompt,
     });
 
-    const content = "";
-    const fakeUrl = "";
-
-    const title = "";
-    const cacheKey = crypto.randomUUID();
-
     const page: Page = {
-      title,
-      fakeUrl,
+      title: "Loading...",
+      fakeUrl: "Loading...",
       prompt,
-      content,
-      cacheKey,
+      content: "",
+      cacheKey: crypto.randomUUID(),
     };
 
     setPageCache({
@@ -132,9 +120,7 @@ const ParentComponent = () => {
       [page.cacheKey]: page,
     });
 
-    cacheWaitingRef.current = page.cacheKey;
     setNavState({
-      ...navState,
       currentIndex: navState.currentIndex + 1,
       history: [...navState.history, page.cacheKey],
     });
@@ -149,9 +135,7 @@ const ParentComponent = () => {
       const newIndex = navState.currentIndex - 1;
       const cacheKey = navState.history[newIndex];
       if (!cacheKey) {
-        throw new Error(
-          "Somehow the cache key is undefined when going back",
-        );
+        throw new Error("Somehow the cache key is undefined when going back");
       }
       getCachedPage(cacheKey, newIndex);
     }
@@ -208,19 +192,10 @@ const ParentComponent = () => {
       [HOME_KEY]: HOME_ENTRY,
     });
     setNavState({
-      ...navState,
       history: [HOME_KEY],
       currentIndex: 0,
     });
 
-    const content = pageCache[HOME_KEY]?.content;
-    const fakeUrl = pageCache[HOME_KEY]?.fakeUrl;
-    if (content === undefined || fakeUrl === undefined) {
-      throw new Error("The cache is empty during goHome??? how");
-    }
-
-    setCurrentUrl(fakeUrl);
-    setHtml(content);
     setMessages([
       { role: "user", content: HOME_ENTRY.prompt, id: "1" },
       {
@@ -235,6 +210,39 @@ const ParentComponent = () => {
     setShowHistory(!showHistory); // Toggle visibility of the history panel
   };
 
+  const updateCurrentPage = (message: Message, updateCache?: boolean) => {
+    setHtml(message.content);
+    const title =
+      "alternet: " + message.content.match(/<title>([^<]+)<\/title>/)?.[1] ??
+      "Loading...";
+    setTitle(title);
+    const url =
+      message.content.match(/<link rel="canonical" href="([^"]+)"/)?.[1] ??
+      "Loading...";
+    setCurrentUrl(url);
+
+    if (updateCache) {
+      const cacheKey = navState.history[navState.currentIndex];
+      if (!cacheKey) {
+        console.log("cache key", cacheKey);
+        console.log("navState", navState);
+        throw new Error(
+          "Cache key is not valid when writing new message: " + cacheKey,
+        );
+      }
+
+      setPageCache((prevCache) => ({
+        ...prevCache,
+        [cacheKey]: {
+          ...(prevCache[cacheKey] ?? ({} as Page)),
+          content: message.content,
+          fakeUrl: url,
+          title: title,
+        },
+      }));
+    }
+  };
+
   useEffect(() => {
     if (messages.length === 0) {
       return;
@@ -243,21 +251,13 @@ const ParentComponent = () => {
       .filter((message) => message.role === "assistant")
       .pop();
     if (lastMessage) {
-      setHtml(lastMessage.content);
+      updateCurrentPage(lastMessage);
     }
   }, [messages]);
 
-  const setTitle = (title: string) => {
-    const page = pageCache[cacheWaitingRef.current];
-    if (!page) {
-      throw new Error("Page not found while setting title");
-    }
-    setPageCache({
-      ...pageCache,
-      [page.cacheKey]: { ...page, title },
-    });
-    document.title = "alternet: " + title;
-  };
+  useEffect(() => {
+    document.title = title;
+  }, [title]);
 
   return (
     <div className="flex h-screen">
@@ -276,7 +276,7 @@ const ParentComponent = () => {
         <IframeContainer
           html={html}
           isLoading={isLoading}
-          setTitle={setTitle}
+          setTitle={() => {}}
         />
         <FloatingLogo src="alternet" isPortrait={isPortrait} />
         {isPortrait && (
