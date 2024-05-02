@@ -1,47 +1,35 @@
 import type { Message } from "ai";
-import React from "react";
+import React, { useEffect, useRef } from "react";
 
 interface IframeContainerProps {
-  html: string;
   messages: Message[];
-  isLoading: boolean;
 }
 
-const IframeContainer: React.FC<IframeContainerProps> = ({
-  html,
-  messages,
-  isLoading,
-}) => {
-  if (
-    isLoading &&
-    (messages.length == 0 || messages[messages.length - 1].role == "user")
-  ) {
-    return <div className="flex-1">Loading...</div>;
-  }
+const IframeContainer: React.FC<IframeContainerProps> = ({ messages }) => {
+  const iframeRef = useRef<HTMLIFrameElement>(null);
 
-  if (messages.length == 0 || messages[messages.length - 1].role == "user") {
-    return (
-      <div className="flex-1">
-        <iframe
-          srcDoc={html}
-          title="Browser Frame"
-          className="h-full w-full"
-        ></iframe>
-      </div>
-    );
-  }
+  useEffect(() => {
+    const lastMessage = messages
+      .filter((message) => message.role === "assistant")
+      .pop();
+    if (iframeRef.current && lastMessage) {
+      const iframeDocument = iframeRef.current.contentDocument ?? iframeRef.current.contentWindow?.document;
+      if (iframeDocument) {
+        // Append new content to the body of the iframe's document
+        iframeDocument.body.innerHTML = lastMessage.content;
+      }
+    }
+  }, [messages]); // Only update when messages changes
 
-  if (isLoading && messages[messages.length - 1].role == "assistant") {
-    return (
-      <div className="flex-1">
-        <iframe
-          srcDoc={messages[messages.length - 1].content}
-          title="Browser Frame"
-          className="h-full w-full"
-        ></iframe>
-      </div>
-    );
-  }
+  return (
+    <div className="flex-1">
+      <iframe
+        ref={iframeRef}
+        title="Browser Frame"
+        className="h-full w-full"
+      ></iframe>
+    </div>
+  );
 };
 
 export default IframeContainer;

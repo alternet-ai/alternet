@@ -1,7 +1,7 @@
 "use client";
 
 import type { CSSProperties } from "react";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useChat } from "ai/react";
 
 import { Separator } from "@acme/ui/separator";
@@ -16,6 +16,7 @@ import TopBar from "./_components/topbar";
 const HOMEKEY = "home";
 
 const ParentComponent = () => {
+  const cacheWaitingRef = useRef<string>("");
   const [isPortrait, setIsPortrait] = useState(() => {
     if (typeof window !== "undefined") {
       return window.innerWidth < window.innerHeight;
@@ -62,9 +63,26 @@ const ParentComponent = () => {
   });
 
   const { append, isLoading, messages, setMessages } = useChat({
+    initialMessages: [
+      { role: "user", content: homeEntry.prompt, id: "1" },
+      {
+        role: "assistant",
+        content: homeEntry.content,
+        id: "2",
+      },
+    ],
     onFinish: (message) => {
-      console.log("done, setting content to", message.content);
+      console.log("done, setting final content");
       setHtml(message.content);
+      if (cacheWaitingRef.current) {
+        setPageCache((prevCache) => ({
+          ...prevCache,
+          [cacheWaitingRef.current]: {
+            ...prevCache[cacheWaitingRef.current],
+            content: message.content,
+          },
+        }));
+      }
     },
   });
 
@@ -142,7 +160,10 @@ const ParentComponent = () => {
 
     setCurrentUrl(page.fakeUrl);
     if (page.content) {
+      console.log("setting cached page content");
       setHtml(page.content);
+    } else {
+      cacheWaitingRef.current = page.cacheKey;
     }
   };
 
@@ -217,7 +238,14 @@ const ParentComponent = () => {
 
     setCurrentUrl(fakeUrl);
     setHtml(content);
-    setMessages([]);
+    setMessages([
+      { role: "user", content: homeEntry.prompt, id: "1" },
+      {
+        role: "assistant",
+        content: homeEntry.content,
+        id: "2",
+      },
+    ]);
   };
 
   const openHistory = () => {
@@ -244,11 +272,7 @@ const ParentComponent = () => {
           onGoHome={goHome}
           onOpenHistory={openHistory}
         />
-        <IframeContainer
-          html={html}
-          messages={messages}
-          isLoading={isLoading}
-        />
+        <IframeContainer messages={messages} />
         <div style={logoToggleStyle}>
           <FloatingLogo src="alternet" />
         </div>
