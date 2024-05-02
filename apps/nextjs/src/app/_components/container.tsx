@@ -52,7 +52,6 @@ const IframeContainer: React.FC<IframeContainerProps> = ({
             html + `</style> <div style="${styleSection}">Loading...</div>`;
           //overlay loading
         } else if (isLoading || html.length === 0) {
-          console.log("setting loading", isLoading, html.length);
           iframeDocument.body.innerHTML =
             html +
             `<div style="${DEFAULT_STYLE} position: absolute; top: 0; left: 0;">Loading...</div>`;

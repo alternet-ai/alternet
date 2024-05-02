@@ -71,7 +71,7 @@ const ParentComponent = () => {
 
   //initial state
   useEffect(() => {
-    navigateTo(HOME_KEY);
+    getCachedPage(HOME_KEY, 0);
 
     const handleResize = () => {
       setIsPortrait(window.innerWidth < window.innerHeight);
@@ -89,18 +89,26 @@ const ParentComponent = () => {
     };
   }, []);
 
-  const getCachedPage = (cacheKey: string): Page => {
+  const getCachedPage = (cacheKey: string, index: number) => {
     const cachedPage = pageCache[cacheKey];
 
     if (cachedPage) {
-      return cachedPage;
+      setHtml(cachedPage.content);
     } else {
       throw new Error("Cache key is not valid");
     }
+
+    setNavState({
+      ...navState,
+      currentIndex: index,
+    });
+
   };
 
-  const generatePage = (prompt: string): Page => {
-    append({
+  const generatePage = (prompt: string) => {
+    setHtml("");
+    
+    void append({
       role: "user",
       content: prompt,
     });
@@ -124,49 +132,32 @@ const ParentComponent = () => {
       [page.cacheKey]: page,
     });
 
-    return page;
-  };
-
-  const navigateTo = async (
-    cacheKey?: string,
-    prompt?: string,
-    index?: number,
-  ) => {
-    setHtml("");
-    let page: Page;
-    if (cacheKey) {
-      page = getCachedPage(cacheKey);
-      setHtml(page.content);
-    } else if (prompt) {
-      page = generatePage(prompt);
-      cacheWaitingRef.current = page.cacheKey;
-    } else {
-      throw new Error("prompt or cacheKey is required");
-    }
-
+    cacheWaitingRef.current = page.cacheKey;
     setNavState({
       ...navState,
-      currentIndex: index ?? navState.currentIndex + 1,
-      history:
-        index !== undefined
-          ? navState.history
-          : [...navState.history, page.cacheKey],
+      currentIndex: navState.currentIndex + 1,
+      history: [...navState.history, page.cacheKey],
     });
   };
 
-  const goToNewPage = async (prompt?: string) => {
-    await navigateTo(undefined, prompt);
+  const goToNewPage = (prompt: string) => {
+    generatePage(prompt);
   };
 
-  const goBack = async () => {
+  const goBack = () => {
     if (navState.currentIndex > 0) {
       const newIndex = navState.currentIndex - 1;
       const cacheKey = navState.history[newIndex];
-      await navigateTo(cacheKey, undefined, newIndex);
+      if (!cacheKey) {
+        throw new Error(
+          "Somehow the cache key is undefined when going back",
+        );
+      }
+      getCachedPage(cacheKey, newIndex);
     }
   };
 
-  const handleSelectHistoryItem = async (index: number) => {
+  const handleSelectHistoryItem = (index: number) => {
     const cacheKey = navState.history[index];
     if (!cacheKey) {
       throw new Error(
@@ -174,23 +165,28 @@ const ParentComponent = () => {
       );
     }
 
-    await navigateTo(cacheKey, undefined, index);
+    getCachedPage(cacheKey, index);
   };
 
-  const goForward = async () => {
+  const goForward = () => {
     if (navState.currentIndex < navState.history.length - 1) {
       const newIndex = navState.currentIndex + 1;
       const cacheKey = navState.history[newIndex];
-      await navigateTo(cacheKey, undefined, newIndex);
+      if (!cacheKey) {
+        throw new Error(
+          "Somehow the cache key is undefined when going forward",
+        );
+      }
+      getCachedPage(cacheKey, newIndex);
     }
   };
 
-  const refresh = async () => {
+  const refresh = () => {
     const cacheKey = navState.history[navState.currentIndex] ?? "";
     const page = pageCache[cacheKey];
     const prompt = page?.prompt;
     if (prompt !== undefined) {
-      await goToNewPage(prompt);
+      goToNewPage(prompt);
     } else {
       throw new Error("Current page prompt undefined while refreshing");
     }
