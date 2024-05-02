@@ -6,15 +6,17 @@ import { defaultPrompt } from "~/app/static/prompts";
 
 interface MessageRequest {
   messages: CoreMessage[];
+  lastIndex: number;
 }
 
 export async function POST(req: Request) {
-  const { messages } = (await req.json()) as MessageRequest;
-  const truncatedMessages = messages.slice(-3, messages.length);
+  const { messages, lastIndex } = (await req.json()) as MessageRequest;
+  const startIndex = lastIndex*2;
+  const truncatedMessages = messages.slice(startIndex, startIndex+3);
 
   // Call the language model
   const result = await streamText({
-    model: anthropic("claude-3-sonnet-20240229"),
+    model: anthropic("claude-3-haiku-20240307"),
     system: defaultPrompt,
     messages: truncatedMessages,
     temperature: 1,

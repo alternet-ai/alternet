@@ -98,7 +98,7 @@ const ParentComponent = () => {
     void append({
       role: "user",
       content: prompt,
-    });
+    }, {options: {body: {lastIndex: navState.current.currentIndex}} });
 
     const page: Page = {
       title: "Loading...",
