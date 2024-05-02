@@ -16,7 +16,7 @@ const IframeContainer: React.FC<IframeContainerProps> = ({
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   useEffect(() => {
-    if (iframeRef.current && html) {
+    if (iframeRef.current) {
       const iframeDocument =
         iframeRef.current.contentDocument ??
         iframeRef.current.contentWindow?.document;
@@ -28,17 +28,22 @@ const IframeContainer: React.FC<IframeContainerProps> = ({
           !html.includes("</style>")
         ) {
           //extract the last style tag section
-          const styleSection = DEFAULT_STYLE + html.substring(html.lastIndexOf("{") + 1);
+          const styleSection =
+            DEFAULT_STYLE + html.substring(html.lastIndexOf("{") + 1);
           //apply style to Loading div and write to innerHtml
-          iframeDocument.body.innerHTML = html + `</style> <div style="${styleSection}">Loading...</div>`;
-        } else if (isLoading && !html) {
-          iframeDocument.body.innerHTML = `<div style="${DEFAULT_STYLE}">Loading...</div>`;
+          iframeDocument.body.innerHTML =
+            html + `</style> <div style="${styleSection}">Loading...</div>`;
+          //overlay loading
+        } else if (isLoading) {
+          iframeDocument.body.innerHTML =
+            html +
+            `<div style="${DEFAULT_STYLE} position: absolute; bottom: 0; left: 0;">Loading...</div>`;
         } else {
           iframeDocument.body.innerHTML = html;
         }
       }
     }
-  }, [html]); // Only update when messages changes
+  }, [html, isLoading]); // Only update when messages or isLoading changes
 
   return (
     <div className="flex-1">
