@@ -21,28 +21,7 @@ const IframeContainer: React.FC<IframeContainerProps> = ({
   onNavigate,
 }) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  // Inject script only once when the iframe is ready
-  useEffect(() => {
-    if (iframeRef.current) {
-      const iframeDocument =
-        iframeRef.current.contentDocument ??
-        iframeRef.current.contentWindow?.document;
-      if (iframeDocument) {
-        const script = iframeDocument.createElement('script');
-        script.innerHTML = `
-          document.body.addEventListener('click', function(event) {
-            const target = event.target.closest('a');
-            if (target) {
-              event.preventDefault();
-              window.parent.postMessage({ type: 'navigate', url: target.href }, '*');
-            }
-          });
-        `;
-        iframeDocument.body.appendChild(script);
-      }
-    }
-  }, []); // Empty dependency array ensures this runs only once
-
+  const scriptAddedRef = useRef(false); // Ref to track if the script has been added
 
   useEffect(() => {
     if (iframeRef.current) {
@@ -50,6 +29,22 @@ const IframeContainer: React.FC<IframeContainerProps> = ({
         iframeRef.current.contentDocument ??
         iframeRef.current.contentWindow?.document;
       if (iframeDocument) {
+        if (!scriptAddedRef.current) {
+          // Create and append the script element only if it hasn't been added before
+          const script = iframeDocument.createElement("script");
+          script.textContent = `
+            document.body.addEventListener('click', function(event) {
+              const target = event.target.closest('a');
+              if (target) {
+                event.preventDefault();
+                window.parent.postMessage({ type: 'navigate', url: target.href }, '*');
+              }
+            });
+          `;
+          iframeDocument.body.appendChild(script);
+          scriptAddedRef.current = true; // Mark as script added
+          console.log('added script')
+        }
         //if we're in the style tag, modify the loading div
         if (
           isLoading &&
@@ -77,14 +72,14 @@ const IframeContainer: React.FC<IframeContainerProps> = ({
   // Listen to messages from the iframe
   useEffect(() => {
     const handleMessage = (event: MessageEvent<MessageEventData>) => {
-      if (event.data.type === 'navigate') {
+      if (event.data.type === "navigate") {
         onNavigate(event.data.url);
       }
     };
 
-    window.addEventListener('message', handleMessage);
+    window.addEventListener("message", handleMessage);
     return () => {
-      window.removeEventListener('message', handleMessage);
+      window.removeEventListener("message", handleMessage);
     };
   }, [onNavigate]);
 

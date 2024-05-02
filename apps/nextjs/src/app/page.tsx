@@ -127,6 +127,7 @@ const ParentComponent = () => {
       navState.current.history[navState.current.currentIndex] ?? "";
     const page = pageCache.current[cacheKey];
     const prompt = page?.prompt;
+    navState.current.currentIndex -= 1; //adjust to prompt from prior page
     if (prompt !== undefined) {
       generatePage(prompt);
     } else {
@@ -221,7 +222,6 @@ const ParentComponent = () => {
           throw new Error("Could not find prompt for final URL???");
         }
         const prompt = currentPage.prompt;
-        console.log("prompt", prompt);
 
         finalUrl = prompt;
         setCurrentUrl(finalUrl);
@@ -234,8 +234,6 @@ const ParentComponent = () => {
 
       const cacheKey = navState.current.history[navState.current.currentIndex];
       if (!cacheKey) {
-        console.log("cache key", cacheKey);
-        console.log("navState", navState.current);
         throw new Error(
           "Cache key is not valid when writing new message: " + cacheKey,
         );
@@ -284,7 +282,11 @@ const ParentComponent = () => {
           onGoHome={goHome}
           onOpenHistory={openHistory}
         />
-        <IframeContainer html={html} isLoading={isLoading} onNavigate={generatePage} />
+        <IframeContainer
+          html={html}
+          isLoading={isLoading}
+          onNavigate={generatePage}
+        />
         <FloatingLogo src="alternet" isPortrait={isPortrait} />
         {isPortrait && (
           <BottomBar
