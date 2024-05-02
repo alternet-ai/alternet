@@ -51,8 +51,6 @@ const ParentComponent = () => {
 
     onFinish: (message) => {
       updateCurrentPage(message, true);
-      console.log(navState.current);
-      console.log(pageCache.current);
     },
 
     onError: (error) => {
@@ -64,7 +62,7 @@ const ParentComponent = () => {
 
   //initial state
   useEffect(() => {
-    getCachedPage(HOME_KEY, 0);
+    getCachedPage(HOME_KEY);
 
     const handleResize = () => {
       setIsPortrait(window.innerWidth < window.innerHeight);
@@ -82,22 +80,16 @@ const ParentComponent = () => {
     };
   }, []);
 
-  const getCachedPage = (cacheKey: string, index: number) => {
+  const getCachedPage = (cacheKey: string) => {
     const cachedPage = pageCache.current[cacheKey];
 
     if (cachedPage) {
       setHtml(cachedPage.content);
       setCurrentUrl(cachedPage.fakeUrl);
       setTitle(cachedPage.title);
-      console.log("cache hit", cachedPage);
     } else {
       throw new Error("Cache key is not valid");
     }
-
-    navState.current = {
-      ...navState.current,
-      currentIndex: index,
-    };
   };
 
   const generatePage = (prompt: string) => {
@@ -122,44 +114,9 @@ const ParentComponent = () => {
     };
 
     navState.current = {
-      currentIndex: navState.current.currentIndex + 1,
+      currentIndex: navState.current.history.length,
       history: [...navState.current.history, page.cacheKey],
     };
-  };
-
-  const goBack = () => {
-    if (navState.current.currentIndex > 0) {
-      const newIndex = navState.current.currentIndex - 1;
-      const cacheKey = navState.current.history[newIndex];
-      if (!cacheKey) {
-        throw new Error("Somehow the cache key is undefined when going back");
-      }
-      getCachedPage(cacheKey, newIndex);
-    }
-  };
-
-  const handleSelectHistoryItem = (index: number) => {
-    const cacheKey = navState.current.history[index];
-    if (!cacheKey) {
-      throw new Error(
-        "Somehow the cache key is undefined when selecting from history",
-      );
-    }
-
-    getCachedPage(cacheKey, index);
-  };
-
-  const goForward = () => {
-    if (navState.current.currentIndex < navState.current.history.length - 1) {
-      const newIndex = navState.current.currentIndex + 1;
-      const cacheKey = navState.current.history[newIndex];
-      if (!cacheKey) {
-        throw new Error(
-          "Somehow the cache key is undefined when going forward",
-        );
-      }
-      getCachedPage(cacheKey, newIndex);
-    }
   };
 
   const refresh = () => {
@@ -172,6 +129,36 @@ const ParentComponent = () => {
     } else {
       throw new Error("Current page prompt undefined while refreshing");
     }
+  };
+
+  const goBack = () => {
+    if (navState.current.currentIndex > 0) {
+      const newIndex = navState.current.currentIndex - 1;
+      handleSelectHistoryItem(newIndex);
+    }
+  };
+
+  const goForward = () => {
+    if (navState.current.currentIndex < navState.current.history.length - 1) {
+      const newIndex = navState.current.currentIndex + 1;
+      handleSelectHistoryItem(newIndex);
+    }
+  };
+
+  const handleSelectHistoryItem = (index: number) => {
+    const cacheKey = navState.current.history[index];
+    if (!cacheKey) {
+      throw new Error(
+        "Somehow the cache key is undefined when moving in the history",
+      );
+    }
+
+    getCachedPage(cacheKey);
+
+    navState.current = {
+      ...navState.current,
+      currentIndex: index,
+    };
   };
 
   const addBookmark = () => {
@@ -208,8 +195,8 @@ const ParentComponent = () => {
   const updateCurrentPage = (message: Message, updateCache?: boolean) => {
     setHtml(message.content);
     const title =
-      "alternet: " + (message.content.match(/<title>([^<]+)<\/title>/)?.[1] ??
-      "Loading...");
+      "alternet: " +
+      (message.content.match(/<title>([^<]+)<\/title>/)?.[1] ?? "Loading...");
     setTitle(title);
     const url =
       message.content.match(/<link rel="canonical" href="([^"]+)"/)?.[1] ??
@@ -268,10 +255,7 @@ const ParentComponent = () => {
           onGoHome={goHome}
           onOpenHistory={openHistory}
         />
-        <IframeContainer
-          html={html}
-          isLoading={isLoading}
-        />
+        <IframeContainer html={html} isLoading={isLoading} />
         <FloatingLogo src="alternet" isPortrait={isPortrait} />
         {isPortrait && (
           <BottomBar
