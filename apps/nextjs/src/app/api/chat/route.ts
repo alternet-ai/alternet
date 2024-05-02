@@ -2,7 +2,7 @@ import type { CoreMessage } from "ai";
 import { anthropic } from "@ai-sdk/anthropic";
 import { StreamingTextResponse, streamText } from "ai";
 
-import { defaultPrompt } from "~/app/static/prompts";
+import { DEFAULT_PROMPT } from "~/app/static/prompts";
 
 interface MessageRequest {
   messages: CoreMessage[];
@@ -17,7 +17,7 @@ export async function POST(req: Request) {
   // Call the language model
   const result = await streamText({
     model: anthropic("claude-3-sonnet-20240229"),
-    system: defaultPrompt,
+    system: DEFAULT_PROMPT,
     messages: truncatedMessages,
     temperature: 1,
   });

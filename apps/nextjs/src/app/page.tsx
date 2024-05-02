@@ -12,13 +12,14 @@ import IframeContainer from "./_components/container";
 import HistoryPanel from "./_components/history";
 import FloatingLogo from "./_components/logo";
 import TopBar from "./_components/topbar";
+import { HOME_HTML } from "./static/home-html";
 
 const HOME_KEY = "home";
 const HOME_ENTRY: Page = {
   title: "alternet: home",
   prompt: "https://alternet.ai/home",
   fakeUrl: "https://alternet.ai/home",
-  content: `<title>home</title><html><body><h1>Welcome Home</h1><link rel="canonical" href="https://alternet.ai/home"></body></html>`,
+  content: HOME_HTML,
   cacheKey: HOME_KEY,
 };
 
