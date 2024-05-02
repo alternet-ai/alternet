@@ -1,6 +1,5 @@
 "use client";
 
-import type { CSSProperties } from "react";
 import React, { useEffect, useRef, useState } from "react";
 import { useChat } from "ai/react";
 
@@ -78,7 +77,7 @@ const ParentComponent = () => {
         setPageCache((prevCache) => ({
           ...prevCache,
           [cacheWaitingRef.current]: {
-            ...(prevCache[cacheWaitingRef.current] ?? {} as Page),
+            ...(prevCache[cacheWaitingRef.current] ?? ({} as Page)),
             content: message.content,
           },
         }));
@@ -147,6 +146,8 @@ const ParentComponent = () => {
     prompt?: string,
     index?: number,
   ) => {
+    setHtml("");
+    console.log("set html to empty");
     const page = await getPage(prompt, cacheKey);
 
     setNavState({
@@ -252,11 +253,15 @@ const ParentComponent = () => {
     setShowHistory(!showHistory); // Toggle visibility of the history panel
   };
 
-  const logoToggleStyle: CSSProperties = {
-    position: "absolute",
-    bottom: isPortrait ? "4rem" : "0.5rem",
-    right: "1rem",
-  };
+  useEffect(() => {
+    const lastMessage = messages
+      .filter((message) => message.role === "assistant")
+      .pop();
+    if (lastMessage) {
+      setHtml(lastMessage.content);
+    }
+    console.log("No assistant message found");
+  }, [messages]);
 
   return (
     <div className="flex h-screen">
@@ -272,10 +277,8 @@ const ParentComponent = () => {
           onGoHome={goHome}
           onOpenHistory={openHistory}
         />
-        <IframeContainer messages={messages} />
-        <div style={logoToggleStyle}>
-          <FloatingLogo src="alternet" />
-        </div>
+        <IframeContainer html={html} isLoading={isLoading} />
+        <FloatingLogo src="alternet" isPortrait={isPortrait} />
         {isPortrait && (
           <BottomBar
             onBack={goBack}
