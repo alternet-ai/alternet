@@ -3,6 +3,7 @@ export interface Page {
   fakeUrl: string;
   prompt: string;
   content: string;
+  cacheKey: string;
 }
 
 export interface NavigationState {

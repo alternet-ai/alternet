@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Bookmark,
   ChevronLeft,
@@ -12,6 +12,7 @@ import { Button } from "@acme/ui/button";
 import { Input } from "@acme/ui/input";
 
 interface TopBarProps {
+  currentUrl: string;
   onAddressEntered: (address: string) => void;
   onBack: () => void;
   onForward: () => void;
@@ -22,6 +23,7 @@ interface TopBarProps {
 }
 
 const TopBar: React.FC<TopBarProps> = ({
+  currentUrl,
   onAddressEntered,
   onBack,
   onForward,
@@ -30,7 +32,11 @@ const TopBar: React.FC<TopBarProps> = ({
   onGoHome,
   onOpenHistory,
 }) => {
-  const [address, setAddress] = useState("");
+  const [address, setAddress] = useState(currentUrl);
+
+  useEffect(() => {
+    setAddress(currentUrl);
+}, [currentUrl]);
 
   const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setAddress(e.target.value);

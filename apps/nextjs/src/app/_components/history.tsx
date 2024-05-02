@@ -33,7 +33,7 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
   };
 
   return (
-    <div className="h-full w-[400px] sm:w-[540px]">
+    <div className="h-full w-[300px] sm:w-[400px]">
       <div className="flex items-center justify-between border-b bg-background p-2">
         <h1 className="text-lg font-semibold">History</h1>
         <Button onClick={() => setOpen(false)} variant="ghost" className="p-1">

@@ -15,13 +15,16 @@ const HOMEKEY = "home";
 const ParentComponent = () => {
   const homeEntry: Page = {
     title: "Home",
-    prompt: "home",
+    prompt: "https://alternet.ai/home",
     fakeUrl: "https://alternet.ai/home",
     content: "<html><body><h1>Welcome Home</h1></body></html>",
+    cacheKey: HOMEKEY,
   };
   const [pageCache, setPageCache] = useState<Record<string, Page>>({
     [HOMEKEY]: homeEntry,
   });
+
+  //const [siteMap, setSiteMap] = useState<Record<string, string>>({});
 
   const [navState, setNavState] = useState<NavigationState>({
     currentIndex: 0,
@@ -30,12 +33,22 @@ const ParentComponent = () => {
   });
 
   const [html, setHtml] = useState(() => {
-    const content = pageCache[homeEntry.fakeUrl]?.content;
+    const content = pageCache[HOMEKEY]?.content;
     if (content === undefined) {
-      throw new Error("Content is undefined.");
+      throw new Error("The cache is empty during init??? how");
     }
 
     return content;
+  });
+
+  const [currentUrl, setCurrentUrl] = useState(() => {
+      const cacheKey = navState.history[navState.currentIndex] ?? "";
+      const page = pageCache[cacheKey];
+      const fakeUrl = page?.fakeUrl;
+      if (!fakeUrl) {
+        throw new Error("Fake url is undefined");
+      }
+      return fakeUrl;
   });
 
   const [showHistory, setShowHistory] = useState(false);
@@ -47,6 +60,8 @@ const ParentComponent = () => {
       if (cachedPage) {
         return cachedPage;
       }
+    } else if (cacheKey) {
+      throw new Error("Cache key is not valid");
     }
 
     if (!prompt) {
@@ -58,121 +73,123 @@ const ParentComponent = () => {
     const fakeUrl = "https://url.fake/" + prompt.replace(" ", "_");
 
     const title = "title for " + prompt;
+    cacheKey = crypto.randomUUID();
 
-    const newPage = {
+    const page = {
       title,
       fakeUrl,
       prompt,
       content,
+      cacheKey,
     };
 
-    return newPage;
+    setPageCache({
+      ...pageCache,
+      [cacheKey]: page,
+    });
+
+    return page;
   };
 
   const updateHtmlAndHistory = async (
-    index: number,
     cacheKey?: string,
     prompt?: string,
-    history?: string[],
+    index?: number,
   ) => {
-    const newHistory = history ?? navState.history;
     const page = await getPage(prompt, cacheKey);
-    if (!cacheKey) {
-      cacheKey = crypto.randomUUID();
-      setPageCache({
-        ...pageCache,
-        [cacheKey]: page,
-      });
-
-      newHistory.push(cacheKey);
-    }
 
     setNavState({
       ...navState,
-      currentIndex: index,
-      history: newHistory,
+      currentIndex: index ?? navState.currentIndex + 1,
+      history: index !== undefined ? navState.history : [...navState.history, page.cacheKey],
     });
 
+    setCurrentUrl(page.fakeUrl);
     setHtml(page.content);
   };
 
   const navigateTo = async (prompt?: string) => {
-    const newHistory = [...navState.history];
-    //slice off the rest of the history if we're not at the end
-    if (navState.currentIndex + 1 < newHistory.length) {
-      newHistory.splice(navState.currentIndex + 1);
-    }
-
-    await updateHtmlAndHistory(
-      newHistory.length - 1,
-      undefined,
-      prompt,
-      newHistory,
-    );
+    await updateHtmlAndHistory(undefined, prompt);
   };
 
   const goBack = async () => {
     if (navState.currentIndex > 0) {
       const newIndex = navState.currentIndex - 1;
-
-      await updateHtmlAndHistory(newIndex);
+      const cacheKey = navState.history[newIndex];
+      await updateHtmlAndHistory(cacheKey, undefined, newIndex);
     }
+  };
+
+  const handleSelectHistoryItem = async (index: number) => {
+    const cacheKey = navState.history[index];
+    if (!cacheKey) {
+      throw new Error(
+        "Somehow the cache key is undefined when selecting from history",
+      );
+    }
+
+    await updateHtmlAndHistory(cacheKey, undefined, index);
   };
 
   const goForward = async () => {
     if (navState.currentIndex < navState.history.length - 1) {
       const newIndex = navState.currentIndex + 1;
-      const prompt = navState.history[newIndex]?.prompt;
-      if (!prompt) return;
-
-      await updateHtmlAndHistory(prompt, newIndex);
+      const cacheKey = navState.history[newIndex];
+      await updateHtmlAndHistory(cacheKey, undefined, newIndex);
     }
   };
 
   const refresh = async () => {
-    const currentPage = navState.history[navState.currentIndex];
-    if (currentPage !== undefined) {
-      await navigateTo(currentPage.prompt, true);
+    const cacheKey = navState.history[navState.currentIndex] ?? "";
+    const page = pageCache[cacheKey];
+    const prompt = page?.prompt;
+    if (prompt !== undefined) {
+      await navigateTo(prompt);
+    } else {
+      throw new Error("Current page prompt undefined while refreshing");
     }
   };
 
   const addBookmark = () => {
-    const currentPage = navState.history[navState.currentIndex];
-    if (
-      currentPage !== undefined &&
-      !navState.bookmarks.includes(currentPage.prompt)
-    ) {
+    const cacheKey = navState.history[navState.currentIndex];
+    if (cacheKey !== undefined && !navState.bookmarks.includes(cacheKey)) {
       setNavState({
         ...navState,
-        bookmarks: [...navState.bookmarks, currentPage.prompt],
+        bookmarks: [...navState.bookmarks, cacheKey],
       });
       // Optionally, save bookmarks to a backend or local storage
     }
   };
 
-  const goHome = async () => {
-    const newHistory = [homeEntry];
+  const goHome = () => {
     setPageCache({
-      home: [homeEntry],
+      [HOMEKEY]: homeEntry,
     });
-    await updateHtmlAndHistory(homeEntry.prompt, 0, newHistory);
+    setNavState({
+      ...navState,
+      history: [HOMEKEY],
+      currentIndex: 0,
+    });
+
+    const content = pageCache[HOMEKEY]?.content;
+    const fakeUrl = pageCache[HOMEKEY]?.fakeUrl;
+    if (content === undefined || fakeUrl === undefined) {
+      throw new Error("The cache is empty during goHome??? how");
+    }
+
+    setCurrentUrl(fakeUrl);
+    setHtml(content);
   };
 
   const openHistory = () => {
     setShowHistory(!showHistory); // Toggle visibility of the history panel
   };
 
-  const handleSelectHistoryItem = async (index: number) => {
-    const prompt = navState.history[index]?.prompt;
-    if (!prompt) return;
-
-    await updateHtmlAndHistory(prompt, index);
-  };
-
   return (
     <div className="flex h-screen">
       <div className="flex flex-1 flex-col">
         <TopBar
+          currentUrl={currentUrl}
           onAddressEntered={navigateTo}
           onBack={goBack}
           onForward={goForward}
@@ -188,7 +205,11 @@ const ParentComponent = () => {
         <>
           <Separator orientation="vertical" className="h-full" />
           <HistoryPanel
-            history={navState.history}
+            history={
+              navState.history
+                .map((cacheKey) => pageCache[cacheKey])
+                .filter((page) => page !== undefined) as Page[]
+            }
             onSelect={handleSelectHistoryItem}
             setOpen={setShowHistory}
           />
