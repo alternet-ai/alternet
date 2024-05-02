@@ -40,6 +40,16 @@ const IframeContainer: React.FC<IframeContainerProps> = ({
                 window.parent.postMessage({ type: 'navigate', url: target.href }, '*');
               }
             });
+            document.body.addEventListener('submit', function(event) {
+              const form = event.target.closest('form');
+              if (form) {
+                event.preventDefault();
+                const formData = new FormData(form);
+                const actionUrl = form.action;
+                const searchParams = new URLSearchParams(formData).toString();
+                window.parent.postMessage({ type: 'navigate', url: actionUrl + '?' + searchParams }, '*');
+              }
+            }, true); // Use capture phase to ensure the handler runs before any other submit handlers
           `;
           iframeDocument.body.appendChild(script);
           scriptAddedRef.current = true; // Mark as script added
