@@ -274,6 +274,7 @@ const ParentComponent = () => {
       <div className="flex flex-1 flex-col">
         <TopBar
           isPortrait={isPortrait}
+          disabled={isLoading}
           currentUrl={currentUrl}
           onAddressEntered={generatePage}
           onBack={goBack}
@@ -283,10 +284,11 @@ const ParentComponent = () => {
           onGoHome={goHome}
           onOpenHistory={openHistory}
         />
-        <IframeContainer html={html} isLoading={isLoading} />
+        <IframeContainer html={html} isLoading={isLoading} onNavigate={generatePage} />
         <FloatingLogo src="alternet" isPortrait={isPortrait} />
         {isPortrait && (
           <BottomBar
+            disabled={isLoading}
             onBack={goBack}
             onForward={goForward}
             onRefresh={refresh}
@@ -307,6 +309,7 @@ const ParentComponent = () => {
             }
             onSelect={handleSelectHistoryItem}
             setOpen={setShowHistory}
+            disabled={isLoading}
           />
         </>
       )}

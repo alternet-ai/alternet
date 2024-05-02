@@ -3,6 +3,12 @@ import React, { useEffect, useRef } from "react";
 interface IframeContainerProps {
   html: string;
   isLoading: boolean;
+  onNavigate: (url: string) => void; // Function to handle navigation
+}
+
+interface MessageEventData {
+  type: string;
+  url: string;
 }
 
 const DEFAULT_STYLE = `font-family: var(--font-geist-sans), 'ui-sans-serif', 'system-ui', 'sans-serif', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
@@ -12,6 +18,7 @@ const DEFAULT_STYLE = `font-family: var(--font-geist-sans), 'ui-sans-serif', 'sy
 const IframeContainer: React.FC<IframeContainerProps> = ({
   html,
   isLoading,
+  onNavigate,
 }) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
@@ -21,6 +28,18 @@ const IframeContainer: React.FC<IframeContainerProps> = ({
         iframeRef.current.contentDocument ??
         iframeRef.current.contentWindow?.document;
       if (iframeDocument) {
+        // Inject script to intercept link clicks
+        const script = iframeDocument.createElement("script");
+        script.innerHTML = `
+                  document.body.addEventListener('click', function(event) {
+                    const target = event.target.closest('a');
+                    if (target) {
+                      event.preventDefault();
+                      window.parent.postMessage({ type: 'navigate', url: target.href }, '*');
+                    }
+                  });
+                `;
+        iframeDocument.body.appendChild(script);
         //if we're in the style tag, modify the loading div
         if (
           isLoading &&
@@ -44,6 +63,20 @@ const IframeContainer: React.FC<IframeContainerProps> = ({
       }
     }
   }, [html, isLoading]); // Only update when messages or isLoading changes
+
+  // Listen to messages from the iframe
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent<MessageEventData>) => {
+      if (event.data.type === 'navigate') {
+        onNavigate(event.data.url);
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    return () => {
+      window.removeEventListener('message', handleMessage);
+    };
+  }, [onNavigate]);
 
   return (
     <div className="flex-1">

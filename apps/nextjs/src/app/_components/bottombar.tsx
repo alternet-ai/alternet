@@ -18,6 +18,7 @@ interface BottomBarProps {
   onBookmark: () => void;
   onGoHome: () => void;
   onOpenHistory: () => void;
+  disabled: boolean;
 }
 
 const BottomBar: React.FC<BottomBarProps> = ({
@@ -27,29 +28,30 @@ const BottomBar: React.FC<BottomBarProps> = ({
   onBookmark,
   onGoHome,
   onOpenHistory,
+  disabled,
 }) => {
   return (
     <div className="flex items-center justify-between border-b bg-background p-2">
       <div className="flex space-x-2">
-        <Button variant="ghost" onClick={onBack}>
+      <Button variant="ghost" onClick={onBack} disabled={disabled}>
           <ChevronLeft />
         </Button>
-        <Button variant="ghost" onClick={onForward}>
+        <Button variant="ghost" onClick={onForward} disabled={disabled}>
           <ChevronRight />
         </Button>
-        <Button variant="ghost" onClick={onRefresh}>
+        <Button variant="ghost" onClick={onRefresh} disabled={disabled}>
           <RotateCw />
         </Button>
-        <Button variant="ghost" onClick={onGoHome}>
+        <Button variant="ghost" onClick={onGoHome} disabled={disabled}>
           <Home />
         </Button>
-        <Button variant="ghost" onClick={onBookmark}>
+        <ThemeToggle />
+        <Button variant="ghost" onClick={onBookmark} disabled={disabled}>
           <Bookmark />
         </Button>
-        <Button variant="ghost" onClick={onOpenHistory}>
+        <Button variant="ghost" onClick={onOpenHistory} >
           <Clock />
         </Button>
-        <ThemeToggle />
       </div>
     </div>
   );

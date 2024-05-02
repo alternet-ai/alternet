@@ -11,6 +11,7 @@ interface HistoryPanelProps {
   history: Page[];
   onSelect: (index: number) => void;
   setOpen: (open: boolean) => void;
+  disabled: boolean;
 }
 
 //todo: fix long text exceeding width of history panel
@@ -18,6 +19,7 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
   history,
   onSelect,
   setOpen,
+  disabled,
 }) => {
   const [expandedIndex, setExpandedIndex] = React.useState<number | null>(null);
 
@@ -49,10 +51,16 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
               variant="ghost"
               className="w-full"
               onClick={() => onSelect(index)}
+              disabled={disabled} // Disable interaction with history entries
             >
               {entry.title}
               <div
-                onClick={(e) => toggleExpand(e, index)}
+                onClick={(e) => {
+                  e.stopPropagation(); // Prevent onSelect from being triggered when expanding
+                  if (!disabled) { // Check if not disabled before toggling
+                    toggleExpand(e, index);
+                  }
+                }}
                 className="inline-block"
               >
                 {expandedIndex === index ? <ChevronUp /> : <ChevronDown />}

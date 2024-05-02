@@ -11,8 +11,8 @@ interface MessageRequest {
 
 export async function POST(req: Request) {
   const { messages, lastIndex } = (await req.json()) as MessageRequest;
-  const startIndex = lastIndex*2;
-  const truncatedMessages = messages.slice(startIndex, startIndex+3);
+  const startIndex = lastIndex * 2;
+  const truncatedMessages = messages.slice(startIndex, startIndex + 3);
 
   // Call the language model
   const result = await streamText({

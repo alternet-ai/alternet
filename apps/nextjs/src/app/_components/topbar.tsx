@@ -22,6 +22,7 @@ interface TopBarProps {
   onBookmark: () => void;
   onGoHome: () => void;
   onOpenHistory: () => void;
+  disabled: boolean;
 }
 
 const TopBar: React.FC<TopBarProps> = ({
@@ -34,6 +35,7 @@ const TopBar: React.FC<TopBarProps> = ({
   onBookmark,
   onGoHome,
   onOpenHistory,
+  disabled,
 }) => {
   const [address, setAddress] = useState('');
 
@@ -69,16 +71,16 @@ const TopBar: React.FC<TopBarProps> = ({
   return (
     <div className="flex items-center justify-between border-b bg-background p-2">
       <div className="flex space-x-2">
-        <Button variant="ghost" onClick={onBack}>
+        <Button variant="ghost" onClick={onBack} disabled={disabled}>
           <ChevronLeft />
         </Button>
-        <Button variant="ghost" onClick={onForward}>
+        <Button variant="ghost" onClick={onForward} disabled={disabled}>
           <ChevronRight />
         </Button>
-        <Button variant="ghost" onClick={onRefresh}>
+        <Button variant="ghost" onClick={onRefresh} disabled={disabled}>
           <RotateCw />
         </Button>
-        <Button variant="ghost" onClick={onGoHome}>
+        <Button variant="ghost" onClick={onGoHome} disabled={disabled}>
           <Home />
         </Button>
       </div>
@@ -89,14 +91,15 @@ const TopBar: React.FC<TopBarProps> = ({
           className="mx-4 flex-1"
           value={address}
           onChange={handleAddressChange}
+          disabled={disabled} // Disable the input field
         />
       </form>
       <div className="flex space-x-2">
         <ThemeToggle />
-        <Button variant="ghost" onClick={onBookmark}>
+        <Button variant="ghost" onClick={onBookmark} >
           <Bookmark />
         </Button>
-        <Button variant="ghost" onClick={onOpenHistory}>
+        <Button variant="ghost" onClick={onOpenHistory} >
           <Clock />
         </Button>
       </div>
