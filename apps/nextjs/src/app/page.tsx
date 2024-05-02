@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
 import type { CSSProperties } from "react";
+import React, { useEffect, useState } from "react";
 
 import { Separator } from "@acme/ui/separator";
 
@@ -15,9 +15,12 @@ import TopBar from "./_components/topbar";
 const HOMEKEY = "home";
 
 const ParentComponent = () => {
-  const [isPortrait, setIsPortrait] = useState(
-    window.innerWidth < window.innerHeight,
-  );
+  const [isPortrait, setIsPortrait] = useState(() => {
+    if (typeof window !== "undefined") {
+      return window.innerWidth < window.innerHeight;
+    }
+    return false;
+  });
 
   const homeEntry: Page = {
     title: "Home",
@@ -60,17 +63,19 @@ const ParentComponent = () => {
   const [showHistory, setShowHistory] = useState(false);
 
   useEffect(() => {
-    const handleResize = () => {
-      setIsPortrait(window.innerWidth < window.innerHeight);
-    };
+    if (typeof window !== "undefined") {
+      const handleResize = () => {
+        setIsPortrait(window.innerWidth < window.innerHeight);
+      };
 
-    window.addEventListener("resize", handleResize);
-    window.addEventListener("orientationchange", handleResize);
+      window.addEventListener("resize", handleResize);
+      window.addEventListener("orientationchange", handleResize);
 
-    return () => {
-      window.removeEventListener("resize", handleResize);
-      window.removeEventListener("orientationchange", handleResize);
-    };
+      return () => {
+        window.removeEventListener("resize", handleResize);
+        window.removeEventListener("orientationchange", handleResize);
+      };
+    }
   }, []);
 
   const getPage = async (prompt?: string, cacheKey?: string): Promise<Page> => {
