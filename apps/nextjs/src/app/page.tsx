@@ -1,7 +1,7 @@
 "use client";
 
+import type { Message } from "ai";
 import React, { useEffect, useRef, useState } from "react";
-import { Message } from "ai";
 import { useChat } from "ai/react";
 
 import { Separator } from "@acme/ui/separator";
@@ -15,7 +15,7 @@ import TopBar from "./_components/topbar";
 
 const HOME_KEY = "home";
 const HOME_ENTRY: Page = {
-  title: "home",
+  title: "alternet: home",
   prompt: "https://alternet.ai/home",
   fakeUrl: "https://alternet.ai/home",
   content: `<title>home</title><html><body><h1>Welcome Home</h1><link rel="canonical" href="https://alternet.ai/home"></body></html>`,
@@ -24,13 +24,13 @@ const HOME_ENTRY: Page = {
 
 const ParentComponent = () => {
   const [isPortrait, setIsPortrait] = useState(false);
-  const [pageCache, setPageCache] = useState<Record<string, Page>>({
+  const pageCache = useRef<Record<string, Page>>({
     [HOME_KEY]: HOME_ENTRY,
   });
 
   //const [siteMap, setSiteMap] = useState<Record<string, string>>({});
 
-  const [navState, setNavState] = useState<NavigationState>({
+  const navState = useRef<NavigationState>({
     currentIndex: 0,
     history: [HOME_KEY],
   });
@@ -51,8 +51,8 @@ const ParentComponent = () => {
 
     onFinish: (message) => {
       updateCurrentPage(message, true);
-      console.log(navState);
-      console.log(pageCache);
+      console.log(navState.current);
+      console.log(pageCache.current);
     },
 
     onError: (error) => {
@@ -83,20 +83,21 @@ const ParentComponent = () => {
   }, []);
 
   const getCachedPage = (cacheKey: string, index: number) => {
-    const cachedPage = pageCache[cacheKey];
+    const cachedPage = pageCache.current[cacheKey];
 
     if (cachedPage) {
       setHtml(cachedPage.content);
       setCurrentUrl(cachedPage.fakeUrl);
       setTitle(cachedPage.title);
+      console.log("cache hit", cachedPage);
     } else {
       throw new Error("Cache key is not valid");
     }
 
-    setNavState({
-      ...navState,
+    navState.current = {
+      ...navState.current,
       currentIndex: index,
-    });
+    };
   };
 
   const generatePage = (prompt: string) => {
@@ -115,25 +116,21 @@ const ParentComponent = () => {
       cacheKey: crypto.randomUUID(),
     };
 
-    setPageCache({
-      ...pageCache,
+    pageCache.current = {
+      ...pageCache.current,
       [page.cacheKey]: page,
-    });
+    };
 
-    setNavState({
-      currentIndex: navState.currentIndex + 1,
-      history: [...navState.history, page.cacheKey],
-    });
-  };
-
-  const goToNewPage = (prompt: string) => {
-    generatePage(prompt);
+    navState.current = {
+      currentIndex: navState.current.currentIndex + 1,
+      history: [...navState.current.history, page.cacheKey],
+    };
   };
 
   const goBack = () => {
-    if (navState.currentIndex > 0) {
-      const newIndex = navState.currentIndex - 1;
-      const cacheKey = navState.history[newIndex];
+    if (navState.current.currentIndex > 0) {
+      const newIndex = navState.current.currentIndex - 1;
+      const cacheKey = navState.current.history[newIndex];
       if (!cacheKey) {
         throw new Error("Somehow the cache key is undefined when going back");
       }
@@ -142,7 +139,7 @@ const ParentComponent = () => {
   };
 
   const handleSelectHistoryItem = (index: number) => {
-    const cacheKey = navState.history[index];
+    const cacheKey = navState.current.history[index];
     if (!cacheKey) {
       throw new Error(
         "Somehow the cache key is undefined when selecting from history",
@@ -153,9 +150,9 @@ const ParentComponent = () => {
   };
 
   const goForward = () => {
-    if (navState.currentIndex < navState.history.length - 1) {
-      const newIndex = navState.currentIndex + 1;
-      const cacheKey = navState.history[newIndex];
+    if (navState.current.currentIndex < navState.current.history.length - 1) {
+      const newIndex = navState.current.currentIndex + 1;
+      const cacheKey = navState.current.history[newIndex];
       if (!cacheKey) {
         throw new Error(
           "Somehow the cache key is undefined when going forward",
@@ -166,35 +163,33 @@ const ParentComponent = () => {
   };
 
   const refresh = () => {
-    const cacheKey = navState.history[navState.currentIndex] ?? "";
-    const page = pageCache[cacheKey];
+    const cacheKey =
+      navState.current.history[navState.current.currentIndex] ?? "";
+    const page = pageCache.current[cacheKey];
     const prompt = page?.prompt;
     if (prompt !== undefined) {
-      goToNewPage(prompt);
+      generatePage(prompt);
     } else {
       throw new Error("Current page prompt undefined while refreshing");
     }
   };
 
   const addBookmark = () => {
-    // const cacheKey = navState.history[navState.currentIndex];
-    // if (cacheKey !== undefined && !navState.bookmarks.includes(cacheKey)) {
-    //   setNavState({
-    //     ...navState,
-    //     bookmarks: [...navState.bookmarks, cacheKey],
-    //   });
+    // const cacheKey = navState.current.history[navState.current.currentIndex];
+    // if (cacheKey !== undefined && !navState.current.bookmarks.includes(cacheKey)) {
+    //   navState.current.bookmarks = [...navState.current.bookmarks, cacheKey];
     //   // Optionally, save bookmarks to a backend or local storage
     // }
   };
 
   const goHome = () => {
-    setPageCache({
+    pageCache.current = {
       [HOME_KEY]: HOME_ENTRY,
-    });
-    setNavState({
+    };
+    navState.current = {
       history: [HOME_KEY],
       currentIndex: 0,
-    });
+    };
 
     setMessages([
       { role: "user", content: HOME_ENTRY.prompt, id: "1" },
@@ -213,8 +208,8 @@ const ParentComponent = () => {
   const updateCurrentPage = (message: Message, updateCache?: boolean) => {
     setHtml(message.content);
     const title =
-      "alternet: " + message.content.match(/<title>([^<]+)<\/title>/)?.[1] ??
-      "Loading...";
+      "alternet: " + (message.content.match(/<title>([^<]+)<\/title>/)?.[1] ??
+      "Loading...");
     setTitle(title);
     const url =
       message.content.match(/<link rel="canonical" href="([^"]+)"/)?.[1] ??
@@ -222,24 +217,24 @@ const ParentComponent = () => {
     setCurrentUrl(url);
 
     if (updateCache) {
-      const cacheKey = navState.history[navState.currentIndex];
+      const cacheKey = navState.current.history[navState.current.currentIndex];
       if (!cacheKey) {
         console.log("cache key", cacheKey);
-        console.log("navState", navState);
+        console.log("navState", navState.current);
         throw new Error(
           "Cache key is not valid when writing new message: " + cacheKey,
         );
       }
 
-      setPageCache((prevCache) => ({
-        ...prevCache,
+      pageCache.current = {
+        ...pageCache.current,
         [cacheKey]: {
-          ...(prevCache[cacheKey] ?? ({} as Page)),
+          ...(pageCache.current[cacheKey] ?? ({} as Page)),
           content: message.content,
           fakeUrl: url,
           title: title,
         },
-      }));
+      };
     }
   };
 
@@ -265,7 +260,7 @@ const ParentComponent = () => {
         <TopBar
           isPortrait={isPortrait}
           currentUrl={currentUrl}
-          onAddressEntered={goToNewPage}
+          onAddressEntered={generatePage}
           onBack={goBack}
           onForward={goForward}
           onRefresh={refresh}
@@ -276,7 +271,6 @@ const ParentComponent = () => {
         <IframeContainer
           html={html}
           isLoading={isLoading}
-          setTitle={() => {}}
         />
         <FloatingLogo src="alternet" isPortrait={isPortrait} />
         {isPortrait && (
@@ -295,8 +289,8 @@ const ParentComponent = () => {
           <Separator orientation="vertical" className="h-full" />
           <HistoryPanel
             history={
-              navState.history
-                .map((cacheKey) => pageCache[cacheKey])
+              navState.current.history
+                .map((cacheKey) => pageCache.current[cacheKey])
                 .filter((page) => page !== undefined) as Page[]
             }
             onSelect={handleSelectHistoryItem}

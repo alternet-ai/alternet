@@ -3,7 +3,6 @@ import React, { useEffect, useRef } from "react";
 interface IframeContainerProps {
   html: string;
   isLoading: boolean;
-  setTitle: (title: string) => void;
 }
 
 const DEFAULT_STYLE = `font-family: var(--font-geist-sans), 'ui-sans-serif', 'system-ui', 'sans-serif', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
@@ -13,26 +12,10 @@ const DEFAULT_STYLE = `font-family: var(--font-geist-sans), 'ui-sans-serif', 'sy
 const IframeContainer: React.FC<IframeContainerProps> = ({
   html,
   isLoading,
-  setTitle,
 }) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  const titleSetRef = useRef(false);
 
   useEffect(() => {
-    //reset title on new page. this happens at end of load, unfortunately
-    if (!isLoading) {
-      titleSetRef.current = false;
-    }
-
-    if (!titleSetRef.current && html.includes("</title>")) {
-      const title = html.substring(
-        html.indexOf("<title>") + 7,
-        html.indexOf("</title>"),
-      );
-      titleSetRef.current = true;
-      setTitle(title);
-    }
-
     if (iframeRef.current) {
       const iframeDocument =
         iframeRef.current.contentDocument ??

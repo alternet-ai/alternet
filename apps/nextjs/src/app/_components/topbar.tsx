@@ -35,7 +35,7 @@ const TopBar: React.FC<TopBarProps> = ({
   onGoHome,
   onOpenHistory,
 }) => {
-  const [address, setAddress] = useState(currentUrl);
+  const [address, setAddress] = useState('');
 
   useEffect(() => {
     setAddress(currentUrl);
@@ -56,7 +56,7 @@ const TopBar: React.FC<TopBarProps> = ({
         <form onSubmit={handleAddressSubmit} className="flex flex-1">
           <Input
             type="text"
-            placeholder="Search or enter address"
+            placeholder="dream play create"
             className="mx-4 flex-1"
             value={address}
             onChange={handleAddressChange}
