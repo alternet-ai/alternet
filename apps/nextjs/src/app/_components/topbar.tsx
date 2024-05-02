@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Bookmark,
   ChevronLeft,
@@ -10,6 +10,7 @@ import {
 
 import { Button } from "@acme/ui/button";
 import { Input } from "@acme/ui/input";
+import { ThemeToggle } from "@acme/ui/theme";
 
 interface TopBarProps {
   isPortrait: boolean;
@@ -38,7 +39,7 @@ const TopBar: React.FC<TopBarProps> = ({
 
   useEffect(() => {
     setAddress(currentUrl);
-}, [currentUrl]);
+  }, [currentUrl]);
 
   const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setAddress(e.target.value);
@@ -91,6 +92,7 @@ const TopBar: React.FC<TopBarProps> = ({
         />
       </form>
       <div className="flex space-x-2">
+        <ThemeToggle />
         <Button variant="ghost" onClick={onBookmark}>
           <Bookmark />
         </Button>

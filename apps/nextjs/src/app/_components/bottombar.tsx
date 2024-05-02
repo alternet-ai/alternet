@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 
 import { Button } from "@acme/ui/button";
+import { ThemeToggle } from "@acme/ui/theme";
 
 interface BottomBarProps {
   onBack: () => void;
@@ -42,14 +43,13 @@ const BottomBar: React.FC<BottomBarProps> = ({
         <Button variant="ghost" onClick={onGoHome}>
           <Home />
         </Button>
-      </div>
-      <div className="flex space-x-2">
         <Button variant="ghost" onClick={onBookmark}>
           <Bookmark />
         </Button>
         <Button variant="ghost" onClick={onOpenHistory}>
           <Clock />
         </Button>
+        <ThemeToggle />
       </div>
     </div>
   );

@@ -1,9 +1,9 @@
 "use client";
 
-import React, { CSSProperties, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
+import type { CSSProperties } from "react";
 
 import { Separator } from "@acme/ui/separator";
-import { ThemeToggle } from "@acme/ui/theme";
 
 import type { NavigationState, Page } from "./types";
 import BottomBar from "./_components/bottombar";
@@ -208,16 +208,10 @@ const ParentComponent = () => {
     setShowHistory(!showHistory); // Toggle visibility of the history panel
   };
 
-  const themeToggleStyle: CSSProperties = {
-    position: "absolute",
-    bottom: isPortrait ? "60px" : "4px",
-    right: isPortrait ? "16px" : "4px",
-  };
-
   const logoToggleStyle: CSSProperties = {
     position: "absolute",
     bottom: isPortrait ? "4rem" : "0.5rem",
-    right: isPortrait ? "4.25rem" : "4rem",
+    right: "1rem",
   };
 
   return (
@@ -237,9 +231,6 @@ const ParentComponent = () => {
         <IframeContainer html={html} />
         <div style={logoToggleStyle}>
           <FloatingLogo src="alternet" />
-        </div>
-        <div style={themeToggleStyle}>
-          <ThemeToggle />
         </div>
         {isPortrait && (
           <BottomBar
