@@ -62,6 +62,7 @@ const TopBar: React.FC<TopBarProps> = ({
             className="mx-4 flex-1"
             value={address}
             onChange={handleAddressChange}
+            disabled={disabled}
           />
         </form>
       </div>
@@ -91,7 +92,7 @@ const TopBar: React.FC<TopBarProps> = ({
           className="mx-4 flex-1"
           value={address}
           onChange={handleAddressChange}
-          disabled={disabled} // Disable the input field
+          disabled={disabled}
         />
       </form>
       <div className="flex space-x-2">

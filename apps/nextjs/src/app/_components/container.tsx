@@ -82,7 +82,7 @@ const IframeContainer: React.FC<IframeContainerProps> = ({
   // Listen to messages from the iframe
   useEffect(() => {
     const handleMessage = (event: MessageEvent<MessageEventData>) => {
-      if (event.data.type === "navigate") {
+      if (event.data.type === "navigate" && !isLoading) {
         onNavigate(event.data.url);
       }
     };

@@ -46,7 +46,7 @@ const BottomBar: React.FC<BottomBarProps> = ({
           <Home />
         </Button>
         <ThemeToggle />
-        <Button variant="ghost" onClick={onBookmark} disabled={disabled}>
+        <Button variant="ghost" onClick={onBookmark}>
           <Bookmark />
         </Button>
         <Button variant="ghost" onClick={onOpenHistory} >
