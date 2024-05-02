@@ -16,15 +16,20 @@ const IframeContainer: React.FC<IframeContainerProps> = ({
   setTitle,
 }) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  const titleSet = useRef(false);
+  const titleSetRef = useRef(false);
 
   useEffect(() => {
-    if (!titleSet.current && html.includes("</title>")) {
+    //reset title on new page. this happens at end of load, unfortunately
+    if (!isLoading) {
+      titleSetRef.current = false;
+    }
+
+    if (!titleSetRef.current && html.includes("</title>")) {
       const title = html.substring(
         html.indexOf("<title>") + 7,
         html.indexOf("</title>"),
       );
-      titleSet.current = true;
+      titleSetRef.current = true;
       setTitle(title);
     }
 
@@ -46,10 +51,11 @@ const IframeContainer: React.FC<IframeContainerProps> = ({
           iframeDocument.body.innerHTML =
             html + `</style> <div style="${styleSection}">Loading...</div>`;
           //overlay loading
-        } else if (isLoading) {
+        } else if (isLoading || html.length === 0) {
+          console.log("setting loading", isLoading, html.length);
           iframeDocument.body.innerHTML =
             html +
-            `<div style="${DEFAULT_STYLE} position: absolute; bottom: 0; left: 0;">Loading...</div>`;
+            `<div style="${DEFAULT_STYLE} position: absolute; top: 0; left: 0;">Loading...</div>`;
         } else {
           iframeDocument.body.innerHTML = html;
         }
