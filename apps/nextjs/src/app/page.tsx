@@ -1,10 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { CSSProperties, useEffect, useState } from "react";
 
 import { Separator } from "@acme/ui/separator";
+import { ThemeToggle } from "@acme/ui/theme";
 
 import type { NavigationState, Page } from "./types";
+import BottomBar from "./_components/bottombar";
 import IframeContainer from "./_components/container";
 import HistoryPanel from "./_components/history";
 import FloatingLogo from "./_components/logo";
@@ -13,6 +15,10 @@ import TopBar from "./_components/topbar";
 const HOMEKEY = "home";
 
 const ParentComponent = () => {
+  const [isPortrait, setIsPortrait] = useState(
+    window.innerWidth < window.innerHeight,
+  );
+
   const homeEntry: Page = {
     title: "Home",
     prompt: "https://alternet.ai/home",
@@ -42,16 +48,30 @@ const ParentComponent = () => {
   });
 
   const [currentUrl, setCurrentUrl] = useState(() => {
-      const cacheKey = navState.history[navState.currentIndex] ?? "";
-      const page = pageCache[cacheKey];
-      const fakeUrl = page?.fakeUrl;
-      if (!fakeUrl) {
-        throw new Error("Fake url is undefined");
-      }
-      return fakeUrl;
+    const cacheKey = navState.history[navState.currentIndex] ?? "";
+    const page = pageCache[cacheKey];
+    const fakeUrl = page?.fakeUrl;
+    if (!fakeUrl) {
+      throw new Error("Fake url is undefined");
+    }
+    return fakeUrl;
   });
 
   const [showHistory, setShowHistory] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsPortrait(window.innerWidth < window.innerHeight);
+    };
+
+    window.addEventListener("resize", handleResize);
+    window.addEventListener("orientationchange", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      window.removeEventListener("orientationchange", handleResize);
+    };
+  }, []);
 
   const getPage = async (prompt?: string, cacheKey?: string): Promise<Page> => {
     if (cacheKey && pageCache[cacheKey]) {
@@ -101,7 +121,10 @@ const ParentComponent = () => {
     setNavState({
       ...navState,
       currentIndex: index ?? navState.currentIndex + 1,
-      history: index !== undefined ? navState.history : [...navState.history, page.cacheKey],
+      history:
+        index !== undefined
+          ? navState.history
+          : [...navState.history, page.cacheKey],
     });
 
     setCurrentUrl(page.fakeUrl);
@@ -185,10 +208,23 @@ const ParentComponent = () => {
     setShowHistory(!showHistory); // Toggle visibility of the history panel
   };
 
+  const themeToggleStyle: CSSProperties = {
+    position: "absolute",
+    bottom: isPortrait ? "60px" : "4px",
+    right: isPortrait ? "16px" : "4px",
+  };
+
+  const logoToggleStyle: CSSProperties = {
+    position: "absolute",
+    bottom: isPortrait ? "4rem" : "0.5rem",
+    right: isPortrait ? "4.25rem" : "4rem",
+  };
+
   return (
     <div className="flex h-screen">
       <div className="flex flex-1 flex-col">
         <TopBar
+          isPortrait={isPortrait}
           currentUrl={currentUrl}
           onAddressEntered={navigateTo}
           onBack={goBack}
@@ -199,7 +235,22 @@ const ParentComponent = () => {
           onOpenHistory={openHistory}
         />
         <IframeContainer html={html} />
-        <FloatingLogo src="alternet" />
+        <div style={logoToggleStyle}>
+          <FloatingLogo src="alternet" />
+        </div>
+        <div style={themeToggleStyle}>
+          <ThemeToggle />
+        </div>
+        {isPortrait && (
+          <BottomBar
+            onBack={goBack}
+            onForward={goForward}
+            onRefresh={refresh}
+            onBookmark={addBookmark}
+            onGoHome={goHome}
+            onOpenHistory={openHistory}
+          />
+        )}
       </div>
       {showHistory && (
         <>

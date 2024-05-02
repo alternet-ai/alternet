@@ -5,7 +5,6 @@ import { Label } from "@acme/ui/label";
 const FloatingLogo = ({ src }: { src: string }) => {
   return (
     <Label
-      className="absolute bottom-6 right-16"
       style={{
         fontSize: "24px",
         fontWeight: "bold",

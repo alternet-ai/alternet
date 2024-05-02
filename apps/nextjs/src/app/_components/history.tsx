@@ -33,7 +33,7 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
   };
 
   return (
-    <div className="h-full w-[300px] sm:w-[400px]">
+    <div className="h-full w-[200px] sm:w-[300px]">
       <div className="flex items-center justify-between border-b bg-background p-2">
         <h1 className="text-lg font-semibold">History</h1>
         <Button onClick={() => setOpen(false)} variant="ghost" className="p-1">
@@ -59,8 +59,10 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
             </Button>
             {expandedIndex === index && (
               <>
-                <div className="pl-4 text-gray-6000">URL: {entry.fakeUrl}</div>
-                <div className="pl-4 text-gray-6000">Prompt: {entry.prompt}</div>
+                <div className="text-gray-6000 pl-4">URL: {entry.fakeUrl}</div>
+                <div className="text-gray-6000 pl-4">
+                  Prompt: {entry.prompt}
+                </div>
               </>
             )}
           </div>
