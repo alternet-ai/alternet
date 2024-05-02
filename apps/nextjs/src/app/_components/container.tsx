@@ -1,4 +1,3 @@
-import type { Message } from "ai";
 import React, { useEffect, useRef } from "react";
 
 interface IframeContainerProps {

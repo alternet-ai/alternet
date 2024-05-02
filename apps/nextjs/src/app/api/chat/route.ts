@@ -1,10 +1,15 @@
+import type { CoreMessage } from "ai";
 import { anthropic } from "@ai-sdk/anthropic";
 import { StreamingTextResponse, streamText } from "ai";
 
 import { defaultPrompt } from "~/app/static/prompts";
 
+interface MessageRequest {
+  messages: CoreMessage[];
+}
+
 export async function POST(req: Request) {
-  const { messages } = await req.json();
+  const { messages } = (await req.json()) as MessageRequest;
 
   // Call the language model
   const result = await streamText({
@@ -15,5 +20,5 @@ export async function POST(req: Request) {
   });
 
   // Respond with the stream
-  return new StreamingTextResponse(result.toAIStream())
+  return new StreamingTextResponse(result.toAIStream());
 }

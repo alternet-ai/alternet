@@ -12,38 +12,33 @@ import HistoryPanel from "./_components/history";
 import FloatingLogo from "./_components/logo";
 import TopBar from "./_components/topbar";
 
-const HOMEKEY = "home";
+const HOME_KEY = "home";
+const HOME_ENTRY: Page = {
+  title: "Home",
+  prompt: "https://alternet.ai/home",
+  fakeUrl: "https://alternet.ai/home",
+  content: "<html><body><h1>Welcome Home</h1></body></html>",
+  cacheKey: HOME_KEY,
+};
 
 const ParentComponent = () => {
   const cacheWaitingRef = useRef<string>("");
-  const [isPortrait, setIsPortrait] = useState(() => {
-    if (typeof window !== "undefined") {
-      return window.innerWidth < window.innerHeight;
-    }
-    return false;
-  });
+  const [isPortrait, setIsPortrait] = useState(false); // Default to false
 
-  const homeEntry: Page = {
-    title: "Home",
-    prompt: "https://alternet.ai/home",
-    fakeUrl: "https://alternet.ai/home",
-    content: "<html><body><h1>Welcome Home</h1></body></html>",
-    cacheKey: HOMEKEY,
-  };
   const [pageCache, setPageCache] = useState<Record<string, Page>>({
-    [HOMEKEY]: homeEntry,
+    [HOME_KEY]: HOME_ENTRY,
   });
 
   //const [siteMap, setSiteMap] = useState<Record<string, string>>({});
 
   const [navState, setNavState] = useState<NavigationState>({
     currentIndex: 0,
-    history: [HOMEKEY],
+    history: [HOME_KEY],
     bookmarks: [],
   });
 
   const [html, setHtml] = useState(() => {
-    const content = pageCache[HOMEKEY]?.content;
+    const content = pageCache[HOME_KEY]?.content;
     if (content === undefined) {
       throw new Error("The cache is empty during init??? how");
     }
@@ -63,10 +58,10 @@ const ParentComponent = () => {
 
   const { append, isLoading, messages, setMessages } = useChat({
     initialMessages: [
-      { role: "user", content: homeEntry.prompt, id: "1" },
+      { role: "user", content: HOME_ENTRY.prompt, id: "1" },
       {
         role: "assistant",
-        content: homeEntry.content,
+        content: HOME_ENTRY.content,
         id: "2",
       },
     ],
@@ -85,26 +80,27 @@ const ParentComponent = () => {
     },
 
     onError: (error) => {
-      throw error
+      throw error;
     },
   });
 
   const [showHistory, setShowHistory] = useState(true);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const handleResize = () => {
-        setIsPortrait(window.innerWidth < window.innerHeight);
-      };
+    const handleResize = () => {
+      setIsPortrait(window.innerWidth < window.innerHeight);
+    };
 
-      window.addEventListener("resize", handleResize);
-      window.addEventListener("orientationchange", handleResize);
+    // Set the initial value once the component has mounted
+    handleResize();
 
-      return () => {
-        window.removeEventListener("resize", handleResize);
-        window.removeEventListener("orientationchange", handleResize);
-      };
-    }
+    window.addEventListener("resize", handleResize);
+    window.addEventListener("orientationchange", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      window.removeEventListener("orientationchange", handleResize);
+    };
   }, []);
 
   const getPage = async (prompt?: string, cacheKey?: string): Promise<Page> => {
@@ -227,16 +223,16 @@ const ParentComponent = () => {
 
   const goHome = () => {
     setPageCache({
-      [HOMEKEY]: homeEntry,
+      [HOME_KEY]: HOME_ENTRY,
     });
     setNavState({
       ...navState,
-      history: [HOMEKEY],
+      history: [HOME_KEY],
       currentIndex: 0,
     });
 
-    const content = pageCache[HOMEKEY]?.content;
-    const fakeUrl = pageCache[HOMEKEY]?.fakeUrl;
+    const content = pageCache[HOME_KEY]?.content;
+    const fakeUrl = pageCache[HOME_KEY]?.fakeUrl;
     if (content === undefined || fakeUrl === undefined) {
       throw new Error("The cache is empty during goHome??? how");
     }
@@ -244,10 +240,10 @@ const ParentComponent = () => {
     setCurrentUrl(fakeUrl);
     setHtml(content);
     setMessages([
-      { role: "user", content: homeEntry.prompt, id: "1" },
+      { role: "user", content: HOME_ENTRY.prompt, id: "1" },
       {
         role: "assistant",
-        content: homeEntry.content,
+        content: HOME_ENTRY.content,
         id: "2",
       },
     ]);
