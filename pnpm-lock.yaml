@@ -193,6 +193,9 @@ importers:
       '@acme/validators':
         specifier: workspace:*
         version: link:../../packages/validators
+      '@ai-sdk/anthropic':
+        specifier: ^0.0.9
+        version: 0.0.9(zod@3.23.5)
       '@shadcn/ui':
         specifier: ^0.0.4
         version: 0.0.4
@@ -601,6 +604,20 @@ importers:
   tooling/typescript: {}
 
 packages:
+
+  /@ai-sdk/anthropic@0.0.9(zod@3.23.5):
+    resolution: {integrity: sha512-pRudgyxsxLTnQEDnvYzh/lTSSijxa2eifAjbJO/lNp9jkFGl85Sa2pNhNVWKT9I/E6B/Zv4LyyIH5WDEJkwRPA==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      zod: ^3.0.0
+    peerDependenciesMeta:
+      zod:
+        optional: true
+    dependencies:
+      '@ai-sdk/provider': 0.0.3
+      '@ai-sdk/provider-utils': 0.0.5(zod@3.23.5)
+      zod: 3.23.5
+    dev: false
 
   /@ai-sdk/provider-utils@0.0.5(zod@3.23.5):
     resolution: {integrity: sha512-VVy9eQS+vS2j6cqTEQ9htMHz2nW/HFAkDXLvNFPoi1pZkviknJZEzb+DZUna6Od+jBf/TVA0HZwYnyGDaeI9cQ==}

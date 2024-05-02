@@ -2,6 +2,7 @@
 
 import type { CSSProperties } from "react";
 import React, { useEffect, useState } from "react";
+import { useChat } from "ai/react";
 
 import { Separator } from "@acme/ui/separator";
 
@@ -60,7 +61,14 @@ const ParentComponent = () => {
     return fakeUrl;
   });
 
-  const [showHistory, setShowHistory] = useState(false);
+  const { append, isLoading, messages, setMessages } = useChat({
+    onFinish: (message) => {
+      console.log("done, setting content to", message.content);
+      setHtml(message.content);
+    },
+  });
+
+  const [showHistory, setShowHistory] = useState(true);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -93,25 +101,25 @@ const ParentComponent = () => {
       throw new Error("prompt is required");
     }
 
-    const response = await fetch(`https://httpbin.org/get`);
-    const content = await response.text();
+    console.log("calling append");
+    await append({
+      role: "user",
+      content: prompt,
+    });
+
+    const content = "";
     const fakeUrl = "https://url.fake/" + prompt.replace(" ", "_");
 
     const title = "title for " + prompt;
     cacheKey = crypto.randomUUID();
 
-    const page = {
+    const page: Page = {
       title,
       fakeUrl,
       prompt,
       content,
       cacheKey,
     };
-
-    setPageCache({
-      ...pageCache,
-      [cacheKey]: page,
-    });
 
     return page;
   };
@@ -133,7 +141,9 @@ const ParentComponent = () => {
     });
 
     setCurrentUrl(page.fakeUrl);
-    setHtml(page.content);
+    if (page.content) {
+      setHtml(page.content);
+    }
   };
 
   const navigateTo = async (prompt?: string) => {
@@ -207,6 +217,7 @@ const ParentComponent = () => {
 
     setCurrentUrl(fakeUrl);
     setHtml(content);
+    setMessages([]);
   };
 
   const openHistory = () => {
@@ -233,7 +244,11 @@ const ParentComponent = () => {
           onGoHome={goHome}
           onOpenHistory={openHistory}
         />
-        <IframeContainer html={html} />
+        <IframeContainer
+          html={html}
+          messages={messages}
+          isLoading={isLoading}
+        />
         <div style={logoToggleStyle}>
           <FloatingLogo src="alternet" />
         </div>
