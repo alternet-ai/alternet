@@ -78,7 +78,7 @@ const ParentComponent = () => {
         setPageCache((prevCache) => ({
           ...prevCache,
           [cacheWaitingRef.current]: {
-            ...prevCache[cacheWaitingRef.current],
+            ...(prevCache[cacheWaitingRef.current] ?? {} as Page),
             content: message.content,
           },
         }));
