@@ -21,6 +21,28 @@ const IframeContainer: React.FC<IframeContainerProps> = ({
   onNavigate,
 }) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  // Inject script only once when the iframe is ready
+  useEffect(() => {
+    if (iframeRef.current) {
+      const iframeDocument =
+        iframeRef.current.contentDocument ??
+        iframeRef.current.contentWindow?.document;
+      if (iframeDocument) {
+        const script = iframeDocument.createElement('script');
+        script.innerHTML = `
+          document.body.addEventListener('click', function(event) {
+            const target = event.target.closest('a');
+            if (target) {
+              event.preventDefault();
+              window.parent.postMessage({ type: 'navigate', url: target.href }, '*');
+            }
+          });
+        `;
+        iframeDocument.body.appendChild(script);
+      }
+    }
+  }, []); // Empty dependency array ensures this runs only once
+
 
   useEffect(() => {
     if (iframeRef.current) {
@@ -28,18 +50,6 @@ const IframeContainer: React.FC<IframeContainerProps> = ({
         iframeRef.current.contentDocument ??
         iframeRef.current.contentWindow?.document;
       if (iframeDocument) {
-        // Inject script to intercept link clicks
-        const script = iframeDocument.createElement("script");
-        script.innerHTML = `
-                  document.body.addEventListener('click', function(event) {
-                    const target = event.target.closest('a');
-                    if (target) {
-                      event.preventDefault();
-                      window.parent.postMessage({ type: 'navigate', url: target.href }, '*');
-                    }
-                  });
-                `;
-        iframeDocument.body.appendChild(script);
         //if we're in the style tag, modify the loading div
         if (
           isLoading &&
