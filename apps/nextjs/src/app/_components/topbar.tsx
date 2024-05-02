@@ -52,7 +52,7 @@ const TopBar: React.FC<TopBarProps> = ({
 
   if (isPortrait) {
     return (
-      <div className="flex items-center justify-between border-b bg-background p-2">
+      <div className="flex items-center justify-between border-b bg-background p-2"  style={{ flexShrink: 0 }}>
         <form onSubmit={handleAddressSubmit} className="flex flex-1">
           <Input
             type="text"
@@ -67,7 +67,7 @@ const TopBar: React.FC<TopBarProps> = ({
   }
 
   return (
-    <div className="flex items-center justify-between border-b bg-background p-2">
+    <div className="flex items-center justify-between border-b bg-background p-2"  style={{ flexShrink: 0 }}>
       <div className="flex space-x-2">
         <Button variant="ghost" onClick={onBack}>
           <ChevronLeft />

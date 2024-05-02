@@ -29,7 +29,7 @@ const BottomBar: React.FC<BottomBarProps> = ({
   onOpenHistory,
 }) => {
   return (
-    <div className="flex items-center justify-between border-b bg-background p-2">
+    <div className="flex items-center justify-between border-b bg-background p-2" style={{ flexShrink: 0 }}>
       <div className="flex space-x-2">
         <Button variant="ghost" onClick={onBack}>
           <ChevronLeft />

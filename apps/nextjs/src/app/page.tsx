@@ -220,8 +220,8 @@ const ParentComponent = () => {
   };
 
   return (
-    <div className="flex h-screen">
-      <div className="flex flex-1 flex-col">
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', margin: 0, padding: 0 }}>
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
         <TopBar
           isPortrait={isPortrait}
           currentUrl={currentUrl}
