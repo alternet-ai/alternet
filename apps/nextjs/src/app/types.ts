@@ -1,11 +1,12 @@
-export interface HistoryEntry {
+export interface Page {
   title: string;
+  fakeUrl: string;
   prompt: string;
-  cacheKey: string;
+  content: string;
 }
 
 export interface NavigationState {
   currentIndex: number;
-  history: HistoryEntry[];
+  history: string[];
   bookmarks: string[];
 }

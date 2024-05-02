@@ -5,10 +5,10 @@ import { Button } from "@acme/ui/button";
 import { ScrollArea } from "@acme/ui/scroll-area";
 import { Separator } from "@acme/ui/separator";
 
-import type { HistoryEntry } from "../types";
+import type { Page } from "../types";
 
 interface HistoryPanelProps {
-  history: HistoryEntry[];
+  history: Page[];
   onSelect: (index: number) => void;
   setOpen: (open: boolean) => void;
 }
@@ -20,7 +20,10 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
 }) => {
   const [expandedIndex, setExpandedIndex] = React.useState<number | null>(null);
 
-  const toggleExpand = (event: React.MouseEvent<HTMLDivElement, MouseEvent>, index: number) => {
+  const toggleExpand = (
+    event: React.MouseEvent<HTMLDivElement, MouseEvent>,
+    index: number,
+  ) => {
     event.stopPropagation(); // Prevent onSelect from being triggered when expanding
     if (expandedIndex === index) {
       setExpandedIndex(null);
@@ -47,14 +50,18 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
               onClick={() => onSelect(index)}
             >
               {entry.title}
-              <div onClick={(e) => toggleExpand(e, index)} className="inline-block">
+              <div
+                onClick={(e) => toggleExpand(e, index)}
+                className="inline-block"
+              >
                 {expandedIndex === index ? <ChevronUp /> : <ChevronDown />}
               </div>
             </Button>
             {expandedIndex === index && (
-              <div className="pl-4 text-gray-600">
-                Prompt: {entry.prompt}
-              </div>
+              <>
+                <div className="pl-4 text-gray-6000">URL: {entry.fakeUrl}</div>
+                <div className="pl-4 text-gray-6000">Prompt: {entry.prompt}</div>
+              </>
             )}
           </div>
         ))}
