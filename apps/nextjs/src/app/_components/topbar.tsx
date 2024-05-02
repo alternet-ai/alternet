@@ -50,56 +50,48 @@ const TopBar: React.FC<TopBarProps> = ({
     onAddressEntered(address);
   };
 
-  if (isPortrait) {
-    return (
-      <div className="flex items-center justify-between border-b bg-background p-2"  style={{ flexShrink: 0 }}>
-        <form onSubmit={handleAddressSubmit} className="flex flex-1">
-          <Input
-            type="text"
-            placeholder="Search or enter address"
-            className="mx-4 flex-1"
-            value={address}
-            onChange={handleAddressChange}
-          />
-        </form>
-      </div>
-    );
-  }
+  const addressForm = (
+    <form onSubmit={handleAddressSubmit} className="flex flex-1">
+      <Input
+        type="text"
+        placeholder="dream play create"
+        className="mx-4 flex-1"
+        value={address}
+        onChange={handleAddressChange}
+      />
+    </form>
+  );
 
   return (
-    <div className="flex items-center justify-between border-b bg-background p-2"  style={{ flexShrink: 0 }}>
-      <div className="flex space-x-2">
-        <Button variant="ghost" onClick={onBack}>
-          <ChevronLeft />
-        </Button>
-        <Button variant="ghost" onClick={onForward}>
-          <ChevronRight />
-        </Button>
-        <Button variant="ghost" onClick={onRefresh}>
-          <RotateCw />
-        </Button>
-        <Button variant="ghost" onClick={onGoHome}>
-          <Home />
-        </Button>
-      </div>
-      <form onSubmit={handleAddressSubmit} className="flex flex-1">
-        <Input
-          type="text"
-          placeholder="Search or enter address"
-          className="mx-4 flex-1"
-          value={address}
-          onChange={handleAddressChange}
-        />
-      </form>
-      <div className="flex space-x-2">
-        <ThemeToggle />
-        <Button variant="ghost" onClick={onBookmark}>
-          <Bookmark />
-        </Button>
-        <Button variant="ghost" onClick={onOpenHistory}>
-          <Clock />
-        </Button>
-      </div>
+    <div className="flex flex-shrink-0 items-center justify-between border-b bg-background p-2">
+      {isPortrait ? null : (
+        <div className="flex space-x-2">
+          <Button variant="ghost" onClick={onBack}>
+            <ChevronLeft />
+          </Button>
+          <Button variant="ghost" onClick={onForward}>
+            <ChevronRight />
+          </Button>
+          <Button variant="ghost" onClick={onRefresh}>
+            <RotateCw />
+          </Button>
+          <Button variant="ghost" onClick={onGoHome}>
+            <Home />
+          </Button>
+        </div>
+      )}
+      {addressForm}
+      {isPortrait ? null : (
+        <div className="flex space-x-2">
+          <ThemeToggle />
+          <Button variant="ghost" onClick={onBookmark}>
+            <Bookmark />
+          </Button>
+          <Button variant="ghost" onClick={onOpenHistory}>
+            <Clock />
+          </Button>
+        </div>
+      )}
     </div>
   );
 };

@@ -6,7 +6,7 @@ interface IframeContainerProps {
 
 const IframeContainer: React.FC<IframeContainerProps> = ({ html }) => {
   return (
-    <div className="flex-1"  style={{ flex: 1 }} >
+    <div className="flex-1">
       <iframe
         srcDoc={html}
         title="Browser Frame"
