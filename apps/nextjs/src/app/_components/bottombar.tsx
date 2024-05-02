@@ -6,6 +6,7 @@ import {
   Clock,
   Home,
   RotateCw,
+  X,
 } from "lucide-react";
 
 import { Button } from "@acme/ui/button";
@@ -19,6 +20,7 @@ interface BottomBarProps {
   onGoHome: () => void;
   onOpenHistory: () => void;
   disabled: boolean;
+  onCancel: () => void;
 }
 
 const BottomBar: React.FC<BottomBarProps> = ({
@@ -29,6 +31,7 @@ const BottomBar: React.FC<BottomBarProps> = ({
   onGoHome,
   onOpenHistory,
   disabled,
+  onCancel,
 }) => {
   return (
     <div className="flex items-center justify-between border-b bg-background p-2">
@@ -39,9 +42,15 @@ const BottomBar: React.FC<BottomBarProps> = ({
         <Button variant="ghost" onClick={onForward} disabled={disabled}>
           <ChevronRight />
         </Button>
+        {disabled ? (
+        <Button variant="ghost" onClick={onCancel}>
+          <X />
+        </Button>
+      ) : (
         <Button variant="ghost" onClick={onRefresh} disabled={disabled}>
           <RotateCw />
         </Button>
+      )}
         <Button variant="ghost" onClick={onGoHome} disabled={disabled}>
           <Home />
         </Button>

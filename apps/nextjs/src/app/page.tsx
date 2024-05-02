@@ -39,7 +39,7 @@ const ParentComponent = () => {
   const [currentUrl, setCurrentUrl] = useState("");
   const [title, setTitle] = useState("");
 
-  const { append, isLoading, messages, setMessages } = useChat({
+  const { append, stop, isLoading, messages, setMessages } = useChat({
     initialMessages: [
       { role: "user", content: HOME_ENTRY.prompt, id: "1" },
       {
@@ -192,6 +192,11 @@ const ParentComponent = () => {
     ]);
   };
 
+  const cancelGeneration = () => {
+    stop();
+    updateCurrentPage(messages[messages.length - 1] as Message, true);
+  };
+
   const openHistory = () => {
     setShowHistory(!showHistory); // Toggle visibility of the history panel
   };
@@ -281,6 +286,7 @@ const ParentComponent = () => {
           onBookmark={addBookmark}
           onGoHome={goHome}
           onOpenHistory={openHistory}
+          onCancel={cancelGeneration}
         />
         <IframeContainer
           html={html}
@@ -297,6 +303,7 @@ const ParentComponent = () => {
             onBookmark={addBookmark}
             onGoHome={goHome}
             onOpenHistory={openHistory}
+            onCancel={cancelGeneration}
           />
         )}
       </div>

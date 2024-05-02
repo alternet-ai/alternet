@@ -6,6 +6,7 @@ import {
   Clock,
   Home,
   RotateCw,
+  X
 } from "lucide-react";
 
 import { Button } from "@acme/ui/button";
@@ -23,6 +24,7 @@ interface TopBarProps {
   onGoHome: () => void;
   onOpenHistory: () => void;
   disabled: boolean;
+  onCancel: () => void;
 }
 
 const TopBar: React.FC<TopBarProps> = ({
@@ -36,6 +38,7 @@ const TopBar: React.FC<TopBarProps> = ({
   onGoHome,
   onOpenHistory,
   disabled,
+  onCancel,
 }) => {
   const [address, setAddress] = useState('');
 
@@ -78,9 +81,15 @@ const TopBar: React.FC<TopBarProps> = ({
         <Button variant="ghost" onClick={onForward} disabled={disabled}>
           <ChevronRight />
         </Button>
+        {disabled ? (
+        <Button variant="ghost" onClick={onCancel}>
+          <X />
+        </Button>
+      ) : (
         <Button variant="ghost" onClick={onRefresh} disabled={disabled}>
           <RotateCw />
         </Button>
+      )}
         <Button variant="ghost" onClick={onGoHome} disabled={disabled}>
           <Home />
         </Button>
