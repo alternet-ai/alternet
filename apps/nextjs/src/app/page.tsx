@@ -83,6 +83,10 @@ const ParentComponent = () => {
         }));
       }
     },
+
+    onError: (error) => {
+      throw error
+    },
   });
 
   const [showHistory, setShowHistory] = useState(true);

@@ -28,13 +28,9 @@ const IframeContainer: React.FC<IframeContainerProps> = ({
           !html.includes("</style>")
         ) {
           //extract the last style tag section
-          let styleSection = html.substring(html.lastIndexOf("{") + 1);
-          if (!styleSection.includes("font-family")) {
-            styleSection = `${DEFAULT_STYLE} ${styleSection}`;
-            console.log("applying font section", styleSection);
-          }
+          const styleSection = DEFAULT_STYLE + html.substring(html.lastIndexOf("{") + 1);
           //apply style to Loading div and write to innerHtml
-          iframeDocument.body.innerHTML = `<div style="${styleSection}">Loading...</div>`;
+          iframeDocument.body.innerHTML = html + `</style> <div style="${styleSection}">Loading...</div>`;
         } else if (isLoading && !html) {
           iframeDocument.body.innerHTML = `<div style="${DEFAULT_STYLE}">Loading...</div>`;
         } else {
