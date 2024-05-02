@@ -10,12 +10,13 @@ interface MessageRequest {
 
 export async function POST(req: Request) {
   const { messages } = (await req.json()) as MessageRequest;
+  const truncatedMessages = messages.slice(-3, messages.length);
 
   // Call the language model
   const result = await streamText({
     model: anthropic("claude-3-sonnet-20240229"),
     system: defaultPrompt,
-    messages,
+    messages: truncatedMessages,
     temperature: 1,
   });
 
