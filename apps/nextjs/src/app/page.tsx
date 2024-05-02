@@ -14,7 +14,7 @@ import TopBar from "./_components/topbar";
 
 const HOME_KEY = "home";
 const HOME_ENTRY: Page = {
-  title: "Home",
+  title: "home",
   prompt: "https://alternet.ai/home",
   fakeUrl: "https://alternet.ai/home",
   content: "<html><body><h1>Welcome Home</h1></body></html>",
@@ -23,8 +23,7 @@ const HOME_ENTRY: Page = {
 
 const ParentComponent = () => {
   const cacheWaitingRef = useRef<string>("");
-  const [isPortrait, setIsPortrait] = useState(false); // Default to false
-
+  const [isPortrait, setIsPortrait] = useState(false);
   const [pageCache, setPageCache] = useState<Record<string, Page>>({
     [HOME_KEY]: HOME_ENTRY,
   });
@@ -32,29 +31,13 @@ const ParentComponent = () => {
   //const [siteMap, setSiteMap] = useState<Record<string, string>>({});
 
   const [navState, setNavState] = useState<NavigationState>({
-    currentIndex: 0,
-    history: [HOME_KEY],
-    bookmarks: [],
+    currentIndex: -1,
+    history: [],
   });
 
-  const [html, setHtml] = useState(() => {
-    const content = pageCache[HOME_KEY]?.content;
-    if (content === undefined) {
-      throw new Error("The cache is empty during init??? how");
-    }
+  const [html, setHtml] = useState("");
 
-    return content;
-  });
-
-  const [currentUrl, setCurrentUrl] = useState(() => {
-    const cacheKey = navState.history[navState.currentIndex] ?? "";
-    const page = pageCache[cacheKey];
-    const fakeUrl = page?.fakeUrl;
-    if (!fakeUrl) {
-      throw new Error("Fake url is undefined");
-    }
-    return fakeUrl;
-  });
+  const [currentUrl, setCurrentUrl] = useState("");
 
   const { append, isLoading, messages, setMessages } = useChat({
     initialMessages: [
@@ -65,8 +48,8 @@ const ParentComponent = () => {
         id: "2",
       },
     ],
+
     onFinish: (message) => {
-      console.log("done, setting final content");
       setHtml(message.content);
       if (cacheWaitingRef.current) {
         setPageCache((prevCache) => ({
@@ -84,9 +67,12 @@ const ParentComponent = () => {
     },
   });
 
-  const [showHistory, setShowHistory] = useState(true);
+  const [showHistory, setShowHistory] = useState(true); //todo: false?
 
+  //initial state
   useEffect(() => {
+    navigateTo(HOME_KEY);
+
     const handleResize = () => {
       setIsPortrait(window.innerWidth < window.innerHeight);
     };
@@ -103,32 +89,27 @@ const ParentComponent = () => {
     };
   }, []);
 
-  const getPage = async (prompt?: string, cacheKey?: string): Promise<Page> => {
-    if (cacheKey && pageCache[cacheKey]) {
-      const cachedPage = pageCache[cacheKey];
+  const getCachedPage = (cacheKey: string): Page => {
+    const cachedPage = pageCache[cacheKey];
 
-      if (cachedPage) {
-        return cachedPage;
-      }
-    } else if (cacheKey) {
+    if (cachedPage) {
+      return cachedPage;
+    } else {
       throw new Error("Cache key is not valid");
     }
+  };
 
-    if (!prompt) {
-      throw new Error("prompt is required");
-    }
-
-    console.log("calling append");
-    await append({
+  const generatePage = (prompt: string): Page => {
+    append({
       role: "user",
       content: prompt,
     });
 
     const content = "";
-    const fakeUrl = "https://url.fake/" + prompt.replace(" ", "_");
+    const fakeUrl = "";
 
-    const title = "title for " + prompt;
-    cacheKey = crypto.randomUUID();
+    const title = "";
+    const cacheKey = crypto.randomUUID();
 
     const page: Page = {
       title,
@@ -138,17 +119,30 @@ const ParentComponent = () => {
       cacheKey,
     };
 
+    setPageCache({
+      ...pageCache,
+      [page.cacheKey]: page,
+    });
+
     return page;
   };
 
-  const updateHtmlAndHistory = async (
+  const navigateTo = async (
     cacheKey?: string,
     prompt?: string,
     index?: number,
   ) => {
     setHtml("");
-    console.log("set html to empty");
-    const page = await getPage(prompt, cacheKey);
+    let page: Page;
+    if (cacheKey) {
+      page = getCachedPage(cacheKey);
+      setHtml(page.content);
+    } else if (prompt) {
+      page = generatePage(prompt);
+      cacheWaitingRef.current = page.cacheKey;
+    } else {
+      throw new Error("prompt or cacheKey is required");
+    }
 
     setNavState({
       ...navState,
@@ -158,25 +152,17 @@ const ParentComponent = () => {
           ? navState.history
           : [...navState.history, page.cacheKey],
     });
-
-    setCurrentUrl(page.fakeUrl);
-    if (page.content) {
-      console.log("setting cached page content");
-      setHtml(page.content);
-    } else {
-      cacheWaitingRef.current = page.cacheKey;
-    }
   };
 
-  const navigateTo = async (prompt?: string) => {
-    await updateHtmlAndHistory(undefined, prompt);
+  const goToNewPage = async (prompt?: string) => {
+    await navigateTo(undefined, prompt);
   };
 
   const goBack = async () => {
     if (navState.currentIndex > 0) {
       const newIndex = navState.currentIndex - 1;
       const cacheKey = navState.history[newIndex];
-      await updateHtmlAndHistory(cacheKey, undefined, newIndex);
+      await navigateTo(cacheKey, undefined, newIndex);
     }
   };
 
@@ -188,14 +174,14 @@ const ParentComponent = () => {
       );
     }
 
-    await updateHtmlAndHistory(cacheKey, undefined, index);
+    await navigateTo(cacheKey, undefined, index);
   };
 
   const goForward = async () => {
     if (navState.currentIndex < navState.history.length - 1) {
       const newIndex = navState.currentIndex + 1;
       const cacheKey = navState.history[newIndex];
-      await updateHtmlAndHistory(cacheKey, undefined, newIndex);
+      await navigateTo(cacheKey, undefined, newIndex);
     }
   };
 
@@ -204,21 +190,21 @@ const ParentComponent = () => {
     const page = pageCache[cacheKey];
     const prompt = page?.prompt;
     if (prompt !== undefined) {
-      await navigateTo(prompt);
+      await goToNewPage(prompt);
     } else {
       throw new Error("Current page prompt undefined while refreshing");
     }
   };
 
   const addBookmark = () => {
-    const cacheKey = navState.history[navState.currentIndex];
-    if (cacheKey !== undefined && !navState.bookmarks.includes(cacheKey)) {
-      setNavState({
-        ...navState,
-        bookmarks: [...navState.bookmarks, cacheKey],
-      });
-      // Optionally, save bookmarks to a backend or local storage
-    }
+    // const cacheKey = navState.history[navState.currentIndex];
+    // if (cacheKey !== undefined && !navState.bookmarks.includes(cacheKey)) {
+    //   setNavState({
+    //     ...navState,
+    //     bookmarks: [...navState.bookmarks, cacheKey],
+    //   });
+    //   // Optionally, save bookmarks to a backend or local storage
+    // }
   };
 
   const goHome = () => {
@@ -254,14 +240,28 @@ const ParentComponent = () => {
   };
 
   useEffect(() => {
+    if (messages.length === 0) {
+      return;
+    }
     const lastMessage = messages
       .filter((message) => message.role === "assistant")
       .pop();
     if (lastMessage) {
       setHtml(lastMessage.content);
     }
-    console.log("No assistant message found");
   }, [messages]);
+
+  const setTitle = (title: string) => {
+    const page = pageCache[cacheWaitingRef.current];
+    if (!page) {
+      throw new Error("Page not found while setting title");
+    }
+    setPageCache({
+      ...pageCache,
+      [page.cacheKey]: { ...page, title },
+    });
+    document.title = "alternet: " + title;
+  };
 
   return (
     <div className="flex h-screen">
@@ -269,7 +269,7 @@ const ParentComponent = () => {
         <TopBar
           isPortrait={isPortrait}
           currentUrl={currentUrl}
-          onAddressEntered={navigateTo}
+          onAddressEntered={goToNewPage}
           onBack={goBack}
           onForward={goForward}
           onRefresh={refresh}
@@ -277,7 +277,11 @@ const ParentComponent = () => {
           onGoHome={goHome}
           onOpenHistory={openHistory}
         />
-        <IframeContainer html={html} isLoading={isLoading} />
+        <IframeContainer
+          html={html}
+          isLoading={isLoading}
+          setTitle={setTitle}
+        />
         <FloatingLogo src="alternet" isPortrait={isPortrait} />
         {isPortrait && (
           <BottomBar

@@ -9,5 +9,4 @@ export interface Page {
 export interface NavigationState {
   currentIndex: number;
   history: string[];
-  bookmarks: string[];
 }

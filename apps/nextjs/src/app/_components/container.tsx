@@ -3,18 +3,31 @@ import React, { useEffect, useRef } from "react";
 interface IframeContainerProps {
   html: string;
   isLoading: boolean;
+  setTitle: (title: string) => void;
 }
 
-const DEFAULT_STYLE =
-  "font-family: var(--font-geist-sans), 'ui-sans-serif', 'system-ui', 'sans-serif', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'; font-size: 24px; font-weight: bold;;";
+const DEFAULT_STYLE = `font-family: var(--font-geist-sans), 'ui-sans-serif', 'system-ui', 'sans-serif', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  font-size: 24px;
+  font-weight: bold;`;
 
 const IframeContainer: React.FC<IframeContainerProps> = ({
   html,
   isLoading,
+  setTitle,
 }) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const titleSet = useRef(false);
 
   useEffect(() => {
+    if (!titleSet.current && html.includes("</title>")) {
+      const title = html.substring(
+        html.indexOf("<title>") + 7,
+        html.indexOf("</title>"),
+      );
+      titleSet.current = true;
+      setTitle(title);
+    }
+
     if (iframeRef.current) {
       const iframeDocument =
         iframeRef.current.contentDocument ??
