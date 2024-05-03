@@ -1,7 +1,15 @@
-import ParentComponent from "./ParentComponent";
+'use client'
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 const HomePage = () => {
-  return <ParentComponent />;
+  const router = useRouter();
+
+  useEffect(() => {
+    void router.push('/home');
+  }, [router]);
+
+  return null; // Render nothing while redirecting
 };
 
 export default HomePage;
