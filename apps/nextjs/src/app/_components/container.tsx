@@ -53,7 +53,7 @@ const IframeContainer: React.FC<IframeContainerProps> = ({
           `;
           iframeDocument.body.appendChild(script);
           scriptAddedRef.current = true; // Mark as script added
-          console.log('added script')
+          console.log("added script");
         }
         //if we're in the style tag, modify the loading div
         if (

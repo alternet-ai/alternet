@@ -36,21 +36,21 @@ const BottomBar: React.FC<BottomBarProps> = ({
   return (
     <div className="flex items-center justify-between border-b bg-background p-2">
       <div className="flex space-x-2">
-      <Button variant="ghost" onClick={onBack} disabled={disabled}>
+        <Button variant="ghost" onClick={onBack} disabled={disabled}>
           <ChevronLeft />
         </Button>
         <Button variant="ghost" onClick={onForward} disabled={disabled}>
           <ChevronRight />
         </Button>
         {disabled ? (
-        <Button variant="ghost" onClick={onCancel}>
-          <X />
-        </Button>
-      ) : (
-        <Button variant="ghost" onClick={onRefresh} disabled={disabled}>
-          <RotateCw />
-        </Button>
-      )}
+          <Button variant="ghost" onClick={onCancel}>
+            <X />
+          </Button>
+        ) : (
+          <Button variant="ghost" onClick={onRefresh} disabled={disabled}>
+            <RotateCw />
+          </Button>
+        )}
         <Button variant="ghost" onClick={onGoHome} disabled={disabled}>
           <Home />
         </Button>
@@ -58,7 +58,7 @@ const BottomBar: React.FC<BottomBarProps> = ({
         <Button variant="ghost" onClick={onBookmark}>
           <Bookmark />
         </Button>
-        <Button variant="ghost" onClick={onOpenHistory} >
+        <Button variant="ghost" onClick={onOpenHistory}>
           <Clock />
         </Button>
       </div>

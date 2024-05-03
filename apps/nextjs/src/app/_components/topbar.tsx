@@ -6,7 +6,7 @@ import {
   Clock,
   Home,
   RotateCw,
-  X
+  X,
 } from "lucide-react";
 
 import { Button } from "@acme/ui/button";
@@ -40,7 +40,7 @@ const TopBar: React.FC<TopBarProps> = ({
   disabled,
   onCancel,
 }) => {
-  const [address, setAddress] = useState('');
+  const [address, setAddress] = useState("");
 
   useEffect(() => {
     setAddress(currentUrl);
@@ -82,14 +82,14 @@ const TopBar: React.FC<TopBarProps> = ({
           <ChevronRight />
         </Button>
         {disabled ? (
-        <Button variant="ghost" onClick={onCancel}>
-          <X />
-        </Button>
-      ) : (
-        <Button variant="ghost" onClick={onRefresh} disabled={disabled}>
-          <RotateCw />
-        </Button>
-      )}
+          <Button variant="ghost" onClick={onCancel}>
+            <X />
+          </Button>
+        ) : (
+          <Button variant="ghost" onClick={onRefresh} disabled={disabled}>
+            <RotateCw />
+          </Button>
+        )}
         <Button variant="ghost" onClick={onGoHome} disabled={disabled}>
           <Home />
         </Button>
@@ -106,10 +106,10 @@ const TopBar: React.FC<TopBarProps> = ({
       </form>
       <div className="flex space-x-2">
         <ThemeToggle />
-        <Button variant="ghost" onClick={onBookmark} >
+        <Button variant="ghost" onClick={onBookmark}>
           <Bookmark />
         </Button>
-        <Button variant="ghost" onClick={onOpenHistory} >
+        <Button variant="ghost" onClick={onOpenHistory}>
           <Clock />
         </Button>
       </div>

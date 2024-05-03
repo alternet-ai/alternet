@@ -57,7 +57,8 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
               <div
                 onClick={(e) => {
                   e.stopPropagation(); // Prevent onSelect from being triggered when expanding
-                  if (!disabled) { // Check if not disabled before toggling
+                  if (!disabled) {
+                    // Check if not disabled before toggling
                     toggleExpand(e, index);
                   }
                 }}

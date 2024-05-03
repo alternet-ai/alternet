@@ -24,8 +24,8 @@ export async function POST(req: Request) {
   } else {
     throw new Error(
       `Messages should always be 3 or more. how did you get here? ${JSON.stringify(
-        messages
-      )}`
+        messages,
+      )}`,
     );
   }
 

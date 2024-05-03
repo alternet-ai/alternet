@@ -143,4 +143,4 @@ export const HOME_HTML = `<html>
   </marquee>
 </body>
 
-</html>`
+</html>`;
