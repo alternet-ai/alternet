@@ -35,6 +35,7 @@ export async function POST(req: Request) {
     system: DEFAULT_PROMPT,
     messages: truncatedMessages,
     temperature: 1,
+    maxTokens: 4096,
   });
 
   // Respond with the stream
