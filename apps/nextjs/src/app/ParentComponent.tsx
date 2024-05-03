@@ -74,21 +74,7 @@ const ParentComponent = ({ initialPage = HOME_PAGE }: ParentComponentProps) => {
   }, []);
 
   useEffect(() => {
-    pageCache.current = {
-      [initialPage.cacheKey]: initialPage,
-    };
-
-    navState.current = {
-      currentIndex: 0,
-      history: [initialPage.cacheKey],
-    };
-
-    setMessages([
-      { role: "user", content: initialPage.prompt, id: "1" },
-      { role: "assistant", content: initialPage.content, id: "2" },
-    ]);
-
-    getCachedPage(initialPage.cacheKey);
+    resetToPage(initialPage);
   }, [initialPage]);
 
   const getCachedPage = (cacheKey: string) => {
@@ -190,23 +176,30 @@ const ParentComponent = ({ initialPage = HOME_PAGE }: ParentComponentProps) => {
     // }
   };
 
-  const goHome = () => {
+
+  const resetToPage = (page: Page) => {
     pageCache.current = {
-      [HOME_KEY]: HOME_PAGE,
+      [page.cacheKey]: page,
     };
     navState.current = {
-      history: [HOME_KEY],
+      history: [page.cacheKey],
       currentIndex: 0,
     };
 
     setMessages([
-      { role: "user", content: HOME_PAGE.prompt, id: "1" },
+      { role: "user", content: page.prompt, id: "1" },
       {
         role: "assistant",
-        content: HOME_PAGE.content,
+        content: page.content,
         id: "2",
       },
     ]);
+
+    getCachedPage(page.cacheKey);
+  }
+
+  const goHome = () => {
+    resetToPage(HOME_PAGE);
   };
 
   const cancelGeneration = () => {
