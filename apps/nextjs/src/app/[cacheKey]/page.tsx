@@ -1,27 +1,24 @@
-"use client";
-
-import { useEffect, useState } from "react";
+import { cache } from "react";
+import { env } from "~/env";
 
 import type { Page } from "../types";
 import ParentComponent, { HOME_KEY } from "../ParentComponent";
 
-const CacheKeyPage = ({ params }: { params: { cacheKey: string } }) => {
-  const [page, setPage] = useState<Page | null>(null);
+const loadPage = cache(async (cacheKey: string) => {
+  try {
+    const url = new URL(`/api/load-page?cacheKey=${cacheKey}`, env.NEXT_PUBLIC_API_BASE_URL).toString();
+    const response = await fetch(url);
+    const fetchedPage = await response.json() as Page;
+    return fetchedPage;
+  } catch (error) {
+    console.error("Error fetching page:", error);
+    return null;
+  }
+});
 
-  useEffect(() => {
-    const { cacheKey } = params;
 
-    // Fetch the page from storage using the cacheKey
-    fetch(`/api/load-page?cacheKey=${cacheKey}`)
-      .then((response) => response.json())
-      .then((fetchedPage: Page) => {
-        console.log("fetchedPage", fetchedPage);
-        setPage(fetchedPage);
-      })
-      .catch((error) => {
-        console.error("Error fetching page:", error);
-      });
-  }, [params.cacheKey]);
+const CacheKeyPage = async ({ params }: { params: { cacheKey: string } }) => {
+  const page = await loadPage(params.cacheKey);
 
   if (!page) {
     if (params.cacheKey !== HOME_KEY) {
