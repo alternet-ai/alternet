@@ -11,6 +11,10 @@ interface MessageRequest {
 
 export async function POST(req: Request) {
   const { messages, lastIndex } = (await req.json()) as MessageRequest;
+  if (lastIndex < 0) {
+    throw new Error(`Last index should be 0 or more, got ${lastIndex}`);
+  }
+
   const startIndex = lastIndex * 2;
   let truncatedMessages = messages;
   if (messages.length > 3) {

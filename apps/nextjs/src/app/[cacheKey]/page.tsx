@@ -3,27 +3,14 @@ import { Button } from "@acme/ui/button";
 import type { Page } from "../types";
 import ParentComponent, { HOME_KEY } from "../ParentComponent";
 import { env } from "~/env";
+import { HOME_HTML } from "../static/home-html";
+import LoginComponent from "../_components/login";
 
 const CacheKeyPage = async ({ params }: { params: { cacheKey: string } }) => {
   const session = await auth();
 
   if (!session) {
-    return (
-      <div>
-        <p>You need to be logged in to view this page.</p>
-        <form>
-          <Button
-            size="lg"
-            formAction={async () => {
-              "use server";
-              await signIn("discord");
-            }}
-          >
-            Sign in with Discord
-          </Button>
-        </form>
-      </div>
-    );
+    return <LoginComponent />;
   }
 
   let page: Page | null = null;
