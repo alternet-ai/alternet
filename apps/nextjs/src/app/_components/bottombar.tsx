@@ -5,9 +5,11 @@ import {
   ChevronRight,
   Clock,
   Home,
+  LogOut,
   RotateCw,
   X,
 } from "lucide-react";
+import { signOut } from "next-auth/react";
 
 import { Button } from "@acme/ui/button";
 import { ThemeToggle } from "@acme/ui/theme";
@@ -55,6 +57,9 @@ const BottomBar: React.FC<BottomBarProps> = ({
           <Home />
         </Button>
         <ThemeToggle />
+        <Button variant="ghost" onClick={() => signOut()}>
+          <LogOut />
+        </Button>
         <Button variant="ghost" onClick={onBookmark}>
           <Bookmark />
         </Button>

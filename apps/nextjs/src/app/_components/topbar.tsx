@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { signOut } from "next-auth/react";
 import {
   Bookmark,
   ChevronLeft,
@@ -7,6 +8,7 @@ import {
   Home,
   RotateCw,
   X,
+  LogOut,
 } from "lucide-react";
 
 import { Button } from "@acme/ui/button";
@@ -106,6 +108,9 @@ const TopBar: React.FC<TopBarProps> = ({
       </form>
       <div className="flex space-x-2">
         <ThemeToggle />
+        <Button variant="ghost" onClick={() => signOut()}>
+          <LogOut />
+        </Button>
         <Button variant="ghost" onClick={onBookmark}>
           <Bookmark />
         </Button>
