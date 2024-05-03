@@ -11,27 +11,18 @@ interface MessageRequest {
 
 export async function POST(req: Request) {
   const { messages, lastIndex } = (await req.json()) as MessageRequest;
-  if (lastIndex < 0) {
-    throw new Error(`Last index should be 0 or more, got ${lastIndex}`);
-  }
 
   const startIndex = lastIndex * 2;
   let truncatedMessages = messages;
-  if (messages.length > 3) {
-    truncatedMessages = messages.slice(startIndex, startIndex + 3);
-  } else if (messages.length === 3) {
-    const lastMessage = messages.pop();
-    if (!lastMessage) {
-      throw new Error("No last message lol how??");
-    }
-    truncatedMessages = [lastMessage];
+
+  // lastIndex is -1. this implies a refresh of the root page
+  if (lastIndex == -1) {
+    truncatedMessages = [messages[0]]
   } else {
-    throw new Error(
-      `Messages should always be 3 or more. how did you get here? ${JSON.stringify(
-        messages,
-      )}`,
-    );
+    truncatedMessages = messages.slice(startIndex, startIndex + 3);
   }
+
+  console.log(lastIndex, messages, truncatedMessages);
 
   // Call the language model
   const result = await streamText({
