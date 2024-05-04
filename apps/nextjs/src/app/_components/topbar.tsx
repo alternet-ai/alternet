@@ -149,7 +149,7 @@ const TopBar: React.FC<TopBarProps> = ({
         ) : (
           <Dialog>
             <DialogTrigger asChild>
-              <Button variant="ghost">
+              <Button variant="ghost" disabled={title === "alternet: home"}>
                 <Bookmark />
               </Button>
             </DialogTrigger>

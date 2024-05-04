@@ -100,7 +100,7 @@ const BottomBar: React.FC<BottomBarProps> = ({
         ) : (
           <Dialog>
             <DialogTrigger asChild>
-              <Button variant="ghost">
+              <Button variant="ghost" disabled={title === "alternet: home"}>
                 <Bookmark />
               </Button>
             </DialogTrigger>
