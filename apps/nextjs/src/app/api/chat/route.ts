@@ -17,12 +17,13 @@ export async function POST(req: Request) {
 
   // lastIndex is -1. this implies a refresh of the root page
   if (lastIndex == -1) {
-    truncatedMessages = [messages[0]]
+    if (!messages[0]) {
+      throw new Error("No messages provided");
+    }
+    truncatedMessages = [messages[0]];
   } else {
     truncatedMessages = messages.slice(startIndex, startIndex + 3);
   }
-
-  console.log(lastIndex, messages, truncatedMessages);
 
   // Call the language model
   const result = await streamText({
