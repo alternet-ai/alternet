@@ -3,13 +3,10 @@
 import type { Message } from "ai";
 import React, { useEffect, useRef, useState } from "react";
 import { useChat } from "ai/react";
-import { useSession } from "next-auth/react";
 
 import { Separator } from "@acme/ui/separator";
-import { toast } from "@acme/ui/toast";
 
 import type { NavigationState, Page } from "./types";
-import { api } from "~/trpc/react";
 import BottomBar from "./_components/bottombar";
 import IframeContainer from "./_components/container";
 import HistoryPanel from "./_components/history";
@@ -31,11 +28,8 @@ interface ParentComponentProps {
 }
 
 const ParentComponent = ({ initialPage = HOME_PAGE }: ParentComponentProps) => {
-  const { data: session, status } = useSession();
   const [isPortrait, setIsPortrait] = useState(false);
-  const [isBookmarked, setIsBookmarked] = useState(false);
   const pageCache = useRef<Record<string, Page>>({});
-  const userMetadata = api.auth.getOwnMetadata.useQuery().data;
 
   //const [siteMap, setSiteMap] = useState<Record<string, string>>({});
 
@@ -62,34 +56,6 @@ const ParentComponent = ({ initialPage = HOME_PAGE }: ParentComponentProps) => {
 
   const [showHistory, setShowHistory] = useState(true); //todo: false?
 
-  const utils = api.useUtils();
-
-  const updateBookmark = api.bookmark.update.useMutation({
-    onSuccess: async () => {
-      await utils.bookmark.invalidate();
-    },
-    onError: (err) => {
-      toast.error(
-        err.data?.code === "UNAUTHORIZED"
-          ? "You must be logged in to update a bookmark"
-          : "Failed to update bookmark",
-      );
-    },
-  });
-
-  const deleteBookmark = api.bookmark.delete.useMutation({
-    onSuccess: async () => {
-      await utils.bookmark.invalidate();
-    },
-    onError: (err) => {
-      toast.error(
-        err.data?.code === "UNAUTHORIZED"
-          ? "You must be logged in to delete a bookmark"
-          : "Failed to delete bookmark",
-      );
-    },
-  });
-
   useEffect(() => {
     const handleResize = () => {
       setIsPortrait(window.innerWidth < window.innerHeight);
@@ -108,11 +74,8 @@ const ParentComponent = ({ initialPage = HOME_PAGE }: ParentComponentProps) => {
   }, []);
 
   useEffect(() => {
-    if (status === "loading") {
-      return;
-    }
     resetToPage(initialPage);
-  }, [initialPage, status]);
+  }, [initialPage]);
 
   const getCachedPage = (cacheKey: string) => {
     const cachedPage = pageCache.current[cacheKey];
@@ -205,32 +168,14 @@ const ParentComponent = ({ initialPage = HOME_PAGE }: ParentComponentProps) => {
     };
   };
 
-  const addBookmark = (title: string, isPublic: boolean) => {
-    const cacheKey = navState.current.history[navState.current.currentIndex];
-    if (!cacheKey) {
-      throw new Error("Could not find cache key for adding bookmark");
-    }
-
-    if (status === "authenticated") {
-      setIsBookmarked(true);
-      updateBookmark.mutate({
-        bookmarkId: cacheKey,
-        title: title,
-        isPublic: isPublic,
-      });
-    } else {
-      toast.error("You must be logged in to add a bookmark");
-    }
+  const addBookmark = () => {
+    // const cacheKey = navState.current.history[navState.current.currentIndex];
+    // if (cacheKey !== undefined && !navState.current.bookmarks.includes(cacheKey)) {
+    //   navState.current.bookmarks = [...navState.current.bookmarks, cacheKey];
+    //   // Optionally, save bookmarks to a backend or local storage
+    // }
   };
 
-  const removeBookmark = () => {
-    const cacheKey = navState.current.history[navState.current.currentIndex];
-    if (!cacheKey) {
-      throw new Error("Could not find cache key for adding bookmark");
-    }
-    setIsBookmarked(false);
-    deleteBookmark.mutate(cacheKey);
-  };
 
   const resetToPage = (page: Page) => {
     pageCache.current = {
@@ -251,7 +196,7 @@ const ParentComponent = ({ initialPage = HOME_PAGE }: ParentComponentProps) => {
     ]);
 
     getCachedPage(page.cacheKey);
-  };
+  }
 
   const goHome = () => {
     resetToPage(HOME_PAGE);
@@ -367,7 +312,7 @@ const ParentComponent = ({ initialPage = HOME_PAGE }: ParentComponentProps) => {
   return (
     <div className="flex h-screen">
       <div className="flex flex-1 flex-col">
-        {<TopBar
+        <TopBar
           isPortrait={isPortrait}
           disabled={isLoading}
           currentUrl={currentUrl}
@@ -375,12 +320,11 @@ const ParentComponent = ({ initialPage = HOME_PAGE }: ParentComponentProps) => {
           onBack={goBack}
           onForward={goForward}
           onRefresh={refresh}
-          onAddBookmark={addBookmark}
-          onDeleteBookmark={removeBookmark}
+          onBookmark={addBookmark}
           onGoHome={goHome}
           onOpenHistory={openHistory}
           onCancel={cancelGeneration}
-        />}
+        />
         <IframeContainer
           html={html}
           isLoading={isLoading}
@@ -393,14 +337,10 @@ const ParentComponent = ({ initialPage = HOME_PAGE }: ParentComponentProps) => {
             onBack={goBack}
             onForward={goForward}
             onRefresh={refresh}
-            onAddBookmark={() => {}}
-            onDeleteBookmark={() => {}}
+            onBookmark={addBookmark}
             onGoHome={goHome}
             onOpenHistory={openHistory}
             onCancel={cancelGeneration}
-            defaultTitle={title}
-            defaultIsPublic={userMetadata?.isBookmarkDefaultPublic ?? false}
-            cacheKey={navState.current.history[navState.current.currentIndex]}
           />
         )}
       </div>
