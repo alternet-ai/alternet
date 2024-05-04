@@ -5,6 +5,7 @@ import { GeistSans } from "geist/font/sans";
 import { cn } from "@acme/ui";
 import { ThemeProvider } from "@acme/ui/theme";
 import { Toaster } from "@acme/ui/toast";
+import { SessionProvider } from "next-auth/react"
 
 import { TRPCReactProvider } from "~/trpc/react";
 
@@ -49,11 +50,13 @@ export default function RootLayout(props: { children: React.ReactNode }) {
           GeistSans.variable,
           GeistMono.variable,
         )}
-      >
+        >
+        <SessionProvider>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <TRPCReactProvider>{props.children}</TRPCReactProvider>
           <Toaster />
         </ThemeProvider>
+        </SessionProvider>
       </body>
     </html>
   );

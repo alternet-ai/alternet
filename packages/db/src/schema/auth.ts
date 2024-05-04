@@ -1,5 +1,6 @@
 import { relations, sql } from "drizzle-orm";
 import {
+  boolean,
   index,
   int,
   primaryKey,
@@ -19,6 +20,9 @@ export const users = mySqlTable("user", {
     fsp: 3,
   }).default(sql`CURRENT_TIMESTAMP(3)`),
   image: varchar("image", { length: 255 }),
+  description: text("description"),
+  isPublic: boolean("isPublic").default(true),
+  isBookmarkDefaultPublic: boolean("isBookmarkDefaultPublic").default(true),
 });
 
 export const usersRelations = relations(users, ({ many }) => ({
