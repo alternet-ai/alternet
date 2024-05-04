@@ -27,7 +27,7 @@ export async function POST(req: Request) {
 
   // Call the language model
   const result = await streamText({
-    model: anthropic("claude-3-haiku-20240307"),
+    model: anthropic("claude-3-sonnet-20240229"),
     system: DEFAULT_PROMPT,
     messages: truncatedMessages,
     temperature: 1,

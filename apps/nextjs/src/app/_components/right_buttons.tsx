@@ -1,5 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Bookmark, BookmarkCheck, Clock, LogOut } from "lucide-react";
+import {
+  Bookmark,
+  BookmarkCheck,
+  Clock,
+  LogOut,
+  Menu,
+  User,
+} from "lucide-react";
 import { signOut } from "next-auth/react";
 
 import { Button } from "@acme/ui/button";
@@ -9,6 +16,12 @@ import {
   DialogContent,
   DialogTrigger,
 } from "@acme/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@acme/ui/dropdown-menu";
 import { Input } from "@acme/ui/input";
 import { Label } from "@acme/ui/label";
 import { Switch } from "@acme/ui/switch";
@@ -47,57 +60,75 @@ const RightButtons: React.FC<RightButtonsProps> = ({
   };
 
   return (
-      <div className="flex space-x-2">
-        <ThemeToggle />
-        <Button variant="ghost" onClick={() => signOut()}>
-          <LogOut />
-        </Button>
-        {isBookmarked ? (
-          <Button variant="ghost" onClick={onDeleteBookmark}>
-            <BookmarkCheck />
+    <div className="flex space-x-2">
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost">
+            <Menu />
           </Button>
-        ) : (
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button variant="ghost" disabled={title === "alternet: home"}>
-                <Bookmark />
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
-              <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="title" className="text-right">
-                    Title
-                  </Label>
-                  <Input
-                    id="title"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    className="col-span-3"
-                  />
-                </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="visibility" className="text-right">
-                    Public
-                  </Label>
-                  <Switch
-                    id="visibility"
-                    checked={isPublic}
-                    onCheckedChange={setIsPublic}
-                    className="col-span-3"
-                  />
-                </div>
-                <DialogClose asChild>
-                  <Button onClick={handleAddBookmark}>Add Bookmark</Button>
-                </DialogClose>
-              </div>
-            </DialogContent>
-          </Dialog>
-        )}
-        <Button variant="ghost" onClick={onOpenHistory}>
-          <Clock />
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuItem>
+            <Bookmark className="mr-2 h-4 w-4" />
+            <span>Bookmarks</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem>
+            <User className="mr-2 h-4 w-4" />
+            <span>Edit Profile</span>
+          </DropdownMenuItem>
+          <ThemeToggle />
+          <DropdownMenuItem onClick={() => signOut()}>
+            <LogOut className="mr-2 h-4 w-4" />
+            <span>Logout</span>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      {isBookmarked ? (
+        <Button variant="ghost" onClick={onDeleteBookmark}>
+          <BookmarkCheck />
         </Button>
-      </div>
+      ) : (
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button variant="ghost" disabled={title === "alternet: home"}>
+              <Bookmark />
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[425px]">
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="title" className="text-right">
+                  Title
+                </Label>
+                <Input
+                  id="title"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  className="col-span-3"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="visibility" className="text-right">
+                  Public
+                </Label>
+                <Switch
+                  id="visibility"
+                  checked={isPublic}
+                  onCheckedChange={setIsPublic}
+                  className="col-span-3"
+                />
+              </div>
+              <DialogClose asChild>
+                <Button onClick={handleAddBookmark}>Add Bookmark</Button>
+              </DialogClose>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+      <Button variant="ghost" onClick={onOpenHistory}>
+        <Clock />
+      </Button>
+    </div>
   );
 };
 
