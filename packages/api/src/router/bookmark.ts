@@ -38,6 +38,16 @@ export const bookmarkRouter = {
   update: protectedProcedure
     .input(CreateBookmarkSchema)
     .mutation(({ ctx, input }) => {
+      return ctx.db.update(schema.bookmarks).set({
+        ...input,
+        userId: ctx.session.user.id,
+        updatedAt: sql`CURRENT_TIMESTAMP(3)`,
+      });
+    }),
+
+  insert: protectedProcedure
+    .input(CreateBookmarkSchema)
+    .mutation(({ ctx, input }) => {
       return ctx.db.insert(schema.bookmarks).values({
         ...input,
         userId: ctx.session.user.id,
@@ -60,7 +70,7 @@ export const bookmarkRouter = {
 
   isBookmarked: protectedProcedure
     .input(z.string().min(1))
-    .query(({ ctx, input }) => {
+    .mutation(({ ctx, input }) => {
       return ctx.db.query.bookmarks.findFirst({
         where: and(
           eq(schema.bookmarks.userId, ctx.session.user.id),

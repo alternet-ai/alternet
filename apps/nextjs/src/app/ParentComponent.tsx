@@ -31,7 +31,7 @@ interface ParentComponentProps {
 }
 
 const ParentComponent = ({ initialPage = HOME_PAGE }: ParentComponentProps) => {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const [isPortrait, setIsPortrait] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
   const pageCache = useRef<Record<string, Page>>({});
@@ -64,7 +64,7 @@ const ParentComponent = ({ initialPage = HOME_PAGE }: ParentComponentProps) => {
 
   const utils = api.useUtils();
 
-  const updateBookmark = api.bookmark.update.useMutation({
+  const insertBookmark = api.bookmark.insert.useMutation({
     onSuccess: async () => {
       await utils.bookmark.invalidate();
     },
@@ -86,6 +86,20 @@ const ParentComponent = ({ initialPage = HOME_PAGE }: ParentComponentProps) => {
         err.data?.code === "UNAUTHORIZED"
           ? "You must be logged in to delete a bookmark"
           : "Failed to delete bookmark",
+      );
+    },
+  });
+
+  const getIsBookmarked = api.bookmark.isBookmarked.useMutation({
+    onSuccess: async (res) => {
+      await utils.bookmark.invalidate();
+      setIsBookmarked(!!res);
+    },
+    onError: (err) => {
+      toast.error(
+        err.data?.code === "UNAUTHORIZED"
+          ? "You must be logged in to check a bookmark"
+          : "Failed to check bookmark",
       );
     },
   });
@@ -118,6 +132,8 @@ const ParentComponent = ({ initialPage = HOME_PAGE }: ParentComponentProps) => {
     const cachedPage = pageCache.current[cacheKey];
 
     if (cachedPage) {
+      getIsBookmarked.mutate(cacheKey);
+
       setHtml(cachedPage.content);
       setCurrentUrl(cachedPage.fakeUrl);
       setTitle(cachedPage.title);
@@ -213,7 +229,7 @@ const ParentComponent = ({ initialPage = HOME_PAGE }: ParentComponentProps) => {
 
     if (status === "authenticated") {
       setIsBookmarked(true);
-      updateBookmark.mutate({
+      insertBookmark.mutate({
         bookmarkId: cacheKey,
         title: title,
         isPublic: isPublic,
@@ -367,7 +383,7 @@ const ParentComponent = ({ initialPage = HOME_PAGE }: ParentComponentProps) => {
   return (
     <div className="flex h-screen">
       <div className="flex flex-1 flex-col">
-        {<TopBar
+        <TopBar
           isPortrait={isPortrait}
           disabled={isLoading}
           currentUrl={currentUrl}
@@ -380,7 +396,10 @@ const ParentComponent = ({ initialPage = HOME_PAGE }: ParentComponentProps) => {
           onGoHome={goHome}
           onOpenHistory={openHistory}
           onCancel={cancelGeneration}
-        />}
+          defaultTitle={title}
+          defaultIsPublic={userMetadata?.isBookmarkDefaultPublic ?? false}
+          isBookmarked={isBookmarked}
+        />
         <IframeContainer
           html={html}
           isLoading={isLoading}
@@ -393,14 +412,14 @@ const ParentComponent = ({ initialPage = HOME_PAGE }: ParentComponentProps) => {
             onBack={goBack}
             onForward={goForward}
             onRefresh={refresh}
-            onAddBookmark={() => {}}
-            onDeleteBookmark={() => {}}
+            onAddBookmark={addBookmark}
+            onDeleteBookmark={removeBookmark}
             onGoHome={goHome}
             onOpenHistory={openHistory}
             onCancel={cancelGeneration}
             defaultTitle={title}
             defaultIsPublic={userMetadata?.isBookmarkDefaultPublic ?? false}
-            cacheKey={navState.current.history[navState.current.currentIndex]}
+            isBookmarked={isBookmarked}
           />
         )}
       </div>
