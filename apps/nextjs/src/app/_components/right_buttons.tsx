@@ -1,15 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  Bookmark,
-  BookmarkCheck,
-  ChevronLeft,
-  ChevronRight,
-  Clock,
-  Home,
-  LogOut,
-  RotateCw,
-  X,
-} from "lucide-react";
+import { Bookmark, BookmarkCheck, Clock, LogOut } from "lucide-react";
 import { signOut } from "next-auth/react";
 
 import { Button } from "@acme/ui/button";
@@ -24,31 +14,19 @@ import { Label } from "@acme/ui/label";
 import { Switch } from "@acme/ui/switch";
 import { ThemeToggle } from "@acme/ui/theme";
 
-interface BottomBarProps {
-  onBack: () => void;
-  onForward: () => void;
-  onRefresh: () => void;
+interface RightButtonsProps {
   onAddBookmark: (title: string, isPublic: boolean) => void;
   onDeleteBookmark: () => void;
-  onGoHome: () => void;
   onOpenHistory: () => void;
-  disabled: boolean;
-  onCancel: () => void;
   defaultTitle: string;
   defaultIsPublic: boolean;
   isBookmarked: boolean;
 }
 
-const BottomBar: React.FC<BottomBarProps> = ({
-  onBack,
-  onForward,
-  onRefresh,
+const RightButtons: React.FC<RightButtonsProps> = ({
   onAddBookmark,
   onDeleteBookmark,
-  onGoHome,
   onOpenHistory,
-  disabled,
-  onCancel,
   defaultTitle,
   defaultIsPublic,
   isBookmarked,
@@ -69,26 +47,7 @@ const BottomBar: React.FC<BottomBarProps> = ({
   };
 
   return (
-    <div className="flex items-center justify-between border-b bg-background p-2">
       <div className="flex space-x-2">
-        <Button variant="ghost" onClick={onBack} disabled={disabled}>
-          <ChevronLeft />
-        </Button>
-        <Button variant="ghost" onClick={onForward} disabled={disabled}>
-          <ChevronRight />
-        </Button>
-        {disabled ? (
-          <Button variant="ghost" onClick={onCancel}>
-            <X />
-          </Button>
-        ) : (
-          <Button variant="ghost" onClick={onRefresh} disabled={disabled}>
-            <RotateCw />
-          </Button>
-        )}
-        <Button variant="ghost" onClick={onGoHome} disabled={disabled}>
-          <Home />
-        </Button>
         <ThemeToggle />
         <Button variant="ghost" onClick={() => signOut()}>
           <LogOut />
@@ -139,8 +98,7 @@ const BottomBar: React.FC<BottomBarProps> = ({
           <Clock />
         </Button>
       </div>
-    </div>
   );
 };
 
-export default BottomBar;
+export default RightButtons;

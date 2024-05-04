@@ -10,11 +10,12 @@ import { toast } from "@acme/ui/toast";
 
 import type { NavigationState, Page } from "./types";
 import { api } from "~/trpc/react";
-import BottomBar from "./_components/bottombar";
+import AddressBar from "./_components/address_bar";
 import IframeContainer from "./_components/container";
 import HistoryPanel from "./_components/history";
+import LeftButtons from "./_components/left_buttons";
 import FloatingLogo from "./_components/logo";
-import TopBar from "./_components/topbar";
+import RightButtons from "./_components/right_buttons";
 import { HOME_HTML } from "./static/home-html";
 
 export const HOME_KEY = "home";
@@ -383,23 +384,33 @@ const ParentComponent = ({ initialPage = HOME_PAGE }: ParentComponentProps) => {
   return (
     <div className="flex h-screen">
       <div className="flex flex-1 flex-col">
-        <TopBar
-          isPortrait={isPortrait}
-          disabled={isLoading}
-          currentUrl={currentUrl}
-          onAddressEntered={generatePage}
-          onBack={goBack}
-          onForward={goForward}
-          onRefresh={refresh}
-          onAddBookmark={addBookmark}
-          onDeleteBookmark={removeBookmark}
-          onGoHome={goHome}
-          onOpenHistory={openHistory}
-          onCancel={cancelGeneration}
-          defaultTitle={title}
-          defaultIsPublic={userMetadata?.isBookmarkDefaultPublic ?? false}
-          isBookmarked={isBookmarked}
-        />
+        <div className="flex items-center justify-between border-b bg-background p-2">
+          {!isPortrait && (
+            <LeftButtons
+              onBack={goBack}
+              onForward={goForward}
+              onRefresh={refresh}
+              onGoHome={goHome}
+              disabled={isLoading}
+              onCancel={cancelGeneration}
+            />
+          )}
+          <AddressBar
+            currentUrl={currentUrl}
+            onAddressEntered={generatePage}
+            disabled={isLoading}
+          />
+          {!isPortrait && (
+            <RightButtons
+              onAddBookmark={addBookmark}
+              onDeleteBookmark={removeBookmark}
+              onOpenHistory={openHistory}
+              defaultTitle={title}
+              defaultIsPublic={userMetadata?.isBookmarkDefaultPublic ?? false}
+              isBookmarked={isBookmarked}
+            />
+          )}
+        </div>
         <IframeContainer
           html={html}
           isLoading={isLoading}
@@ -407,20 +418,24 @@ const ParentComponent = ({ initialPage = HOME_PAGE }: ParentComponentProps) => {
         />
         <FloatingLogo src="alternet" isPortrait={isPortrait} />
         {isPortrait && (
-          <BottomBar
-            disabled={isLoading}
-            onBack={goBack}
-            onForward={goForward}
-            onRefresh={refresh}
-            onAddBookmark={addBookmark}
-            onDeleteBookmark={removeBookmark}
-            onGoHome={goHome}
-            onOpenHistory={openHistory}
-            onCancel={cancelGeneration}
-            defaultTitle={title}
-            defaultIsPublic={userMetadata?.isBookmarkDefaultPublic ?? false}
-            isBookmarked={isBookmarked}
-          />
+          <div className="flex items-center justify-between border-b bg-background p-2">
+            <LeftButtons
+              onBack={goBack}
+              onForward={goForward}
+              onRefresh={refresh}
+              onGoHome={goHome}
+              disabled={isLoading}
+              onCancel={cancelGeneration}
+            />
+            <RightButtons
+              onAddBookmark={addBookmark}
+              onDeleteBookmark={removeBookmark}
+              onOpenHistory={openHistory}
+              defaultTitle={title}
+              defaultIsPublic={userMetadata?.isBookmarkDefaultPublic ?? false}
+              isBookmarked={isBookmarked}
+            />
+          </div>
         )}
       </div>
       {showHistory && (
