@@ -34,7 +34,7 @@ export async function generateMetadata({
 
   // Check if an image already exists in the bucket
   const existingImageUrl = `${env.SCREENSHOT_BUCKET_URL}/${cacheKey}.png`;
-  const imageExistsResponse = await fetch(existingImageUrl, { method: 'HEAD' });
+  const imageExistsResponse = await fetch(existingImageUrl, { method: "HEAD" });
   let imageUrl;
 
   if (imageExistsResponse.ok) {
