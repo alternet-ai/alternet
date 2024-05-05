@@ -28,6 +28,13 @@ interface RightButtonsProps {
   onDownloadPage: () => void;
 }
 
+const fixTitle = (title: string) => {
+  if (title.startsWith("alternet: ")) {
+    return title.split(": ")[1]?? "";
+  }
+  return title;
+};
+
 const RightButtons: React.FC<RightButtonsProps> = ({
   onAddBookmark,
   onDeleteBookmark,
@@ -41,12 +48,12 @@ const RightButtons: React.FC<RightButtonsProps> = ({
   onCopyLink,
   onDownloadPage,
 }) => {
-  const [title, setTitle] = useState(defaultTitle);
+  const [title, setTitle] = useState(fixTitle(defaultTitle));
   const [isPublic, setIsPublic] = useState(defaultIsPublic);
   const [includeProfile, setIncludeProfile] = useState(true);
 
   useEffect(() => {
-    setTitle(defaultTitle);
+    setTitle(fixTitle(defaultTitle));
   }, [defaultTitle]);
 
   useEffect(() => {
@@ -96,10 +103,7 @@ const RightButtons: React.FC<RightButtonsProps> = ({
             </div>
             <div>
               <DialogClose asChild>
-                <Button
-                  onClick={onDownloadPage}
-                  className="w-full"
-                >
+                <Button onClick={onDownloadPage} className="w-full">
                   download page
                 </Button>
               </DialogClose>

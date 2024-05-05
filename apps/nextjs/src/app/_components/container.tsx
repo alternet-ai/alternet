@@ -11,6 +11,26 @@ interface MessageEventData {
   url: string;
 }
 
+const REDIRECT_SCRIPT = `
+document.body.addEventListener('click', function(event) {
+  const target = event.target.closest('a');
+  if (target) {
+    event.preventDefault();
+    window.parent.postMessage({ type: 'navigate', url: target.href }, '*');
+  }
+});
+document.body.addEventListener('submit', function(event) {
+  const form = event.target.closest('form');
+  if (form) {
+    event.preventDefault();
+    const formData = new FormData(form);
+    const actionUrl = form.action;
+    const searchParams = new URLSearchParams(formData).toString();
+    window.parent.postMessage({ type: 'navigate', url: actionUrl + '?' + searchParams }, '*');
+  }
+}, true); // Use capture phase to ensure the handler runs before any other submit handlers
+`;
+
 const DEFAULT_STYLE = `font-family: var(--font-geist-sans), 'ui-sans-serif', 'system-ui', 'sans-serif', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   font-size: 24px;
   font-weight: bold;`;
@@ -21,7 +41,8 @@ const IframeContainer: React.FC<IframeContainerProps> = ({
   onNavigate,
 }) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  const scriptAddedRef = useRef(false); // Ref to track if the script has been added
+  const scriptAddedRef = useRef(false); // Ref to track if the redirect script has been added
+  const executedScriptsRef = useRef(new Set()); // Ref to track executed script contents
 
   useEffect(() => {
     if (iframeRef.current) {
@@ -32,28 +53,9 @@ const IframeContainer: React.FC<IframeContainerProps> = ({
         if (!scriptAddedRef.current) {
           // Create and append the script element only if it hasn't been added before
           const script = iframeDocument.createElement("script");
-          script.textContent = `
-            document.body.addEventListener('click', function(event) {
-              const target = event.target.closest('a');
-              if (target) {
-                event.preventDefault();
-                window.parent.postMessage({ type: 'navigate', url: target.href }, '*');
-              }
-            });
-            document.body.addEventListener('submit', function(event) {
-              const form = event.target.closest('form');
-              if (form) {
-                event.preventDefault();
-                const formData = new FormData(form);
-                const actionUrl = form.action;
-                const searchParams = new URLSearchParams(formData).toString();
-                window.parent.postMessage({ type: 'navigate', url: actionUrl + '?' + searchParams }, '*');
-              }
-            }, true); // Use capture phase to ensure the handler runs before any other submit handlers
-          `;
+          script.textContent = REDIRECT_SCRIPT;
           iframeDocument.body.appendChild(script);
           scriptAddedRef.current = true; // Mark as script added
-          console.log("added script");
         }
         //if we're in the style tag, modify the loading div
         if (
@@ -74,6 +76,27 @@ const IframeContainer: React.FC<IframeContainerProps> = ({
             `<div style="${DEFAULT_STYLE} position: absolute; top: 0; left: 0;">Loading...</div>`;
         } else {
           iframeDocument.body.innerHTML = html;
+
+          // Extract scripts from the incoming HTML
+          const scripts = Array.from(iframeDocument.querySelectorAll("script"));
+          scripts.forEach((script) => {
+            const scriptContent = script.textContent;
+            if (!scriptContent) {
+              console.error("skipping script", script, "with content", scriptContent);
+              return;
+            }
+            if (!executedScriptsRef.current.has(scriptContent)) {
+              const newScript = iframeDocument.createElement("script");
+
+              newScript.text = scriptContent;
+              if (!script.parentNode) {
+                console.error("Could not find parent node for script", script);
+                return;
+              }
+              script.parentNode.replaceChild(newScript, script);
+              executedScriptsRef.current.add(scriptContent); // Mark this script as executed
+            }
+          });
         }
       }
     }
