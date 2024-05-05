@@ -5,8 +5,6 @@ import { Button } from "@acme/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
 } from "@acme/ui/dialog";
 import { Input } from "@acme/ui/input";
 import { Label } from "@acme/ui/label";
@@ -17,12 +15,12 @@ import { toast } from "@acme/ui/toast";
 import { env } from "~/env";
 import { api } from "~/trpc/react";
 
-interface ProfileDialogProps {
+interface EditProfileDialogProps {
   open: boolean;
   onClose: () => void;
 }
 
-const ProfileDialog = ({ open, onClose }: ProfileDialogProps) => {
+const EditProfileDialog = ({ open, onClose }: EditProfileDialogProps) => {
   const utils = api.useUtils();
   const [imageUrl, setImageUrl] = useState<string>(""); // Initialize state for image URL
 
@@ -53,7 +51,7 @@ const ProfileDialog = ({ open, onClose }: ProfileDialogProps) => {
       name: formData.get("name") as string,
       description: formData.get("description") as string,
       isPublic: formData.get("isPublic") === "on",
-      image: imageUrl || (formData.get("image") as string),
+      image: imageUrl || formData.get("image") as string || (userData?.image?? ""),
       isBookmarkDefaultPublic: formData.get("bookmarksDefaultPublic") === "on",
     };
 
@@ -150,4 +148,4 @@ const ProfileDialog = ({ open, onClose }: ProfileDialogProps) => {
   );
 };
 
-export default ProfileDialog;
+export default EditProfileDialog;

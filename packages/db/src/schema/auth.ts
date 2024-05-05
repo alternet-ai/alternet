@@ -21,8 +21,8 @@ export const users = mySqlTable("user", {
   }).default(sql`CURRENT_TIMESTAMP(3)`),
   image: varchar("image", { length: 255 }),
   description: text("description"),
-  isPublic: boolean("isPublic").default(true),
-  isBookmarkDefaultPublic: boolean("isBookmarkDefaultPublic").default(true),
+  isPublic: boolean("isPublic").default(true).notNull(),
+  isBookmarkDefaultPublic: boolean("isBookmarkDefaultPublic").default(true).notNull(),
 });
 
 export const usersRelations = relations(users, ({ many }) => ({

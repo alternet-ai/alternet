@@ -8,16 +8,17 @@ import { useSession } from "next-auth/react";
 import { Separator } from "@acme/ui/separator";
 import { toast } from "@acme/ui/toast";
 
-import type { NavigationState, Page } from "./types";
+import type { NavigationState, Page, User } from "./types";
 import { api } from "~/trpc/react";
 import AddressBar from "./_components/address_bar";
 import IframeContainer from "./_components/container";
-import ProfileDialog from "./_components/edit_profile";
+import ProfileDialog from "./_components/profile";
 import HistoryPanel from "./_components/history";
 import LeftButtons from "./_components/left_buttons";
 import FloatingLogo from "./_components/logo";
 import RightButtons from "./_components/right_buttons";
 import { HOME_HTML } from "./static/home-html";
+import EditProfileDialog from "./_components/edit_profile";
 
 export const HOME_KEY = "home";
 const HOME_PAGE: Page = {
@@ -26,17 +27,21 @@ const HOME_PAGE: Page = {
   fakeUrl: "https://alternet.ai/home",
   content: HOME_HTML,
   cacheKey: HOME_KEY,
+  userId: "",
 };
 
 interface ParentComponentProps {
   initialPage?: Page;
+  profile?: boolean;
 }
 
-const ParentComponent = ({ initialPage = HOME_PAGE }: ParentComponentProps) => {
+const ParentComponent = ({ initialPage = HOME_PAGE, profile = false }: ParentComponentProps) => {
   const { status } = useSession();
   const [isPortrait, setIsPortrait] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
-  const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false);
+  const [isEditProfileDialogOpen, setIsEditProfileDialogOpen] = useState(false);
+  const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(profile);
+  const [profileData, setProfileData] = useState<User | undefined>(undefined);
   const pageCache = useRef<Record<string, Page>>({});
   const userMetadata = api.auth.getOwnMetadata.useQuery().data;
 
@@ -105,6 +110,35 @@ const ParentComponent = ({ initialPage = HOME_PAGE }: ParentComponentProps) => {
     },
   });
 
+  const getProfile = api.auth.getUserMetadata.useMutation({
+    onSuccess: async (res) => {
+      await utils.bookmark.invalidate();
+      setProfileData(res);
+    },
+    onError: (err) => {
+      toast.error(
+        err.data?.code === "UNAUTHORIZED"
+          ? "You must be logged in to get a profile"
+          : "Failed to get profile",
+      );
+    },
+  });
+
+  useEffect(() => {
+    if (profile) {
+      if (!initialPage.userId) {
+        setIsProfileDialogOpen(false);
+        throw new Error("User ID is not set for linked page. Closed profile dialog");
+      }
+
+      getProfile.mutate(initialPage.userId);
+    }
+  }, [profile, initialPage.userId]);
+
+  const toggleProfileDialog = () => {
+    setIsProfileDialogOpen(!isProfileDialogOpen);
+  };
+
   useEffect(() => {
     const handleResize = () => {
       setIsPortrait(window.innerWidth < window.innerHeight);
@@ -157,12 +191,17 @@ const ParentComponent = ({ initialPage = HOME_PAGE }: ParentComponentProps) => {
       { options: { body: { lastIndex: navState.current.currentIndex } } },
     );
 
+    if (!userMetadata?.id) {
+      throw new Error("User ID is not set");
+    }
+
     const page: Page = {
       title: "Loading...",
       fakeUrl: "Loading...",
       prompt,
       content: "",
       cacheKey: crypto.randomUUID(),
+      userId: userMetadata.id,
     };
 
     pageCache.current = {
@@ -283,8 +322,8 @@ const ParentComponent = ({ initialPage = HOME_PAGE }: ParentComponentProps) => {
     setShowHistory(!showHistory); // Toggle visibility of the history panel
   };
 
-  const toggleProfileDialog = () => {
-    setIsProfileDialogOpen(!isProfileDialogOpen);
+  const toggleEditProfileDialog = () => {
+    setIsEditProfileDialogOpen(!isEditProfileDialogOpen);
   };
 
   const updateCurrentPage = (message: Message, isFinal?: boolean) => {
@@ -387,7 +426,14 @@ const ParentComponent = ({ initialPage = HOME_PAGE }: ParentComponentProps) => {
 
   return (
     <div className="flex h-screen">
-      <ProfileDialog open={isProfileDialogOpen} onClose={toggleProfileDialog} />
+      <EditProfileDialog open={isEditProfileDialogOpen} onClose={toggleEditProfileDialog} />
+      {isProfileDialogOpen && profileData && (
+          <ProfileDialog
+            open={isProfileDialogOpen}
+            onClose={toggleProfileDialog}
+            profileData={profileData}
+          />
+      )}
       <div className="flex flex-1 flex-col">
         <div className="flex items-center justify-between border-b bg-background p-2">
           {!isPortrait && (
@@ -413,7 +459,7 @@ const ParentComponent = ({ initialPage = HOME_PAGE }: ParentComponentProps) => {
               defaultTitle={title}
               defaultIsPublic={userMetadata?.isBookmarkDefaultPublic ?? false}
               isBookmarked={isBookmarked}
-              onEditProfile={toggleProfileDialog}
+              onEditProfile={toggleEditProfileDialog}
             />
           )}
         </div>
@@ -440,7 +486,7 @@ const ParentComponent = ({ initialPage = HOME_PAGE }: ParentComponentProps) => {
               defaultTitle={title}
               defaultIsPublic={userMetadata?.isBookmarkDefaultPublic ?? false}
               isBookmarked={isBookmarked}
-              onEditProfile={toggleProfileDialog}
+              onEditProfile={toggleEditProfileDialog}
             />
           </div>
         )}

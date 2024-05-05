@@ -16,7 +16,7 @@ export const authRouter = {
 
   getUserMetadata: protectedProcedure
     .input(z.string().min(1))
-    .query(({ ctx, input }) => {
+    .mutation(({ ctx, input }) => {
       return ctx.db.query.users.findFirst({
         where: and(eq(schema.users.id, input), eq(schema.users.isPublic, true)),
       });
