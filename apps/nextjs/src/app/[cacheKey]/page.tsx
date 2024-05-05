@@ -19,7 +19,7 @@ export function generateMetadata({ params }: { params: { cacheKey: string } }) {
         : "http://localhost:3000",
     ),
     title: "alternet",
-    description: "dream play create",
+    description: `dream play create: ${cacheKey}`,
     openGraph: {
       title: "alternet",
       description: "dream play create",
