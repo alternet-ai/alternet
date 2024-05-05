@@ -1,3 +1,4 @@
+import { useState } from "react";
 import Image from "next/image";
 
 import { Button } from "@acme/ui/button";
@@ -13,6 +14,7 @@ import { Switch } from "@acme/ui/switch";
 import { Textarea } from "@acme/ui/textarea";
 import { toast } from "@acme/ui/toast";
 
+import { env } from "~/env";
 import { api } from "~/trpc/react";
 
 interface ProfileDialogProps {
@@ -22,10 +24,12 @@ interface ProfileDialogProps {
 
 const ProfileDialog = ({ open, onClose }: ProfileDialogProps) => {
   const utils = api.useUtils();
+  const [imageUrl, setImageUrl] = useState<string>(""); // Initialize state for image URL
 
   const updateProfile = api.auth.updateProfile.useMutation({
     onSuccess: async () => {
       await utils.auth.invalidate();
+      toast.success("Profile updated successfully");
       onClose();
     },
     onError: (err) => {
@@ -49,7 +53,7 @@ const ProfileDialog = ({ open, onClose }: ProfileDialogProps) => {
       name: formData.get("name") as string,
       description: formData.get("description") as string,
       isPublic: formData.get("isPublic") === "on",
-      //image: formData.get("image") as string,
+      image: imageUrl || (formData.get("image") as string),
       isBookmarkDefaultPublic: formData.get("bookmarksDefaultPublic") === "on",
     };
 
@@ -59,22 +63,38 @@ const ProfileDialog = ({ open, onClose }: ProfileDialogProps) => {
   async function handleAvatarUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-    // TODO: Implement avatar upload
-    // Async do-nothing function
-    await new Promise((resolve) => setTimeout(resolve, 0));
-    console.log("Uploaded avatar:", file);
+
+    const fileType = file.type; // This will give you the MIME type, e.g., 'image/jpeg'
+
+    // Assuming you're sending the file as FormData
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("fileType", fileType); // Send MIME type to the backend
+
+    const response = await fetch(
+      `${env.NEXT_PUBLIC_API_BASE_URL}/api/save-avatar`,
+      {
+        method: "POST",
+        body: formData,
+      },
+    );
+
+    if (response.ok) {
+      const responseData = (await response.json()) as { url: string }; // Parse the JSON response
+      setImageUrl(responseData.url); // Update the image URL state
+    } else {
+      toast.error("Failed to upload avatar");
+    }
   }
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent>
-        <DialogHeader>
-          <DialogTitle>My Profile</DialogTitle>
-        </DialogHeader>
+
         <form action={handleSubmit} className="space-y-4">
           <div className="flex items-center space-x-4">
             <Image
-              src={userData.image ?? ""}
+              src={(imageUrl || userData.image) ?? ""}
               alt="User Avatar"
               width={100}
               height={100}
@@ -85,11 +105,11 @@ const ProfileDialog = ({ open, onClose }: ProfileDialogProps) => {
             <Input type="file" accept="image/*" onChange={handleAvatarUpload} />
           </div>
           <div className="grid w-full items-center gap-4">
-            <Label htmlFor="name">Name</Label>
+            <Label htmlFor="name">name</Label>
             <Input id="name" name="name" defaultValue={userData.name ?? ""} />
           </div>
           <div className="grid w-full items-center gap-4">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">email</Label>
             <Input
               id="email"
               name="email"
@@ -98,7 +118,7 @@ const ProfileDialog = ({ open, onClose }: ProfileDialogProps) => {
             />
           </div>
           <div className="grid w-full items-center gap-4">
-            <Label htmlFor="description">Description</Label>
+            <Label htmlFor="description">about</Label>
             <Textarea
               id="description"
               name="description"
@@ -111,7 +131,7 @@ const ProfileDialog = ({ open, onClose }: ProfileDialogProps) => {
               name="isPublic"
               defaultChecked={userData.isPublic ?? false}
             />
-            <Label htmlFor="isPublic">Public Profile</Label>
+            <Label htmlFor="isPublic">public profile</Label>
           </div>
           <div className="flex items-center space-x-2">
             <Switch
@@ -120,10 +140,10 @@ const ProfileDialog = ({ open, onClose }: ProfileDialogProps) => {
               defaultChecked={userData.isBookmarkDefaultPublic ?? false}
             />
             <Label htmlFor="bookmarksDefaultPublic">
-              Bookmarks Default Public
+              bookmarks default to public
             </Label>
           </div>
-          <Button type="submit">Save</Button>
+          <Button type="submit">save</Button>
         </form>
       </DialogContent>
     </Dialog>

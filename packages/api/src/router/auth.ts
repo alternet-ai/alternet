@@ -34,7 +34,7 @@ export const authRouter = {
         name: z.string().min(1),
         description: z.string().min(1),
         isPublic: z.boolean(),
-        //image: z.string().min(1),
+        image: z.string().min(1),
         isBookmarkDefaultPublic: z.boolean(),
       }),
     )
