@@ -39,7 +39,6 @@ export async function generateMetadata({
 
   if (imageExistsResponse.ok) {
     imageUrl = existingImageUrl;
-    console.log("image exists", imageUrl);
   } else {
     // Fetching card image and page data from the API if not exists
     const cardImagesResponse = await fetch(
@@ -70,13 +69,13 @@ export async function generateMetadata({
       description: `${page.prompt}`,
       url,
       siteName: `${page.title}`,
-      image: `${imageUrl}`, // Embedding the base64 image
+      images: [{ url: `${imageUrl}`, width: 630, height: 1200 }],
     },
     twitter: {
       card: "summary_large_image",
       site: "@alternet_ai",
       creator: "@maxsloef",
-      image: `${imageUrl}`, // Embedding the base64 image for Twitter card
+      images: [`${imageUrl}`],
     },
   };
 
