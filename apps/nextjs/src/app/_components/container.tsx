@@ -31,7 +31,15 @@ document.body.addEventListener('submit', function(event) {
 }, true); // Use capture phase to ensure the handler runs before any other submit handlers
 `;
 
-const DEFAULT_STYLE = `font-family: var(--font-geist-sans), 'ui-sans-serif', 'system-ui', 'sans-serif', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+const ENFORCE_LOCATION_STYLE = `
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000; // High z-index to ensure it's on top
+`;
+
+const DEFAULT_STYLE = ENFORCE_LOCATION_STYLE + ` font-family: var(--font-geist-sans), 'ui-sans-serif', 'system-ui', 'sans-serif', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   font-size: 24px;
   font-weight: bold;`;
 
@@ -68,12 +76,12 @@ const IframeContainer: React.FC<IframeContainerProps> = ({
             DEFAULT_STYLE + html.substring(html.lastIndexOf("{") + 1);
           //apply style to Loading div and write to innerHtml
           iframeDocument.body.innerHTML =
-            html + `</style> <div style="${styleSection}">Loading...</div>`;
+            html + `</style> <div style="${styleSection + ENFORCE_LOCATION_STYLE}">Loading...</div>`;
           //overlay loading
         } else if (isLoading || html.length === 0) {
           iframeDocument.body.innerHTML =
             html +
-            `<div style="${DEFAULT_STYLE} position: absolute; top: 0; left: 0;">Loading...</div>`;
+            `<div style="${DEFAULT_STYLE}">Loading...</div>`;
         } else {
           iframeDocument.body.innerHTML = html;
 
