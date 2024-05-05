@@ -9,22 +9,30 @@ interface SearchParams {
   profile?: string;
 }
 
-export function generateMetadata({ params }: { params: { cacheKey: string } }) {
+export async function generateMetadata({
+  params,
+}: {
+  params: { cacheKey: string };
+}) {
   const cacheKey = params.cacheKey;
 
-  return {
-    metadataBase: new URL(
-      env.VERCEL_ENV === "production"
-        ? "https://alternet.ai"
-        : "http://localhost:3000",
-    ),
-    title: "alternet",
-    description: `dream play create: ${cacheKey}`,
+  const response = await fetch(
+    `${env.NEXT_PUBLIC_API_BASE_URL}/api/load-page?cacheKey=${cacheKey}`,
+  );
+
+  const url = new URL(env.NEXT_PUBLIC_API_BASE_URL + "/" + cacheKey);
+
+  const page = (await response.json()) as Page;
+
+  const metadata = {
+    metadataBase: url,
+    title: `${page.title}`,
+    description: `${page.prompt}`,
     openGraph: {
-      title: "alternet",
-      description: "dream play create",
-      url: "https://alternet.ai",
-      siteName: "alternet",
+      title: `TWO alternet: ${page.title}`,
+      description: `TWO ${page.prompt}`,
+      url,
+      siteName: `${page.title}`,
     },
     twitter: {
       card: "summary_large_image",
@@ -32,6 +40,8 @@ export function generateMetadata({ params }: { params: { cacheKey: string } }) {
       creator: "@maxsloef",
     },
   };
+
+  return metadata;
 }
 
 const CacheKeyPage = async ({
