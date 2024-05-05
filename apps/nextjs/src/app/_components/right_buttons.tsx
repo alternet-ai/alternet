@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Bookmark, BookmarkCheck, Clock } from "lucide-react";
+import { Bookmark, BookmarkCheck, Clock, Share } from "lucide-react";
 
 import { Button } from "@acme/ui/button";
 import {
@@ -24,6 +24,8 @@ interface RightButtonsProps {
   onEditProfile: () => void;
   onViewProfile: () => void;
   onViewYourProfile: () => void;
+  onCopyLink: (includeProfile: boolean) => void;
+  onDownloadPage: () => void;
 }
 
 const RightButtons: React.FC<RightButtonsProps> = ({
@@ -36,9 +38,12 @@ const RightButtons: React.FC<RightButtonsProps> = ({
   onEditProfile,
   onViewProfile,
   onViewYourProfile,
+  onCopyLink,
+  onDownloadPage,
 }) => {
   const [title, setTitle] = useState(defaultTitle);
   const [isPublic, setIsPublic] = useState(defaultIsPublic);
+  const [includeProfile, setIncludeProfile] = useState(true);
 
   useEffect(() => {
     setTitle(defaultTitle);
@@ -60,6 +65,48 @@ const RightButtons: React.FC<RightButtonsProps> = ({
         onViewYourProfile={onViewYourProfile}
         isHome={defaultTitle === "alternet: home"}
       />
+      <Dialog>
+        <DialogTrigger asChild>
+          <Button variant="ghost">
+            <Share className="h-4 w-4" />
+            <span className="sr-only">Share</span>
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[425px]">
+          <div className="flex flex-col space-y-4 py-6">
+            <div className="flex items-center space-x-4">
+              <DialogClose asChild>
+                <Button
+                  onClick={() => onCopyLink(includeProfile)}
+                  className="flex-1"
+                >
+                  copy link
+                </Button>
+              </DialogClose>
+              <div className="flex items-center space-x-2">
+                <Label htmlFor="profile" className="text-sm font-medium">
+                  open to profile
+                </Label>
+                <Switch
+                  id="profile"
+                  checked={includeProfile}
+                  onCheckedChange={setIncludeProfile}
+                />
+              </div>
+            </div>
+            <div>
+              <DialogClose asChild>
+                <Button
+                  onClick={onDownloadPage}
+                  className="w-full"
+                >
+                  download page
+                </Button>
+              </DialogClose>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
       {isBookmarked ? (
         <Button variant="ghost" onClick={onDeleteBookmark}>
           <BookmarkCheck />

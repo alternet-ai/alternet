@@ -19,6 +19,7 @@ import FloatingLogo from "./_components/logo";
 import ProfileDialog from "./_components/profile";
 import RightButtons from "./_components/right_buttons";
 import { HOME_HTML } from "./static/home-html";
+import { env } from "~/env";
 
 export const HOME_KEY = "home";
 const HOME_PAGE: Page = {
@@ -453,6 +454,32 @@ const ParentComponent = ({
     toggleProfileDialog();
   };
 
+  const onCopyLink = (includeProfile: boolean) => {
+    const baseUrl = env.NEXT_PUBLIC_API_BASE_URL + '/' + navState.current.history[navState.current.currentIndex];
+    const url = includeProfile ? `${baseUrl}?profile` : baseUrl;
+    navigator.clipboard.writeText(url);
+  };
+
+  const onDownloadPage = () => {
+    const cacheKey = navState.current.history[navState.current.currentIndex];
+    if (!cacheKey) {
+      throw new Error("Could not find cache key for downloading page");
+    }
+    const page = pageCache.current[cacheKey];
+    if (!page) {
+      throw new Error("Could not find page for downloading page");
+    }
+    
+    const html = page.content;
+    const blob = new Blob([html], { type: "text/html" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `${cacheKey}.html`);
+    link.click();
+  };
+
+
   return (
     <div className="flex h-screen">
       <EditProfileDialog
@@ -494,6 +521,8 @@ const ParentComponent = ({
               onEditProfile={toggleEditProfileDialog}
               onViewProfile={showProfile}
               onViewYourProfile={showOwnProfile}
+              onCopyLink={onCopyLink}
+              onDownloadPage={onDownloadPage}
             />
           )}
         </div>
@@ -523,6 +552,8 @@ const ParentComponent = ({
               onEditProfile={toggleEditProfileDialog}
               onViewProfile={showProfile}
               onViewYourProfile={showOwnProfile}
+              onCopyLink={onCopyLink}
+              onDownloadPage={onDownloadPage}
             />
           </div>
         )}
