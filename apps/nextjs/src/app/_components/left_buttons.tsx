@@ -1,7 +1,8 @@
 import React from "react";
-import { ChevronLeft, ChevronRight, Home, RotateCw, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, RotateCw, X } from "lucide-react";
 
 import { Button } from "@acme/ui/button";
+import HomeButton from "./home_button";
 
 interface LeftButtonsProps {
   onBack: () => void;
@@ -37,9 +38,7 @@ const LeftButtons: React.FC<LeftButtonsProps> = ({
             <RotateCw />
           </Button>
         )}
-        <Button variant="ghost" onClick={onGoHome} disabled={disabled}>
-          <Home />
-        </Button>
+      <HomeButton onGoHome={onGoHome} disabled={disabled} />
       </div>
   );
 };

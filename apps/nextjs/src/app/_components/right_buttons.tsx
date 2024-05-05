@@ -1,13 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  Bookmark,
-  BookmarkCheck,
-  Clock,
-  LogOut,
-  Menu,
-  User,
-} from "lucide-react";
-import { signOut } from "next-auth/react";
+import { Bookmark, BookmarkCheck, Clock } from "lucide-react";
 
 import { Button } from "@acme/ui/button";
 import {
@@ -16,16 +8,11 @@ import {
   DialogContent,
   DialogTrigger,
 } from "@acme/ui/dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@acme/ui/dropdown-menu";
 import { Input } from "@acme/ui/input";
 import { Label } from "@acme/ui/label";
 import { Switch } from "@acme/ui/switch";
-import { ThemeToggle } from "@acme/ui/theme";
+
+import HamburgerMenu from "./hamburger_menu";
 
 interface RightButtonsProps {
   onAddBookmark: (title: string, isPublic: boolean) => void;
@@ -61,28 +48,7 @@ const RightButtons: React.FC<RightButtonsProps> = ({
 
   return (
     <div className="flex space-x-2">
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost">
-            <Menu />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent>
-          <DropdownMenuItem>
-            <Bookmark className="mr-2 h-4 w-4" />
-            <span>Bookmarks</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            <User className="mr-2 h-4 w-4" />
-            <span>Edit Profile</span>
-          </DropdownMenuItem>
-          <ThemeToggle />
-          <DropdownMenuItem onClick={() => signOut()}>
-            <LogOut className="mr-2 h-4 w-4" />
-            <span>Logout</span>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <HamburgerMenu />
       {isBookmarked ? (
         <Button variant="ghost" onClick={onDeleteBookmark}>
           <BookmarkCheck />

@@ -38,8 +38,6 @@ const ParentComponent = ({ initialPage = HOME_PAGE }: ParentComponentProps) => {
   const pageCache = useRef<Record<string, Page>>({});
   const userMetadata = api.auth.getOwnMetadata.useQuery().data;
 
-  //const [siteMap, setSiteMap] = useState<Record<string, string>>({});
-
   const navState = useRef<NavigationState>({
     currentIndex: -1,
     history: [],
