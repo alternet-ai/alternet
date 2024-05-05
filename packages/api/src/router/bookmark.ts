@@ -38,11 +38,14 @@ export const bookmarkRouter = {
   update: protectedProcedure
     .input(CreateBookmarkSchema)
     .mutation(({ ctx, input }) => {
-      return ctx.db.update(schema.bookmarks).set({
-        ...input,
-        userId: ctx.session.user.id,
-        updatedAt: sql`CURRENT_TIMESTAMP(3)`,
-      });
+      return ctx.db
+        .update(schema.bookmarks)
+        .set({
+          title: input.title,
+          isPublic: input.isPublic,
+          updatedAt: sql`CURRENT_TIMESTAMP(3)`,
+        })
+        .where(eq(schema.bookmarks.bookmarkId, input.bookmarkId));
     }),
 
   insert: protectedProcedure

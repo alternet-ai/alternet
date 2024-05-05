@@ -1,5 +1,4 @@
 import React from "react";
-import Link from "next/link";
 import { Bookmark, LogOut, Menu, User } from "lucide-react";
 import { signOut } from "next-auth/react";
 
@@ -12,7 +11,11 @@ import {
 } from "@acme/ui/dropdown-menu";
 import { ThemeToggle } from "@acme/ui/theme";
 
-const HamburgerMenu: React.FC = () => {
+interface HamburgerMenuProps {
+  onEditProfile: () => void;
+}
+
+const HamburgerMenu: React.FC<HamburgerMenuProps> = ({ onEditProfile }) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -25,11 +28,9 @@ const HamburgerMenu: React.FC = () => {
           <Bookmark className="mr-2 h-4 w-4" />
           <span>Bookmarks</span>
         </DropdownMenuItem>
-        <DropdownMenuItem>
-          <Link href="/my_profile" className="flex items-center">
-            <User className="mr-2 h-4 w-4" />
-            <span>Edit Profile</span>
-          </Link>
+        <DropdownMenuItem onClick={onEditProfile}>
+          <User className="mr-2 h-4 w-4" />
+          <span>Edit Profile</span>
         </DropdownMenuItem>
         <ThemeToggle />
         <DropdownMenuItem onClick={() => signOut()}>

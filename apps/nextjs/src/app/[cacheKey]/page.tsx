@@ -4,7 +4,11 @@ import ParentComponent, { HOME_KEY } from "../ParentComponent";
 import { env } from "~/env";
 import LoginComponent from "../_components/login";
 
-const CacheKeyPage = async ({ params }: { params: { cacheKey: string } }) => {
+interface SearchParams {
+  profile?: string;
+}
+
+const CacheKeyPage = async ({ params, searchParams }: { params: { cacheKey: string }, searchParams?: SearchParams }) => {
   const session = await auth();
 
   if (!session) {
@@ -27,7 +31,10 @@ const CacheKeyPage = async ({ params }: { params: { cacheKey: string } }) => {
     return <ParentComponent />;
   }
 
-  return <ParentComponent initialPage={page} />;
+  // Check if 'profile' query parameter is present and pass it as a prop
+  const profileProp = searchParams?.profile !== undefined ? { profile: true } : {};
+
+  return <ParentComponent initialPage={page} {...profileProp} />;
 };
 
 export default CacheKeyPage;

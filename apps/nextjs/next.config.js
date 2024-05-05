@@ -21,7 +21,7 @@ const config = {
   eslint: { ignoreDuringBuilds: true },
   typescript: { ignoreBuildErrors: true },
   images: {
-    domains: ["cdn.discordapp.com"],
+    domains: ["cdn.discordapp.com", "1oov8yjalrmsfuv5.public.blob.vercel-storage.com"], //TODO: you sure this is always gonne be the same?
   },
 };
 
