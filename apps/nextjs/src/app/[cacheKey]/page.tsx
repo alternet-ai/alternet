@@ -21,16 +21,15 @@ export async function generateMetadata({
   );
 
   const url = new URL(env.NEXT_PUBLIC_API_BASE_URL + "/" + cacheKey);
-
   const page = (await response.json()) as Page;
 
   const metadata = {
-    metadataBase: url,
-    title: `${page.title}`,
-    description: `${page.prompt}`,
+    metadataBase: new URL(env.NEXT_PUBLIC_API_BASE_URL),
+    title: `alternet`,
+    description: `dream play create`,
     openGraph: {
-      title: `TWO alternet: ${page.title}`,
-      description: `TWO ${page.prompt}`,
+      title: `${page.title}`,
+      description: `${page.prompt}`,
       url,
       siteName: `${page.title}`,
     },
