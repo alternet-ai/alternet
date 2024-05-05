@@ -12,6 +12,7 @@ import type { NavigationState, Page } from "./types";
 import { api } from "~/trpc/react";
 import AddressBar from "./_components/address_bar";
 import IframeContainer from "./_components/container";
+import ProfileDialog from "./_components/edit_profile";
 import HistoryPanel from "./_components/history";
 import LeftButtons from "./_components/left_buttons";
 import FloatingLogo from "./_components/logo";
@@ -35,6 +36,7 @@ const ParentComponent = ({ initialPage = HOME_PAGE }: ParentComponentProps) => {
   const { status } = useSession();
   const [isPortrait, setIsPortrait] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
+  const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false);
   const pageCache = useRef<Record<string, Page>>({});
   const userMetadata = api.auth.getOwnMetadata.useQuery().data;
 
@@ -281,6 +283,10 @@ const ParentComponent = ({ initialPage = HOME_PAGE }: ParentComponentProps) => {
     setShowHistory(!showHistory); // Toggle visibility of the history panel
   };
 
+  const toggleProfileDialog = () => {
+    setIsProfileDialogOpen(!isProfileDialogOpen);
+  };
+
   const updateCurrentPage = (message: Message, isFinal?: boolean) => {
     setHtml(message.content);
     const title =
@@ -381,6 +387,7 @@ const ParentComponent = ({ initialPage = HOME_PAGE }: ParentComponentProps) => {
 
   return (
     <div className="flex h-screen">
+      <ProfileDialog open={isProfileDialogOpen} onClose={toggleProfileDialog} />
       <div className="flex flex-1 flex-col">
         <div className="flex items-center justify-between border-b bg-background p-2">
           {!isPortrait && (
@@ -406,6 +413,7 @@ const ParentComponent = ({ initialPage = HOME_PAGE }: ParentComponentProps) => {
               defaultTitle={title}
               defaultIsPublic={userMetadata?.isBookmarkDefaultPublic ?? false}
               isBookmarked={isBookmarked}
+              onEditProfile={toggleProfileDialog}
             />
           )}
         </div>
@@ -432,6 +440,7 @@ const ParentComponent = ({ initialPage = HOME_PAGE }: ParentComponentProps) => {
               defaultTitle={title}
               defaultIsPublic={userMetadata?.isBookmarkDefaultPublic ?? false}
               isBookmarked={isBookmarked}
+              onEditProfile={toggleProfileDialog}
             />
           </div>
         )}

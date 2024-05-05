@@ -21,6 +21,7 @@ interface RightButtonsProps {
   defaultTitle: string;
   defaultIsPublic: boolean;
   isBookmarked: boolean;
+  onEditProfile: () => void;
 }
 
 const RightButtons: React.FC<RightButtonsProps> = ({
@@ -30,6 +31,7 @@ const RightButtons: React.FC<RightButtonsProps> = ({
   defaultTitle,
   defaultIsPublic,
   isBookmarked,
+  onEditProfile,
 }) => {
   const [title, setTitle] = useState(defaultTitle);
   const [isPublic, setIsPublic] = useState(defaultIsPublic);
@@ -48,7 +50,7 @@ const RightButtons: React.FC<RightButtonsProps> = ({
 
   return (
     <div className="flex space-x-2">
-      <HamburgerMenu />
+      <HamburgerMenu onEditProfile={onEditProfile} />
       {isBookmarked ? (
         <Button variant="ghost" onClick={onDeleteBookmark}>
           <BookmarkCheck />

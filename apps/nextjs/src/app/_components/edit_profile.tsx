@@ -1,7 +1,5 @@
 import Image from "next/image";
-import { redirect } from "next/navigation";
 
-import { auth } from "@acme/auth";
 import { Button } from "@acme/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@acme/ui/card";
 import { Dialog, DialogContent } from "@acme/ui/dialog";
@@ -10,7 +8,7 @@ import { Label } from "@acme/ui/label";
 import { Switch } from "@acme/ui/switch";
 import { Textarea } from "@acme/ui/textarea";
 
-import { api } from "~/trpc/server";
+import { api } from "~/trpc/react";
 
 interface UserData {
   name: string | null;
@@ -23,14 +21,14 @@ interface UserData {
   isBookmarkDefaultPublic: boolean | null;
 }
 
-const MyProfilePage = async () => {
-  const session = await auth();
-
-  if (!session) {
-    redirect("/home");
+interface ProfileDialogProps {
+    open: boolean;
+    onClose: () => void;
   }
 
-  const userData = await api.auth.getOwnMetadata();
+const MyProfilePage = () => {
+  //TODO: what happens if you're not logged in?
+  const userData = api.auth.getOwnMetadata.useQuery().data;
 
   if (!userData) {
     return <div>Loading...</div>;
@@ -40,14 +38,6 @@ const MyProfilePage = async () => {
 };
 
 function Profile({ userData }: { userData: UserData }) {
-  async function handleSubmit(formData: UserData) {
-    "use server";
-    // Async do-nothing function
-    await new Promise((resolve) => setTimeout(resolve, 0));
-    // TODO: Implement database update
-    console.log("Updated profile:", formData);
-  }
-
   return (
     <div className="container mx-auto">
       <Card>
@@ -55,35 +45,28 @@ function Profile({ userData }: { userData: UserData }) {
           <CardTitle>My Profile</CardTitle>
         </CardHeader>
         <CardContent>
-          <ProfileForm userData={userData} onSubmit={handleSubmit} />
+          <ProfileForm userData={userData} />
         </CardContent>
       </Card>
     </div>
   );
 }
 
-function ProfileForm({
-  userData,
-  onSubmit,
-}: {
-  userData: UserData;
-  onSubmit: (data: UserData) => Promise<void>;
-}) {
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    "use server";
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
+function ProfileForm({ userData }: { userData: UserData }) {
+  async function handleSubmit(formData: FormData) {
     const data = {
       name: formData.get("name") as string,
       description: formData.get("description") as string,
       isPublic: formData.get("isPublic") === "on",
       image: formData.get("image") as string,
     };
-    await onSubmit(data as UserData);
+    // Async do-nothing function
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    // TODO: Implement database update
+    console.log("Updated profile:", data);
   }
 
   async function handleAvatarUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    "use server";
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -95,7 +78,7 @@ function ProfileForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form action={handleSubmit} className="space-y-4">
       <div className="flex items-center space-x-4">
         <Image
           src={userData.image ?? ""}
@@ -137,15 +120,14 @@ function ProfileForm({
   );
 }
 
-const ProfileDialog = ({ children }: { children: React.ReactNode }) => {
-  return (
-    <Dialog>
-      {children}
-      <DialogContent>
-        <MyProfilePage />
-      </DialogContent>
-    </Dialog>
-  );
+const ProfileDialog = ({ open, onClose }: ProfileDialogProps) => {
+    return (
+      <Dialog open={open} onOpenChange={onClose}>
+        <DialogContent>
+          <MyProfilePage />
+        </DialogContent>
+      </Dialog>
+    );
 };
 
 export default ProfileDialog;
