@@ -434,6 +434,25 @@ const ParentComponent = ({
     toggleProfileDialog();
   };
 
+  const showProfile = () => {
+    const cacheKey = navState.current.history[navState.current.currentIndex];
+    if (!cacheKey) {
+      throw new Error("Could not find cache key for showing profile");
+    }
+
+    const currentPage = pageCache.current[cacheKey];
+    if (!currentPage) {
+      throw new Error("Could not find page for showing profile");
+    }
+
+    if (!currentPage.userId) {
+      throw new Error("Could not find user ID for showing profile");
+    }
+
+    getProfile.mutate(currentPage.userId);
+    toggleProfileDialog();
+  };
+
   return (
     <div className="flex h-screen">
       <EditProfileDialog
@@ -473,7 +492,8 @@ const ParentComponent = ({
               defaultIsPublic={userMetadata?.isBookmarkDefaultPublic ?? false}
               isBookmarked={isBookmarked}
               onEditProfile={toggleEditProfileDialog}
-              onViewProfile={showOwnProfile}
+              onViewProfile={showProfile}
+              onViewYourProfile={showOwnProfile}
             />
           )}
         </div>
@@ -501,7 +521,8 @@ const ParentComponent = ({
               defaultIsPublic={userMetadata?.isBookmarkDefaultPublic ?? false}
               isBookmarked={isBookmarked}
               onEditProfile={toggleEditProfileDialog}
-              onViewProfile={showOwnProfile}
+              onViewProfile={showProfile}
+              onViewYourProfile={showOwnProfile}
             />
           </div>
         )}

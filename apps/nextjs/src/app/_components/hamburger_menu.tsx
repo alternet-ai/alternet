@@ -1,5 +1,12 @@
 import React from "react";
-import { Bookmark, LogOut, Menu, User } from "lucide-react";
+import {
+  Bookmark,
+  LogOut,
+  Menu,
+  User,
+  UserCog,
+  UserSearch,
+} from "lucide-react";
 import { signOut } from "next-auth/react";
 
 import { Button } from "@acme/ui/button";
@@ -14,11 +21,15 @@ import { ThemeToggle } from "@acme/ui/theme";
 interface HamburgerMenuProps {
   onEditProfile: () => void;
   onViewProfile: () => void;
+  onViewYourProfile: () => void;
+  isHome: boolean;
 }
 
 const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
   onEditProfile,
   onViewProfile,
+  onViewYourProfile,
+  isHome,
 }) => {
   return (
     <DropdownMenu>
@@ -30,20 +41,24 @@ const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
       <DropdownMenuContent>
         <DropdownMenuItem>
           <Bookmark className="mr-2 h-4 w-4" />
-          <span>Bookmarks</span>
+          <span>bookmarks</span>
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={onViewProfile}>
+        <DropdownMenuItem onClick={onViewProfile} disabled={isHome}>
           <User className="mr-2 h-4 w-4" />
-          <span>View Profile</span>
+          <span>page creator</span>
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={onViewYourProfile}>
+          <UserSearch className="mr-2 h-4 w-4" />
+          <span>your profile</span>
         </DropdownMenuItem>
         <DropdownMenuItem onClick={onEditProfile}>
-          <User className="mr-2 h-4 w-4" />
-          <span>Edit Profile</span>
+          <UserCog className="mr-2 h-4 w-4" />
+          <span>edit your profile</span>
         </DropdownMenuItem>
         <ThemeToggle />
         <DropdownMenuItem onClick={() => signOut()}>
           <LogOut className="mr-2 h-4 w-4" />
-          <span>Logout</span>
+          <span>logout</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
