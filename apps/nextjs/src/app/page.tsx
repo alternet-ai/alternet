@@ -20,15 +20,17 @@ export function generateMetadata() {
       description: `${page.prompt}`,
       url,
       siteName: `${page.title}`,
-      image: `${imageUrl}`, // Embedding the base64 image
+      images: [{ url: `${imageUrl}`, width: 630, height: 1200 }],
     },
     twitter: {
       card: "summary_large_image",
       site: "@alternet_ai",
       creator: "@maxsloef",
-      image: `${imageUrl}`, // Embedding the base64 image for Twitter card
+      images: [`${imageUrl}`],
     },
   };
+
+  console.log("metadata", metadata);
 
   return metadata;
 }
