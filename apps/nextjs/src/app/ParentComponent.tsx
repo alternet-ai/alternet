@@ -12,13 +12,13 @@ import type { NavigationState, Page, User } from "./types";
 import { api } from "~/trpc/react";
 import AddressBar from "./_components/address_bar";
 import IframeContainer from "./_components/container";
-import ProfileDialog from "./_components/profile";
+import EditProfileDialog from "./_components/edit_profile";
 import HistoryPanel from "./_components/history";
 import LeftButtons from "./_components/left_buttons";
 import FloatingLogo from "./_components/logo";
+import ProfileDialog from "./_components/profile";
 import RightButtons from "./_components/right_buttons";
 import { HOME_HTML } from "./static/home-html";
-import EditProfileDialog from "./_components/edit_profile";
 
 export const HOME_KEY = "home";
 const HOME_PAGE: Page = {
@@ -35,7 +35,10 @@ interface ParentComponentProps {
   profile?: boolean;
 }
 
-const ParentComponent = ({ initialPage = HOME_PAGE, profile = false }: ParentComponentProps) => {
+const ParentComponent = ({
+  initialPage = HOME_PAGE,
+  profile = false,
+}: ParentComponentProps) => {
   const { status } = useSession();
   const [isPortrait, setIsPortrait] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
@@ -128,7 +131,9 @@ const ParentComponent = ({ initialPage = HOME_PAGE, profile = false }: ParentCom
     if (profile) {
       if (!initialPage.userId) {
         setIsProfileDialogOpen(false);
-        throw new Error("User ID is not set for linked page. Closed profile dialog");
+        throw new Error(
+          "User ID is not set for linked page. Closed profile dialog",
+        );
       }
 
       getProfile.mutate(initialPage.userId);
@@ -424,15 +429,23 @@ const ParentComponent = ({ initialPage = HOME_PAGE, profile = false }: ParentCom
     document.title = title;
   }, [title]);
 
+  const showOwnProfile = () => {
+    setProfileData(userMetadata);
+    toggleProfileDialog();
+  };
+
   return (
     <div className="flex h-screen">
-      <EditProfileDialog open={isEditProfileDialogOpen} onClose={toggleEditProfileDialog} />
+      <EditProfileDialog
+        open={isEditProfileDialogOpen}
+        onClose={toggleEditProfileDialog}
+      />
       {isProfileDialogOpen && profileData && (
-          <ProfileDialog
-            open={isProfileDialogOpen}
-            onClose={toggleProfileDialog}
-            profileData={profileData}
-          />
+        <ProfileDialog
+          open={isProfileDialogOpen}
+          onClose={toggleProfileDialog}
+          profileData={profileData}
+        />
       )}
       <div className="flex flex-1 flex-col">
         <div className="flex items-center justify-between border-b bg-background p-2">
@@ -460,6 +473,7 @@ const ParentComponent = ({ initialPage = HOME_PAGE, profile = false }: ParentCom
               defaultIsPublic={userMetadata?.isBookmarkDefaultPublic ?? false}
               isBookmarked={isBookmarked}
               onEditProfile={toggleEditProfileDialog}
+              onViewProfile={showOwnProfile}
             />
           )}
         </div>
@@ -487,6 +501,7 @@ const ParentComponent = ({ initialPage = HOME_PAGE, profile = false }: ParentCom
               defaultIsPublic={userMetadata?.isBookmarkDefaultPublic ?? false}
               isBookmarked={isBookmarked}
               onEditProfile={toggleEditProfileDialog}
+              onViewProfile={showOwnProfile}
             />
           </div>
         )}
