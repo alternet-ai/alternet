@@ -1,4 +1,4 @@
-import puppeteer from 'puppeteer';
+import { chromium } from 'playwright'; // Import Playwright's Chromium package
 
 import type { Page } from "~/app/types";
 import { HOME_KEY, HOME_PAGE } from "~/app/static/constants";
@@ -21,10 +21,13 @@ export async function GET(request: Request) {
       pageData = (await response.json()) as Page;
     }
 
-    const browser = await puppeteer.launch();
+    const browser = await chromium.launch({
+      args: ['--no-sandbox', '--disable-setuid-sandbox'], // Common args for running in certain environments like CI or Docker
+      headless: true // Ensure it runs headless unless specified otherwise
+    });
     const page = await browser.newPage();
     await page.setContent(pageData.content);
-    await page.setViewport({ width: 1200, height: 630 });
+    await page.setViewportSize({ width: 1200, height: 630 }); // Use setViewportSize in Playwright
     const screenshotBuffer = await page.screenshot({ type: 'png' });
     await browser.close();
 
