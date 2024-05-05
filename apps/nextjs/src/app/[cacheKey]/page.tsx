@@ -10,6 +10,11 @@ interface SearchParams {
   profile?: string;
 }
 
+interface CardImagesResponse {
+  image: string;
+  pageData: Page;
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -18,31 +23,29 @@ export async function generateMetadata({
   const cacheKey = params.cacheKey;
   const url = new URL(env.NEXT_PUBLIC_API_BASE_URL + "/" + cacheKey);
 
-  let page: Page;
-  if (cacheKey === HOME_KEY) {
-    page = HOME_PAGE;
-  } else {
-    const response = await fetch(
-      `${env.NEXT_PUBLIC_API_BASE_URL}/api/load-page?cacheKey=${cacheKey}`,
-    );
-    page = (await response.json()) as Page;
-  }
-
+  // Fetching card image and page data from the API
+  const cardImagesResponse = await fetch(
+    `${env.NEXT_PUBLIC_API_BASE_URL}/api/card-images?cacheKey=${cacheKey}`,
+  );
+  const { image: base64Image, pageData } =
+    (await cardImagesResponse.json()) as CardImagesResponse;
 
   const metadata = {
     metadataBase: new URL(env.NEXT_PUBLIC_API_BASE_URL),
     title: `alternet`,
     description: `dream play create`,
     openGraph: {
-      title: `${page.title}`,
-      description: `${page.prompt}`,
+      title: `${pageData.title}`,
+      description: `${pageData.prompt}`,
       url,
-      siteName: `${page.title}`,
+      siteName: `${pageData.title}`,
+      image: `data:image/png;base64,${base64Image}`, // Embedding the base64 image
     },
     twitter: {
       card: "summary_large_image",
       site: "@alternet_ai",
       creator: "@maxsloef",
+      image: `data:image/png;base64,${base64Image}`, // Embedding the base64 image for Twitter card
     },
   };
 
