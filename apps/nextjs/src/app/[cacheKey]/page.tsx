@@ -3,7 +3,8 @@ import { auth } from "@acme/auth";
 import type { Page } from "../types";
 import { env } from "~/env";
 import LoginComponent from "../_components/login";
-import ParentComponent, { HOME_KEY } from "../ParentComponent";
+import ParentComponent from "../ParentComponent";
+import { HOME_KEY, HOME_PAGE } from "../static/constants";
 
 interface SearchParams {
   profile?: string;
@@ -15,13 +16,18 @@ export async function generateMetadata({
   params: { cacheKey: string };
 }) {
   const cacheKey = params.cacheKey;
-
-  const response = await fetch(
-    `${env.NEXT_PUBLIC_API_BASE_URL}/api/load-page?cacheKey=${cacheKey}`,
-  );
-
   const url = new URL(env.NEXT_PUBLIC_API_BASE_URL + "/" + cacheKey);
-  const page = (await response.json()) as Page;
+
+  let page: Page;
+  if (cacheKey === HOME_KEY) {
+    page = HOME_PAGE;
+  } else {
+    const response = await fetch(
+      `${env.NEXT_PUBLIC_API_BASE_URL}/api/load-page?cacheKey=${cacheKey}`,
+    );
+    page = (await response.json()) as Page;
+  }
+
 
   const metadata = {
     metadataBase: new URL(env.NEXT_PUBLIC_API_BASE_URL),

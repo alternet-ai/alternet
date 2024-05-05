@@ -18,18 +18,8 @@ import LeftButtons from "./_components/left_buttons";
 import FloatingLogo from "./_components/logo";
 import ProfileDialog from "./_components/profile";
 import RightButtons from "./_components/right_buttons";
-import { HOME_HTML } from "./static/home-html";
 import { env } from "~/env";
-
-export const HOME_KEY = "home";
-const HOME_PAGE: Page = {
-  title: "alternet: home",
-  prompt: "https://alternet.ai/home",
-  fakeUrl: "https://alternet.ai/home",
-  content: HOME_HTML,
-  cacheKey: HOME_KEY,
-  userId: "",
-};
+import { HOME_PAGE } from "./static/constants";
 
 interface ParentComponentProps {
   initialPage?: Page;
