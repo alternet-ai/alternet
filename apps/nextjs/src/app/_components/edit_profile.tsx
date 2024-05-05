@@ -11,6 +11,7 @@ import { Input } from "@acme/ui/input";
 import { Label } from "@acme/ui/label";
 import { Switch } from "@acme/ui/switch";
 import { Textarea } from "@acme/ui/textarea";
+import { toast } from "@acme/ui/toast";
 
 import { api } from "~/trpc/react";
 
@@ -20,6 +21,22 @@ interface ProfileDialogProps {
 }
 
 const ProfileDialog = ({ open, onClose }: ProfileDialogProps) => {
+  const utils = api.useUtils();
+
+  const updateProfile = api.auth.updateProfile.useMutation({
+    onSuccess: async () => {
+      await utils.auth.invalidate();
+      onClose();
+    },
+    onError: (err) => {
+      toast.error(
+        err.data?.code === "UNAUTHORIZED"
+          ? "You must be logged in to update your profile"
+          : "Failed to update profile",
+      );
+    },
+  });
+
   //TODO: what happens if you're not logged in?
   const userData = api.auth.getOwnMetadata.useQuery().data;
 
@@ -27,17 +44,16 @@ const ProfileDialog = ({ open, onClose }: ProfileDialogProps) => {
     return <div>Loading...</div>;
   }
 
-  async function handleSubmit(formData: FormData) {
+  function handleSubmit(formData: FormData) {
     const data = {
       name: formData.get("name") as string,
       description: formData.get("description") as string,
       isPublic: formData.get("isPublic") === "on",
-      image: formData.get("image") as string,
+      //image: formData.get("image") as string,
+      isBookmarkDefaultPublic: formData.get("bookmarksDefaultPublic") === "on",
     };
-    // TODO: Implement database update
-    // Async do-nothing function
-    await new Promise((resolve) => setTimeout(resolve, 0));
-    console.log("Updated profile:", data);
+
+    updateProfile.mutate(data);
   }
 
   async function handleAvatarUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -95,7 +111,17 @@ const ProfileDialog = ({ open, onClose }: ProfileDialogProps) => {
               name="isPublic"
               defaultChecked={userData.isPublic ?? false}
             />
-            <Label htmlFor="isPublic">Public</Label>
+            <Label htmlFor="isPublic">Public Profile</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="bookmarksDefaultPublic"
+              name="bookmarksDefaultPublic"
+              defaultChecked={userData.isBookmarkDefaultPublic ?? false}
+            />
+            <Label htmlFor="bookmarksDefaultPublic">
+              Bookmarks Default Public
+            </Label>
           </div>
           <Button type="submit">Save</Button>
         </form>
