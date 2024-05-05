@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { redirect } from "next/navigation";
 
 import { auth } from "@acme/auth";
@@ -7,7 +8,6 @@ import { Input } from "@acme/ui/input";
 import { Label } from "@acme/ui/label";
 import { Switch } from "@acme/ui/switch";
 import { Textarea } from "@acme/ui/textarea";
-import Image from "next/image";
 
 import { api } from "~/trpc/server";
 
@@ -76,7 +76,6 @@ function ProfileForm({
       name: formData.get("name") as string,
       description: formData.get("description") as string,
       isPublic: formData.get("isPublic") === "on",
-      email: formData.get("email") as string,
       image: formData.get("image") as string,
     };
     await onSubmit(data as UserData);
@@ -87,10 +86,10 @@ function ProfileForm({
     const file = e.target.files?.[0];
     if (!file) return;
 
-        // Async do-nothing function
-        await new Promise((resolve) => setTimeout(resolve, 0));
-
     // TODO: Implement avatar upload
+    // Async do-nothing function
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
     console.log("Uploaded avatar:", file);
   }
 
@@ -106,12 +105,8 @@ function ProfileForm({
         />
       </div>
       <div className="w-60">
-          <Input
-            type="file"
-            accept="image/*"
-            onChange={handleAvatarUpload}
-          />
-        </div>
+        <Input type="file" accept="image/*" onChange={handleAvatarUpload} />
+      </div>
       <div className="grid w-full items-center gap-4">
         <Label htmlFor="name">Name</Label>
         <Input id="name" name="name" defaultValue={userData.name ?? ""} />
