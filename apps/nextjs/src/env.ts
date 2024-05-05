@@ -21,6 +21,9 @@ export const env = createEnv({
     DB_NAME: z.string(),
     DB_PASSWORD: z.string(),
     DB_USERNAME: z.string(),
+    SCREENSHOT_API_KEY: z.string(),
+    SCREENSHOT_API_BASE_URL: z.string(),
+    SCREENSHOT_BUCKET_URL: z.string(),
   },
 
   /**

@@ -1,14 +1,95 @@
 import { auth } from "@acme/auth";
+
 import type { Page } from "../types";
-import ParentComponent, { HOME_KEY } from "../ParentComponent";
 import { env } from "~/env";
 import LoginComponent from "../_components/login";
+import ParentComponent from "../ParentComponent";
+import { HOME_KEY, HOME_PAGE } from "../static/constants";
 
 interface SearchParams {
   profile?: string;
 }
 
-const CacheKeyPage = async ({ params, searchParams }: { params: { cacheKey: string }, searchParams?: SearchParams }) => {
+interface CardImagesResponse {
+  imageUrl: string;
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: { cacheKey: string };
+}) {
+  const cacheKey = params.cacheKey;
+  const url = new URL(env.NEXT_PUBLIC_API_BASE_URL + "/" + cacheKey);
+
+  let page: Page;
+  if (cacheKey === HOME_KEY) {
+    page = HOME_PAGE;
+  } else {
+    const response = await fetch(
+      `${env.NEXT_PUBLIC_API_BASE_URL}/api/load-page?cacheKey=${cacheKey}`,
+    );
+    page = (await response.json()) as Page;
+  }
+
+  // Check if an image already exists in the bucket
+  const existingImageUrl = `${env.SCREENSHOT_BUCKET_URL}/${cacheKey}.png`;
+  const imageExistsResponse = await fetch(existingImageUrl, { method: 'HEAD' });
+  let imageUrl;
+
+  if (imageExistsResponse.ok) {
+    imageUrl = existingImageUrl;
+    console.log("image exists", imageUrl);
+  } else {
+    // Fetching card image and page data from the API if not exists
+    const cardImagesResponse = await fetch(
+      `${env.SCREENSHOT_API_BASE_URL}/screenshot`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          apiKey: env.SCREENSHOT_API_KEY,
+          html: page.content,
+          cacheKey: cacheKey,
+        }),
+      },
+    );
+
+    const imageData = (await cardImagesResponse.json()) as CardImagesResponse;
+    imageUrl = imageData.imageUrl;
+  }
+
+  const metadata = {
+    metadataBase: new URL(env.NEXT_PUBLIC_API_BASE_URL),
+    title: `alternet`,
+    description: `dream play create`,
+    openGraph: {
+      title: `${page.title}`,
+      description: `${page.prompt}`,
+      url,
+      siteName: `${page.title}`,
+      image: `${imageUrl}`, // Embedding the base64 image
+    },
+    twitter: {
+      card: "summary_large_image",
+      site: "@alternet_ai",
+      creator: "@maxsloef",
+      image: `${imageUrl}`, // Embedding the base64 image for Twitter card
+    },
+  };
+
+  return metadata;
+}
+
+const CacheKeyPage = async ({
+  params,
+  searchParams,
+}: {
+  params: { cacheKey: string };
+  searchParams?: SearchParams;
+}) => {
   const session = await auth();
 
   if (!session) {
@@ -18,8 +99,10 @@ const CacheKeyPage = async ({ params, searchParams }: { params: { cacheKey: stri
   let page: Page | null = null;
   try {
     const { cacheKey } = params;
-    const response = await fetch(`${env.NEXT_PUBLIC_API_BASE_URL}/api/load-page?cacheKey=${cacheKey}`);
-    page = await response.json() as Page;
+    const response = await fetch(
+      `${env.NEXT_PUBLIC_API_BASE_URL}/api/load-page?cacheKey=${cacheKey}`,
+    );
+    page = (await response.json()) as Page;
   } catch (error) {
     console.error("Error fetching page:", error);
   }
@@ -32,7 +115,8 @@ const CacheKeyPage = async ({ params, searchParams }: { params: { cacheKey: stri
   }
 
   // Check if 'profile' query parameter is present and pass it as a prop
-  const profileProp = searchParams?.profile !== undefined ? { profile: true } : {};
+  const profileProp =
+    searchParams?.profile !== undefined ? { profile: true } : {};
 
   return <ParentComponent initialPage={page} {...profileProp} />;
 };
