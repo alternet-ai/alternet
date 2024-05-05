@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@acme/auth";
 import { Button } from "@acme/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@acme/ui/card";
+import { Dialog, DialogContent } from "@acme/ui/dialog";
 import { Input } from "@acme/ui/input";
 import { Label } from "@acme/ui/label";
 import { Switch } from "@acme/ui/switch";
@@ -136,4 +137,15 @@ function ProfileForm({
   );
 }
 
-export default MyProfilePage;
+const ProfileDialog = ({ children }: { children: React.ReactNode }) => {
+  return (
+    <Dialog>
+      {children}
+      <DialogContent>
+        <MyProfilePage />
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+export default ProfileDialog;
