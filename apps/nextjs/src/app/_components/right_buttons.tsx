@@ -51,6 +51,8 @@ const RightButtons: React.FC<RightButtonsProps> = ({
   const [title, setTitle] = useState(fixTitle(defaultTitle));
   const [isPublic, setIsPublic] = useState(defaultIsPublic);
   const [includeProfile, setIncludeProfile] = useState(true);
+  
+  const isHome = title === "home";
 
   useEffect(() => {
     setTitle(fixTitle(defaultTitle));
@@ -70,11 +72,11 @@ const RightButtons: React.FC<RightButtonsProps> = ({
         onEditProfile={onEditProfile}
         onViewProfile={onViewProfile}
         onViewYourProfile={onViewYourProfile}
-        isHome={defaultTitle === "alternet: home"}
+        isHome={isHome}
       />
       <Dialog>
         <DialogTrigger asChild>
-          <Button variant="ghost">
+          <Button variant="ghost" disabled={isHome}>
             <Share className="h-4 w-4" />
             <span className="sr-only">Share</span>
           </Button>
@@ -118,7 +120,7 @@ const RightButtons: React.FC<RightButtonsProps> = ({
       ) : (
         <Dialog>
           <DialogTrigger asChild>
-            <Button variant="ghost" disabled={title === "alternet: home"}>
+            <Button variant="ghost" disabled={isHome}>
               <Bookmark />
             </Button>
           </DialogTrigger>
