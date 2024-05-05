@@ -4,7 +4,7 @@ import type { Page } from "../types";
 import { env } from "~/env";
 import LoginComponent from "../_components/login";
 import ParentComponent from "../ParentComponent";
-import { HOME_KEY, HOME_PAGE } from "../static/constants";
+import { HOME_KEY } from "../static/constants";
 
 interface SearchParams {
   profile?: string;
