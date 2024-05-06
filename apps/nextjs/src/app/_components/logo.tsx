@@ -16,8 +16,8 @@ const FloatingLogo = ({
         fontWeight: "bold",
         textShadow: "2px 2px 2px rgba(0, 0, 0, 0.6)",
         position: "absolute",
-        bottom: isPortrait ? "4rem" : "0.5rem",
-        right: "1rem",
+        bottom: isPortrait ? "1rem" : "0.5rem",
+        right: isPortrait ? "1rem" : "1rem",
       }}
     >
       {src}
