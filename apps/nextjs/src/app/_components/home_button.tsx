@@ -16,7 +16,7 @@ const HomeButton: React.FC<HomeButtonProps> = ({ onGoHome, disabled }) => {
       disabled={disabled}
       className="button-small"
     >
-      <Home className="size-7" />
+      <Home className="size-[5vw] md:size-6" />
     </Button>
   );
 };

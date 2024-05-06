@@ -523,7 +523,7 @@ const ParentComponent = ({
         />
         <FloatingLogo src="alternet" isPortrait={isPortrait} />
         {isPortrait && (
-          <div className="flex items-center justify-between border-b bg-background p-2">
+          <div className="flex items-center justify-around border-b bg-background p-2">
             <LeftButtons
               onBack={goBack}
               onForward={goForward}
