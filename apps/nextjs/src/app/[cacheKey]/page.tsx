@@ -22,14 +22,19 @@ export async function generateMetadata({
   const cacheKey = params.cacheKey;
   const url = new URL(env.NEXT_PUBLIC_API_BASE_URL + "/" + cacheKey);
 
-  let page: Page;
+  let page;
   if (cacheKey === HOME_KEY) {
     page = HOME_PAGE;
   } else {
     const response = await fetch(
       `${env.NEXT_PUBLIC_API_BASE_URL}/api/load-page?cacheKey=${cacheKey}`,
     );
-    page = (await response.json()) as Page;
+    page = (await response.json()) as Page | undefined;
+  }
+
+  if (!page?.content) {
+    //page not ready yet
+    return {};
   }
 
   // Check if an image already exists in the bucket
