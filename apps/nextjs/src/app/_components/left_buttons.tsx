@@ -23,7 +23,7 @@ const LeftButtons: React.FC<LeftButtonsProps> = ({
   onCancel,
 }) => {
   return (
-    <div className="space-x-0.5">
+    <div className="flex space-x-0.5">
       <Button variant="ghost" onClick={onBack} disabled={disabled}>
         <ChevronLeft className="size-7" />
       </Button>
