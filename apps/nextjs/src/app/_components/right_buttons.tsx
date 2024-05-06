@@ -30,7 +30,7 @@ interface RightButtonsProps {
 
 const fixTitle = (title: string) => {
   if (title.startsWith("alternet: ")) {
-    return title.split(": ")[1]?? "";
+    return title.split(": ")[1] ?? "";
   }
   return title;
 };
@@ -51,7 +51,7 @@ const RightButtons: React.FC<RightButtonsProps> = ({
   const [title, setTitle] = useState(fixTitle(defaultTitle));
   const [isPublic, setIsPublic] = useState(defaultIsPublic);
   const [includeProfile, setIncludeProfile] = useState(true);
-  
+
   const isHome = title === "home";
 
   useEffect(() => {
@@ -67,7 +67,7 @@ const RightButtons: React.FC<RightButtonsProps> = ({
   };
 
   return (
-    <div className="flex space-x-2">
+    <div className="flex space-x-0.5">
       <HamburgerMenu
         onEditProfile={onEditProfile}
         onViewProfile={onViewProfile}
@@ -77,7 +77,7 @@ const RightButtons: React.FC<RightButtonsProps> = ({
       <Dialog>
         <DialogTrigger asChild>
           <Button variant="ghost" disabled={isHome}>
-            <Share className="size-4 lg:size-6" />
+            <Share className="size-7" />
             <span className="sr-only">Share</span>
           </Button>
         </DialogTrigger>
@@ -115,13 +115,13 @@ const RightButtons: React.FC<RightButtonsProps> = ({
       </Dialog>
       {isBookmarked ? (
         <Button variant="ghost" onClick={onDeleteBookmark}>
-          <BookmarkCheck className="size-4 lg:size-6" />
+          <BookmarkCheck className="size-7" />
         </Button>
       ) : (
         <Dialog>
           <DialogTrigger asChild>
             <Button variant="ghost" disabled={isHome}>
-              <Bookmark className="size-4 lg:size-6"/>
+              <Bookmark className="size-7" />
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">
@@ -156,7 +156,7 @@ const RightButtons: React.FC<RightButtonsProps> = ({
         </Dialog>
       )}
       <Button variant="ghost" onClick={onOpenHistory}>
-        <Clock className="size-4 lg:size-6"/>
+        <Clock className="size-7" />
       </Button>
     </div>
   );

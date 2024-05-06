@@ -35,7 +35,7 @@ const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost">
-          <Menu className="size-4 lg:size-6" />
+          <Menu className="size-7" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>

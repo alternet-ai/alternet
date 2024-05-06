@@ -23,20 +23,20 @@ const LeftButtons: React.FC<LeftButtonsProps> = ({
   onCancel,
 }) => {
   return (
-    <div className="flex space-x-2">
+    <div className="space-x-0.5">
       <Button variant="ghost" onClick={onBack} disabled={disabled}>
-        <ChevronLeft className="size-4 lg:size-6" />
+        <ChevronLeft className="size-7" />
       </Button>
       <Button variant="ghost" onClick={onForward} disabled={disabled}>
-        <ChevronRight className="size-4 lg:size-6" />
+        <ChevronRight className="size-7" />
       </Button>
       {disabled ? (
         <Button variant="ghost" onClick={onCancel}>
-          <X className="size-4 lg:size-6" />
+          <X className="size-7" />
         </Button>
       ) : (
         <Button variant="ghost" onClick={onRefresh} disabled={disabled}>
-          <RotateCw className="size-4 lg:size-6" />
+          <RotateCw className="size-7" />
         </Button>
       )}
       <HomeButton onGoHome={onGoHome} disabled={disabled} />

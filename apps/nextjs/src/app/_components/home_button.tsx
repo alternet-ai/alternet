@@ -10,8 +10,13 @@ interface HomeButtonProps {
 
 const HomeButton: React.FC<HomeButtonProps> = ({ onGoHome, disabled }) => {
   return (
-    <Button variant="ghost" onClick={onGoHome} disabled={disabled} className="button-small">
-      <Home className="size-4 lg:size-6" />
+    <Button
+      variant="ghost"
+      onClick={onGoHome}
+      disabled={disabled}
+      className="button-small"
+    >
+      <Home className="size-7" />
     </Button>
   );
 };
