@@ -77,7 +77,7 @@ const RightButtons: React.FC<RightButtonsProps> = ({
       <Dialog>
         <DialogTrigger asChild>
           <Button variant="ghost" disabled={isHome}>
-            <Share className="h-4 w-4" />
+            <Share className="size-4 lg:size-6" />
             <span className="sr-only">Share</span>
           </Button>
         </DialogTrigger>
@@ -115,13 +115,13 @@ const RightButtons: React.FC<RightButtonsProps> = ({
       </Dialog>
       {isBookmarked ? (
         <Button variant="ghost" onClick={onDeleteBookmark}>
-          <BookmarkCheck />
+          <BookmarkCheck className="size-4 lg:size-6" />
         </Button>
       ) : (
         <Dialog>
           <DialogTrigger asChild>
             <Button variant="ghost" disabled={isHome}>
-              <Bookmark />
+              <Bookmark className="size-4 lg:size-6"/>
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">
@@ -156,7 +156,7 @@ const RightButtons: React.FC<RightButtonsProps> = ({
         </Dialog>
       )}
       <Button variant="ghost" onClick={onOpenHistory}>
-        <Clock />
+        <Clock className="size-4 lg:size-6"/>
       </Button>
     </div>
   );
