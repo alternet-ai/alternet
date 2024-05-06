@@ -1,7 +1,7 @@
 "use client";
 
 import type { Message } from "ai";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useChat } from "ai/react";
 import { useSession } from "next-auth/react";
 
@@ -135,7 +135,7 @@ const ParentComponent = ({
     setIsProfileDialogOpen(!isProfileDialogOpen);
   };
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const handleResize = () => {
       setIsPortrait(window.innerWidth < window.innerHeight);
     };
