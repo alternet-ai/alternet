@@ -518,11 +518,13 @@ const ParentComponent = ({
             />
           )}
         </div>
+        <div className="flex flex-1 overflow-hidden">
         <IframeContainer
           html={html}
           isLoading={isLoading}
           onNavigate={generatePage}
         />
+        </div>
         <FloatingLogo src="alternet" isPortrait={isPortrait} />
         {isPortrait && (
           <div className="flex items-center justify-around border-b bg-background p-2">

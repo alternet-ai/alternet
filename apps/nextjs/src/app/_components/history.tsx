@@ -36,7 +36,7 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
   };
 
   return (
-    <div className="h=9/10 w-[200px] sm:w-[300px]">
+    <div className="w-[200px] sm:w-[300px]">
       <div className="flex items-center justify-between border-b bg-background p-2">
         <h1 className="text-lg font-semibold">history</h1>
         <Button onClick={() => setOpen(false)} variant="ghost" className="p-1">
@@ -44,7 +44,7 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
         </Button>
       </div>
       <Separator />
-      <ScrollArea className="h-9/10">
+      <ScrollArea >
         {history.map((entry, index) => (
           <div key={index} className="w-full text-left">
             <Button
