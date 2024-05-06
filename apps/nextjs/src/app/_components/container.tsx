@@ -39,7 +39,9 @@ const ENFORCE_LOCATION_STYLE = `
   z-index: 1000; // High z-index to ensure it's on top
 `;
 
-const DEFAULT_STYLE = ENFORCE_LOCATION_STYLE + ` font-family: var(--font-geist-sans), 'ui-sans-serif', 'system-ui', 'sans-serif', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+const DEFAULT_STYLE =
+  ENFORCE_LOCATION_STYLE +
+  ` font-family: var(--font-geist-sans), 'ui-sans-serif', 'system-ui', 'sans-serif', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   font-size: 24px;
   font-weight: bold;`;
 
@@ -76,12 +78,12 @@ const IframeContainer: React.FC<IframeContainerProps> = ({
             DEFAULT_STYLE + html.substring(html.lastIndexOf("{") + 1);
           //apply style to Loading div and write to innerHtml
           iframeDocument.body.innerHTML =
-            html + `</style> <div style="${styleSection + ENFORCE_LOCATION_STYLE}">Loading...</div>`;
+            html +
+            `</style> <div style="${styleSection + ENFORCE_LOCATION_STYLE}">Loading...</div>`;
           //overlay loading
         } else if (isLoading || html.length === 0) {
           iframeDocument.body.innerHTML =
-            html +
-            `<div style="${DEFAULT_STYLE}">Loading...</div>`;
+            html + `<div style="${DEFAULT_STYLE}">Loading...</div>`;
         } else {
           iframeDocument.body.innerHTML = html;
 
@@ -90,7 +92,12 @@ const IframeContainer: React.FC<IframeContainerProps> = ({
           scripts.forEach((script) => {
             const scriptContent = script.textContent;
             if (!scriptContent) {
-              console.error("skipping script", script, "with content", scriptContent);
+              console.error(
+                "skipping script",
+                script,
+                "with content",
+                scriptContent,
+              );
               return;
             }
             if (!executedScriptsRef.current.has(scriptContent)) {
@@ -125,13 +132,11 @@ const IframeContainer: React.FC<IframeContainerProps> = ({
   }, [onNavigate]);
 
   return (
-    <div className="flex-1">
-      <iframe
-        ref={iframeRef}
-        title="Browser Frame"
-        className="h-full w-full"
-      ></iframe>
-    </div>
+    <iframe
+      ref={iframeRef}
+      title="Browser Frame"
+      className="w-full h-full"
+    ></iframe>
   );
 };
 

@@ -550,7 +550,7 @@ const ParentComponent = ({
       </div>
       {showHistory && (
         <>
-          <Separator orientation="vertical" className="h-full" />
+          <Separator orientation="vertical" className="h-9/10" />
           <HistoryPanel
             history={
               navState.current.history
