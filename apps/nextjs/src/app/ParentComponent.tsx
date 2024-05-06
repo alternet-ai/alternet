@@ -9,6 +9,7 @@ import { Separator } from "@acme/ui/separator";
 import { toast } from "@acme/ui/toast";
 
 import type { NavigationState, Page, User } from "./types";
+import { env } from "~/env";
 import { api } from "~/trpc/react";
 import AddressBar from "./_components/address_bar";
 import IframeContainer from "./_components/container";
@@ -18,7 +19,6 @@ import LeftButtons from "./_components/left_buttons";
 import FloatingLogo from "./_components/logo";
 import ProfileDialog from "./_components/profile";
 import RightButtons from "./_components/right_buttons";
-import { env } from "~/env";
 import { HOME_PAGE } from "./static/constants";
 
 interface ParentComponentProps {
@@ -445,7 +445,10 @@ const ParentComponent = ({
   };
 
   const onCopyLink = (includeProfile: boolean) => {
-    const baseUrl = env.NEXT_PUBLIC_API_BASE_URL + '/' + navState.current.history[navState.current.currentIndex];
+    const baseUrl =
+      env.NEXT_PUBLIC_API_BASE_URL +
+      "/" +
+      navState.current.history[navState.current.currentIndex];
     const url = includeProfile ? `${baseUrl}?profile` : baseUrl;
     navigator.clipboard.writeText(url);
   };
@@ -459,7 +462,7 @@ const ParentComponent = ({
     if (!page) {
       throw new Error("Could not find page for downloading page");
     }
-    
+
     const html = page.content;
     const blob = new Blob([html], { type: "text/html" });
     const url = URL.createObjectURL(blob);
@@ -469,9 +472,8 @@ const ParentComponent = ({
     link.click();
   };
 
-
   return (
-    <div className="flex h-screen w-screen">
+    <div className="flex h-screen w-full">
       <EditProfileDialog
         open={isEditProfileDialogOpen}
         onClose={toggleEditProfileDialog}
@@ -550,7 +552,7 @@ const ParentComponent = ({
       </div>
       {showHistory && (
         <>
-          <Separator orientation="vertical"/>
+          <Separator orientation="vertical" />
           <HistoryPanel
             history={
               navState.current.history

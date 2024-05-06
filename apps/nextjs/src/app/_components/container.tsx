@@ -135,7 +135,7 @@ const IframeContainer: React.FC<IframeContainerProps> = ({
     <iframe
       ref={iframeRef}
       title="Browser Frame"
-      className="w-full h-screen"
+      className="w-full h-full"
     ></iframe>
   );
 };
