@@ -25,6 +25,8 @@ export async function POST(req: Request) {
     truncatedMessages = messages.slice(startIndex, startIndex + 3);
   }
 
+  console.log(truncatedMessages);
+
   // Call the language model
   const result = await streamText({
     model: anthropic("claude-3-sonnet-20240229"),
