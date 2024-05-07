@@ -20,14 +20,14 @@ export async function generateMetadata({
   params: { cacheKey: string };
 }) {
   const cacheKey = params.cacheKey;
-  const url = new URL(env.NEXT_PUBLIC_VERCEL_URL + "/" + cacheKey);
+  const url = new URL(DEPLOYMENT_URL + "/" + cacheKey);
 
   let page;
   if (cacheKey === HOME_KEY) {
     page = HOME_PAGE;
   } else {
     const response = await fetch(
-      `${env.NEXT_PUBLIC_VERCEL_URL}/api/load-page?cacheKey=${cacheKey}`,
+      `${DEPLOYMENT_URL}/api/load-page?cacheKey=${cacheKey}`,
     );
     page = (await response.json()) as Page | undefined;
   }
@@ -66,7 +66,7 @@ export async function generateMetadata({
   }
 
   const metadata = {
-    metadataBase: new URL(env.NEXT_PUBLIC_VERCEL_URL),
+    metadataBase: new URL(DEPLOYMENT_URL),
     title: `alternet`,
     description: `dream play create`,
     openGraph: {
@@ -104,7 +104,7 @@ const CacheKeyPage = async ({
   try {
     const { cacheKey } = params;
     const response = await fetch(
-      `${env.NEXT_PUBLIC_VERCEL_URL}/api/load-page?cacheKey=${cacheKey}`,
+      `${DEPLOYMENT_URL}/api/load-page?cacheKey=${cacheKey}`,
     );
     page = (await response.json()) as Page;
   } catch (error) {

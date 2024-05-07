@@ -446,7 +446,7 @@ const ParentComponent = ({
 
   const onCopyLink = (includeProfile: boolean) => {
     const baseUrl =
-      env.NEXT_PUBLIC_VERCEL_URL +
+      DEPLOYMENT_URL +
       "/" +
       navState.current.history[navState.current.currentIndex];
     const url = includeProfile ? `${baseUrl}?profile` : baseUrl;
@@ -519,11 +519,11 @@ const ParentComponent = ({
           )}
         </div>
         <div className="flex flex-1 overflow-hidden">
-        <IframeContainer
-          html={html}
-          isLoading={isLoading}
-          onNavigate={generatePage}
-        />
+          <IframeContainer
+            html={html}
+            isLoading={isLoading}
+            onNavigate={generatePage}
+          />
         </div>
         <FloatingLogo src="alternet" isPortrait={isPortrait} />
         {isPortrait && (

@@ -2,10 +2,7 @@ import { useState } from "react";
 import Image from "next/image";
 
 import { Button } from "@acme/ui/button";
-import {
-  Dialog,
-  DialogContent,
-} from "@acme/ui/dialog";
+import { Dialog, DialogContent } from "@acme/ui/dialog";
 import { Input } from "@acme/ui/input";
 import { Label } from "@acme/ui/label";
 import { Switch } from "@acme/ui/switch";
@@ -51,7 +48,10 @@ const EditProfileDialog = ({ open, onClose }: EditProfileDialogProps) => {
       name: formData.get("name") as string,
       description: formData.get("description") as string,
       isPublic: formData.get("isPublic") === "on",
-      image: imageUrl || formData.get("image") as string || (userData?.image?? ""),
+      image:
+        imageUrl ||
+        (formData.get("image") as string) ||
+        (userData?.image ?? ""),
       isBookmarkDefaultPublic: formData.get("bookmarksDefaultPublic") === "on",
     };
 
@@ -69,13 +69,10 @@ const EditProfileDialog = ({ open, onClose }: EditProfileDialogProps) => {
     formData.append("file", file);
     formData.append("fileType", fileType); // Send MIME type to the backend
 
-    const response = await fetch(
-      `${env.NEXT_PUBLIC_VERCEL_URL}/api/save-avatar`,
-      {
-        method: "POST",
-        body: formData,
-      },
-    );
+    const response = await fetch(`${DEPLOYMENT_URL}/api/save-avatar`, {
+      method: "POST",
+      body: formData,
+    });
 
     if (response.ok) {
       const responseData = (await response.json()) as { url: string }; // Parse the JSON response
@@ -88,7 +85,6 @@ const EditProfileDialog = ({ open, onClose }: EditProfileDialogProps) => {
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent>
-
         <form action={handleSubmit} className="space-y-4">
           <div className="flex items-center space-x-4">
             <Image
