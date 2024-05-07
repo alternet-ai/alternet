@@ -70,7 +70,7 @@ const EditProfileDialog = ({ open, onClose }: EditProfileDialogProps) => {
     formData.append("fileType", fileType); // Send MIME type to the backend
 
     const response = await fetch(
-      `${env.NEXT_PUBLIC_API_BASE_URL}/api/save-avatar`,
+      `${env.NEXT_PUBLIC_VERCEL_URL}/api/save-avatar`,
       {
         method: "POST",
         body: formData,

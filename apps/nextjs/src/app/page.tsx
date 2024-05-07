@@ -4,7 +4,7 @@ import { env } from "~/env";
 import { HOME_KEY, HOME_PAGE } from "./static/constants";
 
 export function generateMetadata() {
-  const url = new URL(env.NEXT_PUBLIC_API_BASE_URL + "/" + HOME_KEY);
+  const url = new URL(env.NEXT_PUBLIC_VERCEL_URL + "/" + HOME_KEY);
 
   const page = HOME_PAGE;
 
@@ -12,7 +12,7 @@ export function generateMetadata() {
   const imageUrl = `${env.SCREENSHOT_BUCKET_URL}/${HOME_KEY}.png`;
 
   const metadata = {
-    metadataBase: new URL(env.NEXT_PUBLIC_API_BASE_URL),
+    metadataBase: new URL(env.NEXT_PUBLIC_VERCEL_URL),
     title: `alternet`,
     description: `dream play create`,
     openGraph: {

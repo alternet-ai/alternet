@@ -446,7 +446,7 @@ const ParentComponent = ({
 
   const onCopyLink = (includeProfile: boolean) => {
     const baseUrl =
-      env.NEXT_PUBLIC_API_BASE_URL +
+      env.NEXT_PUBLIC_VERCEL_URL +
       "/" +
       navState.current.history[navState.current.currentIndex];
     const url = includeProfile ? `${baseUrl}?profile` : baseUrl;
