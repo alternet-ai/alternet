@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { Trash } from "lucide-react";
 import { useSession } from "next-auth/react";
 
 import { Dialog, DialogContent } from "@acme/ui/dialog";
@@ -38,6 +39,20 @@ const ProfileDialog = ({ open, onClose, profileData }: ProfileDialogProps) => {
         err.data?.code === "UNAUTHORIZED"
           ? "You must be logged in to update a bookmark"
           : "Failed to update bookmark",
+      );
+    },
+  });
+
+  const deleteBookmark = api.bookmark.delete.useMutation({
+    onSuccess: async () => {
+      await utils.bookmark.invalidate();
+      toast.success("Bookmark deleted");
+    },
+    onError: (err) => {
+      toast.error(
+        err.data?.code === "UNAUTHORIZED"
+          ? "You must be logged in to delete a bookmark"
+          : "Failed to delete bookmark",
       );
     },
   });
@@ -87,7 +102,7 @@ const ProfileDialog = ({ open, onClose, profileData }: ProfileDialogProps) => {
 
   useEffect(() => {
     const currentTitleRefs = titleRefs.current;
-
+  
     const handleTitleBlur = (bookmarkId: string, title: string) => {
       if (title !== bookmarks.find((b) => b.bookmarkId === bookmarkId)?.title) {
         handleUpdate(
@@ -97,17 +112,34 @@ const ProfileDialog = ({ open, onClose, profileData }: ProfileDialogProps) => {
         );
       }
     };
-
+  
+    const handleTitleKeyDown = (
+      event: KeyboardEvent,
+      bookmarkId: string,
+      title: string,
+    ) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        handleTitleBlur(bookmarkId, title);
+      }
+    };
+  
     Object.entries(currentTitleRefs).forEach(([bookmarkId, ref]) => {
       ref?.addEventListener("blur", () =>
         handleTitleBlur(bookmarkId, ref.textContent ?? ""),
       );
+      ref?.addEventListener("keydown", (event) =>
+        handleTitleKeyDown(event, bookmarkId, ref.textContent ?? ""),
+      );
     });
-
+  
     return () => {
       Object.entries(currentTitleRefs).forEach(([bookmarkId, ref]) => {
         ref?.removeEventListener("blur", () =>
           handleTitleBlur(bookmarkId, ref.textContent ?? ""),
+        );
+        ref?.removeEventListener("keydown", (event) =>
+          handleTitleKeyDown(event, bookmarkId, ref.textContent ?? ""),
         );
       });
     };
@@ -136,9 +168,9 @@ const ProfileDialog = ({ open, onClose, profileData }: ProfileDialogProps) => {
           </div>
           {bookmarks.length > 0 && (
             <div className="mt-8">
-              <div className="grid max-h-96 grid-cols-2 gap-6 overflow-y-auto">
+              <div className="grid max-h-96 grid-cols-2 gap-10 overflow-y-auto">
                 {bookmarks.map((bookmark) => (
-                  <div key={bookmark.bookmarkId}>
+                  <div key={bookmark.bookmarkId} >
                     <div className="flex flex-col items-center space-y-2">
                       <Link href={`https://alternet.ai/${bookmark.bookmarkId}`}>
                         <Image
@@ -161,18 +193,29 @@ const ProfileDialog = ({ open, onClose, profileData }: ProfileDialogProps) => {
                       </p>
                     </div>
                     {isOwnProfile && (
-                      <div className="mt-2 flex items-center justify-center space-x-2">
-                        <span className="text-sm">Public:</span>
-                        <Switch
-                          checked={bookmark.isPublic ?? false}
-                          onCheckedChange={(isPublic) =>
-                            handleUpdate(
-                              bookmark.bookmarkId,
-                              bookmark.title,
-                              isPublic,
-                            )
+                      <div className="mt-2 flex items-center justify-around">
+                        <div className="flex items-center space-x-2">
+                          <span className="text-sm">public:</span>
+
+                          <Switch
+                            checked={bookmark.isPublic ?? false}
+                            onCheckedChange={(isPublic) =>
+                              handleUpdate(
+                                bookmark.bookmarkId,
+                                bookmark.title,
+                                isPublic,
+                              )
+                            }
+                          />
+                        </div>
+                        <button
+                          onClick={() =>
+                            deleteBookmark.mutate(bookmark.bookmarkId)
                           }
-                        />
+                          className="text-red-500 hover:text-red-600 focus:outline-none"
+                        >
+                          <Trash className="h-4 w-4" />
+                        </button>
                       </div>
                     )}
                   </div>

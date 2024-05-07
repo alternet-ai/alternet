@@ -39,10 +39,6 @@ const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
-        <DropdownMenuItem>
-          <Bookmark className="mr-2 h-4 w-4" />
-          <span>bookmarks</span>
-        </DropdownMenuItem>
         <DropdownMenuItem onClick={onViewProfile} disabled={isHome}>
           <User className="mr-2 h-4 w-4" />
           <span>page creator</span>
