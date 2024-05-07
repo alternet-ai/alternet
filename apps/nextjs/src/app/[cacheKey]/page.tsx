@@ -15,7 +15,10 @@ export async function generateMetadata({
 }: {
   params: { cacheKey: string };
 }) {
-  const cacheKey = params.cacheKey;
+  let cacheKey = params.cacheKey;
+  if (!cacheKey) {
+    cacheKey = HOME_KEY;
+  }
   const url = new URL(DEPLOYMENT_URL + "/" + cacheKey);
 
   let page;
@@ -23,7 +26,6 @@ export async function generateMetadata({
     page = HOME_PAGE;
   } else {
     try {
-      const { cacheKey } = params;
       const response = await fetch(
         `${DEPLOYMENT_URL}/api/load-page?cacheKey=${cacheKey}`,
       );
@@ -46,8 +48,7 @@ export async function generateMetadata({
     body: JSON.stringify({ cacheKey }),
   });
 
-  const { imageUrl } = await response.json() as { imageUrl: string };
-
+  const { imageUrl } = (await response.json()) as { imageUrl: string };
 
   const metadata = {
     metadataBase: new URL(DEPLOYMENT_URL),
@@ -89,9 +90,7 @@ const CacheKeyPage = async ({
     const { cacheKey } = params;
     const urlString = `${DEPLOYMENT_URL}/api/load-page?cacheKey=${cacheKey}`;
     console.log("fetching page from", urlString);
-    const response = await fetch(
-      urlString,
-    );
+    const response = await fetch(urlString);
     page = (await response.json()) as Page;
   } catch (error) {
     console.error("Error fetching page to serve:", error);

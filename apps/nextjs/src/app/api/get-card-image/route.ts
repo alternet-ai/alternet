@@ -4,6 +4,14 @@ import { env } from "~/env";
 
 export async function POST(req: Request) {
   const { cacheKey } = (await req.json()) as { cacheKey: string };
+  if (!cacheKey) {
+    return new Response(JSON.stringify({ imageUrl: null }), {
+      status: 500,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+  }
   // Check if an image already exists in the bucket
   const existingImageUrl = `${env.NEXT_PUBLIC_SCREENSHOT_BUCKET_URL}/${cacheKey}.png`;
   const imageExistsResponse = await fetch(existingImageUrl, { method: "HEAD" });
