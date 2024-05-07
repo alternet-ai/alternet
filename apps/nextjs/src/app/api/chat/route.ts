@@ -4,6 +4,8 @@ import { StreamingTextResponse, streamText } from "ai";
 
 import { DEFAULT_PROMPT } from "~/app/static/prompts";
 
+export const runtime = "edge";
+
 interface MessageRequest {
   messages: CoreMessage[];
   lastIndex: number;
