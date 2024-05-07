@@ -109,8 +109,10 @@ const CacheKeyPage = async ({
   let page: Page | null = null;
   try {
     const { cacheKey } = params;
+    const urlString = `${DEPLOYMENT_URL}/api/load-page?cacheKey=${cacheKey}`;
+    console.log("fetching page from", urlString);
     const response = await fetch(
-      `${DEPLOYMENT_URL}/api/load-page?cacheKey=${cacheKey}`,
+      urlString,
     );
     page = (await response.json()) as Page;
   } catch (error) {
