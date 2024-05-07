@@ -1,9 +1,16 @@
-import { randomUUID } from "crypto";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { put } from "@vercel/blob";
 
 export const runtime = "edge";
+
+function generateUUID() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = Math.random() * 16 | 0;
+    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -20,7 +27,7 @@ export async function POST(request: NextRequest) {
 
     const imageBuffer = Buffer.from(await imageFile.arrayBuffer());
 
-    const filename = "avatars/" + randomUUID();
+    const filename = "avatars/" + generateUUID();
     const result = await put(filename, imageBuffer, {
       access: "public",
       contentType: fileType, // Use the MIME type from the frontend
