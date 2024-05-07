@@ -34,7 +34,7 @@ export async function generateMetadata({
       );
       page = (await response.json()) as Page;
     } catch (error) {
-      console.error("Error fetching page:", error);
+      console.error("Error fetching page for metadata:", error);
     }
   }
 
@@ -114,7 +114,7 @@ const CacheKeyPage = async ({
     );
     page = (await response.json()) as Page;
   } catch (error) {
-    console.error("Error fetching page:", error);
+    console.error("Error fetching page to serve:", error);
   }
 
   if (!page) {

@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(page);
   } catch (error) {
-    console.error("Error fetching page:", error);
+    console.error("Error loading page:", error);
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 },
