@@ -473,7 +473,7 @@ const ParentComponent = ({
   };
 
   return (
-    <div className="flex h-screen w-full">
+    <div className="flex h-svh w-full">
       <EditProfileDialog
         open={isEditProfileDialogOpen}
         onClose={toggleEditProfileDialog}
