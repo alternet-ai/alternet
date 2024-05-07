@@ -20,6 +20,7 @@ export async function GET(request: NextRequest) {
     const pageBlob = response.blobs.find((blob) => blob.pathname === cacheKey);
 
     if (!pageBlob) {
+      console.error("Page not found:", cacheKey);
       return NextResponse.json(null, { status: 404 });
     }
 

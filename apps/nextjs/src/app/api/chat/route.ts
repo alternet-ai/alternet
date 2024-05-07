@@ -38,7 +38,7 @@ export async function POST(req: Request) {
 
   // Call the language model
   const result = await streamText({
-    model: anthropic("claude-3-sonnet-20240229"),
+    model: anthropic("claude-3-sonnet-20240229"), //TODO: allow opus
     system: DEFAULT_PROMPT,
     messages: truncatedMessages,
     temperature: 1,
