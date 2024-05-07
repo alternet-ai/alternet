@@ -27,10 +27,15 @@ export async function generateMetadata({
   if (cacheKey === HOME_KEY) {
     page = HOME_PAGE;
   } else {
-    const response = await fetch(
-      `${DEPLOYMENT_URL}/api/load-page?cacheKey=${cacheKey}`,
-    );
-    page = (await response.json()) as Page | undefined;
+    try {
+      const { cacheKey } = params;
+      const response = await fetch(
+        `${DEPLOYMENT_URL}/api/load-page?cacheKey=${cacheKey}`,
+      );
+      page = (await response.json()) as Page;
+    } catch (error) {
+      console.error("Error fetching page:", error);
+    }
   }
 
   if (!page?.content) {
