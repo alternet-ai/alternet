@@ -9,8 +9,8 @@ import { Switch } from "@acme/ui/switch";
 import { Textarea } from "@acme/ui/textarea";
 import { toast } from "@acme/ui/toast";
 
-import { env } from "~/env";
 import { api } from "~/trpc/react";
+import { DEPLOYMENT_URL } from "../utils/url";
 
 interface EditProfileDialogProps {
   open: boolean;
@@ -123,7 +123,7 @@ const EditProfileDialog = ({ open, onClose }: EditProfileDialogProps) => {
             <Switch
               id="isPublic"
               name="isPublic"
-              defaultChecked={userData.isPublic ?? false}
+              defaultChecked={userData.isPublic}
             />
             <Label htmlFor="isPublic">public profile</Label>
           </div>
@@ -131,7 +131,7 @@ const EditProfileDialog = ({ open, onClose }: EditProfileDialogProps) => {
             <Switch
               id="bookmarksDefaultPublic"
               name="bookmarksDefaultPublic"
-              defaultChecked={userData.isBookmarkDefaultPublic ?? false}
+              defaultChecked={userData.isBookmarkDefaultPublic}
             />
             <Label htmlFor="bookmarksDefaultPublic">
               bookmarks default to public
