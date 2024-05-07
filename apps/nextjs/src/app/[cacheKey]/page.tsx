@@ -5,6 +5,7 @@ import { env } from "~/env";
 import LoginComponent from "../_components/login";
 import ParentComponent from "../ParentComponent";
 import { HOME_KEY, HOME_PAGE } from "../static/constants";
+import { DEPLOYMENT_URL } from "../utils/url";
 
 interface SearchParams {
   profile?: string;

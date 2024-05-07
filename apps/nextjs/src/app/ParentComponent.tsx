@@ -9,7 +9,6 @@ import { Separator } from "@acme/ui/separator";
 import { toast } from "@acme/ui/toast";
 
 import type { NavigationState, Page, User } from "./types";
-import { env } from "~/env";
 import { api } from "~/trpc/react";
 import AddressBar from "./_components/address_bar";
 import IframeContainer from "./_components/container";
@@ -20,6 +19,7 @@ import FloatingLogo from "./_components/logo";
 import ProfileDialog from "./_components/profile";
 import RightButtons from "./_components/right_buttons";
 import { HOME_PAGE } from "./static/constants";
+import { DEPLOYMENT_URL } from "./utils/url";
 
 interface ParentComponentProps {
   initialPage?: Page;
