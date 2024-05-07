@@ -2,6 +2,8 @@ import type { Page } from "~/app/types";
 import { DEPLOYMENT_URL } from "~/app/utils/url";
 import { env } from "~/env";
 
+export const runtime = "edge";
+
 export async function POST(req: Request) {
   const { cacheKey } = (await req.json()) as { cacheKey: string };
   if (!cacheKey) {

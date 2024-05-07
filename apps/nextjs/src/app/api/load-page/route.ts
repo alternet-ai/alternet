@@ -4,6 +4,8 @@ import { list } from "@vercel/blob";
 
 import type { Page } from "~/app/types";
 
+export const runtime = "edge";
+
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const cacheKey = searchParams.get("cacheKey");
