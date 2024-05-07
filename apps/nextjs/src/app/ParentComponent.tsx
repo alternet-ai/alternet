@@ -178,6 +178,7 @@ const ParentComponent = ({
 
   const generatePage = (prompt: string) => {
     setHtml("");
+    setIsBookmarked(false);
 
     void append(
       {
@@ -515,6 +516,7 @@ const ParentComponent = ({
               onViewYourProfile={showOwnProfile}
               onCopyLink={onCopyLink}
               onDownloadPage={onDownloadPage}
+              isLoading={isLoading}
             />
           )}
         </div>
@@ -548,6 +550,7 @@ const ParentComponent = ({
               onViewYourProfile={showOwnProfile}
               onCopyLink={onCopyLink}
               onDownloadPage={onDownloadPage}
+              isLoading={isLoading}
             />
           </div>
         )}

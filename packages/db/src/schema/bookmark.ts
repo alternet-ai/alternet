@@ -1,4 +1,4 @@
-import { boolean, datetime, primaryKey, timestamp, varchar } from "drizzle-orm/mysql-core";
+import { boolean, primaryKey, timestamp, varchar } from "drizzle-orm/mysql-core";
 
 import { mySqlTable } from "./_table";
 import { sql } from "drizzle-orm";
@@ -13,7 +13,7 @@ export const bookmarks = mySqlTable(
       updatedAt: timestamp("updatedAt", {
         mode: "date",
         fsp: 3,
-      }).default(sql`CURRENT_TIMESTAMP(3)`),
+      }).default(sql`CURRENT_TIMESTAMP(3)`).notNull(),
     },
     (bookmark) => ({
       compoundKey: primaryKey({

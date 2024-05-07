@@ -10,7 +10,7 @@ export function generateMetadata() {
   const page = HOME_PAGE;
 
   // Check if an image already exists in the bucket
-  const imageUrl = `${env.SCREENSHOT_BUCKET_URL}/${HOME_KEY}.png`;
+  const imageUrl = `${env.NEXT_PUBLIC_SCREENSHOT_BUCKET_URL}/${HOME_KEY}.png`;
 
   const metadata = {
     metadataBase: new URL(DEPLOYMENT_URL),

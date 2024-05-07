@@ -26,6 +26,7 @@ interface RightButtonsProps {
   onViewYourProfile: () => void;
   onCopyLink: (includeProfile: boolean) => void;
   onDownloadPage: () => void;
+  isLoading: boolean;
 }
 
 const fixTitle = (title: string) => {
@@ -47,6 +48,7 @@ const RightButtons: React.FC<RightButtonsProps> = ({
   onViewYourProfile,
   onCopyLink,
   onDownloadPage,
+  isLoading,
 }) => {
   const [title, setTitle] = useState(fixTitle(defaultTitle));
   const [isPublic, setIsPublic] = useState(defaultIsPublic);
@@ -120,7 +122,7 @@ const RightButtons: React.FC<RightButtonsProps> = ({
       ) : (
         <Dialog>
           <DialogTrigger asChild>
-            <Button variant="ghost" disabled={isHome}>
+            <Button variant="ghost" disabled={isHome || isLoading}>
               <Bookmark className="size-[4.5vw] md:size-6" />
             </Button>
           </DialogTrigger>
@@ -149,7 +151,9 @@ const RightButtons: React.FC<RightButtonsProps> = ({
                 />
               </div>
               <DialogClose asChild>
-                <Button onClick={handleAddBookmark}>Add Bookmark</Button>
+                <Button onClick={handleAddBookmark}>
+                  Add Bookmark
+                </Button>
               </DialogClose>
             </div>
           </DialogContent>

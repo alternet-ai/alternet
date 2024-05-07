@@ -1,7 +1,6 @@
 import { auth } from "@acme/auth";
 
 import type { Page } from "../types";
-import { env } from "~/env";
 import LoginComponent from "../_components/login";
 import ParentComponent from "../ParentComponent";
 import { HOME_KEY, HOME_PAGE } from "../static/constants";
@@ -9,10 +8,6 @@ import { DEPLOYMENT_URL } from "../utils/url";
 
 interface SearchParams {
   profile?: string;
-}
-
-interface CardImagesResponse {
-  imageUrl: string;
 }
 
 export async function generateMetadata({
@@ -43,33 +38,16 @@ export async function generateMetadata({
     return {};
   }
 
-  // Check if an image already exists in the bucket
-  const existingImageUrl = `${env.SCREENSHOT_BUCKET_URL}/${cacheKey}.png`;
-  const imageExistsResponse = await fetch(existingImageUrl, { method: "HEAD" });
-  let imageUrl;
+  const response = await fetch(`${DEPLOYMENT_URL}/api/get-card-image`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ cacheKey }),
+  });
 
-  if (imageExistsResponse.ok) {
-    imageUrl = existingImageUrl;
-  } else {
-    // Fetching card image and page data from the API if not exists
-    const cardImagesResponse = await fetch(
-      `${env.SCREENSHOT_API_BASE_URL}/screenshot`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          apiKey: env.SCREENSHOT_API_KEY,
-          html: page.content,
-          cacheKey: cacheKey,
-        }),
-      },
-    );
+  const { imageUrl } = await response.json() as { imageUrl: string };
 
-    const imageData = (await cardImagesResponse.json()) as CardImagesResponse;
-    imageUrl = imageData.imageUrl;
-  }
 
   const metadata = {
     metadataBase: new URL(DEPLOYMENT_URL),
