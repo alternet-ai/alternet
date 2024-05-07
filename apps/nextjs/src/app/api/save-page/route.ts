@@ -4,6 +4,8 @@ import { put } from "@vercel/blob";
 
 import type { Page } from "~/app/types";
 
+export const runtime = "edge";
+
 export async function POST(request: NextRequest) {
   try {
     const page = (await request.json()) as Page;
