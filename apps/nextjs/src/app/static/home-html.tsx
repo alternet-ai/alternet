@@ -58,6 +58,7 @@ export const HOME_HTML = `
       padding: 10px;
       font-size: 14px;
       border-radius: 4px;
+      white-space: pre-wrap;
     }
 
     .intro {
@@ -145,10 +146,7 @@ export const HOME_HTML = `
       <li>provide a detailed description of the desired page or experience 
         directly in the prompt, without using a URL structure.
         <pre>
-Generate a website for a futuristic space travel agency. Include sections on 
-destinations, spacecraft, pricing, and a booking form. Use a sleek, modern design 
-with a dark color scheme and neon accents.
-        </pre>
+Generate a website for a futuristic space travel agency. Include sections on destinations, spacecraft, pricing, and a booking form. Use a sleek, modern design with a dark color scheme and neon accents.</pre>
       </li>
       <li>start with an initial prompt and then refine the generated page
         through a series of follow-up prompts. provide feedback, additional details, or specific
@@ -158,12 +156,9 @@ Initial prompt: Create a website for a fantasy-themed tavern.
 
 Iteration 1: The tavern looks great! Can you add a menu of food and drink items?
 
-Iteration 2: Perfect. Now let's add some background music and sound effects to 
-enhance the atmosphere.
+Iteration 2: Perfect. Now let's add some background music and sound effects to enhance the atmosphere.
 
-Iteration 3: Awesome. As a final touch, can you add a guestbook where visitors can 
-leave comments in-character as fantasy patrons?
-        </pre>
+Iteration 3: Awesome. As a final touch, can you add a guestbook where visitors can leave comments in-character as fantasy patrons?</pre>
       </li>
     </ul>
 
