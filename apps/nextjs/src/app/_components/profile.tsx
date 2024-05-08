@@ -1,7 +1,14 @@
+import { useState } from "react";
 import Image from "next/image";
+import { useSession } from "next-auth/react";
+
+import { Button } from "@acme/ui/button";
 import { Dialog, DialogContent } from "@acme/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@acme/ui/tabs";
+import { toast } from "@acme/ui/toast";
+
 import type { User } from "../types";
+import { api } from "~/trpc/react";
 import Bookmarks from "./bookmarks";
 import Following from "./following";
 
@@ -12,6 +19,52 @@ interface ProfileDialogProps {
 }
 
 const ProfileDialog = ({ open, onClose, profileData }: ProfileDialogProps) => {
+  const [isFollowing, setIsFollowing] = useState(
+    !!api.following.isFollowingUser.useQuery(profileData.id).data,
+  );
+  const { data: session } = useSession();
+  const utils = api.useUtils();
+
+  const followUser = api.following.insert.useMutation({
+    onSuccess: async () => {
+      await utils.following.invalidate();
+      toast.success("Followed");
+    },
+    onError: (err) => {
+      toast.error(
+        err.data?.code === "UNAUTHORIZED"
+          ? "You must be logged in to follow"
+          : "Failed to follow",
+      );
+    },
+  });
+
+  const unFollowUser = api.following.delete.useMutation({
+    onSuccess: async () => {
+      await utils.following.invalidate();
+      toast.success("Unfollowed");
+    },
+    onError: (err) => {
+      toast.error(
+        err.data?.code === "UNAUTHORIZED"
+          ? "You must be logged in to unfollow"
+          : "Failed to unfollow",
+      );
+    },
+  });
+
+  const isOwnProfile = session?.user.id === profileData.id;
+
+  const handleFollowClick = () => {
+    if (isFollowing) {
+      unFollowUser.mutate(profileData.id);
+      setIsFollowing(false);
+    } else {
+      followUser.mutate(profileData.id);
+      setIsFollowing(true);
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[600px]">
@@ -32,13 +85,26 @@ const ProfileDialog = ({ open, onClose, profileData }: ProfileDialogProps) => {
                 {profileData.description}
               </p>
             </div>
+            {!isOwnProfile && (
+              <div className="mt-6 flex justify-center">
+                <Button onClick={handleFollowClick}>
+                  {isFollowing ? "Unfollow" : "Follow"}
+                </Button>
+              </div>
+            )}
           </div>
           <Tabs defaultValue="bookmarks" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="bookmarks" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <TabsTrigger
+                value="bookmarks"
+                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+              >
                 Bookmarks
               </TabsTrigger>
-              <TabsTrigger value="following" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <TabsTrigger
+                value="following"
+                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+              >
                 Following
               </TabsTrigger>
             </TabsList>
