@@ -6,13 +6,21 @@ import { and, eq, schema } from "@acme/db";
 import { protectedProcedure } from "../trpc";
 
 export const followingRouter = {
-  following: protectedProcedure.query(({ ctx }) => {
-    return ctx.db.query.following.findMany({
-      where: eq(schema.following.userId, ctx.session.user.id),
-    });
+  followingUser: protectedProcedure
+  .input(z.string().min(1))
+  .query(({ ctx, input }) => {
+    return ctx.db
+      .select({
+        followingId: schema.following.followingId,
+        name: schema.users.name,
+        image: schema.users.image,
+      })
+      .from(schema.following)
+      .where(eq(schema.following.userId, input))
+      .innerJoin(schema.users, eq(schema.following.followingId, schema.users.id));
   }),
 
-  followingUser: protectedProcedure
+  isFollowingUser: protectedProcedure
     .input(z.string().min(1))
     .query(({ ctx, input }) => {
       return ctx.db.query.following.findFirst({

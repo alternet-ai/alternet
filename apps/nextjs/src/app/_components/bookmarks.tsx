@@ -9,7 +9,6 @@ import { toast } from "@acme/ui/toast";
 
 import { env } from "~/env";
 import { api } from "~/trpc/react";
-import type { User } from "../types";
 
 interface Bookmark {
   userId: string;
@@ -20,10 +19,10 @@ interface Bookmark {
 }
 
 interface BookmarksProps {
-  profileData: User;
+  profileid: string;
 }
 
-const Bookmarks = ({ profileData }: BookmarksProps) => {
+const Bookmarks = ({ profileid }: BookmarksProps) => {
   const utils = api.useUtils();
 
   const updateBookmark = api.bookmark.update.useMutation({
@@ -69,12 +68,12 @@ const Bookmarks = ({ profileData }: BookmarksProps) => {
     [updateBookmark],
   );
 
-  const isOwnProfile = userid === profileData.id;
+  const isOwnProfile = userid === profileid;
   let bookmarks: Bookmark[] | undefined;
   if (isOwnProfile) {
     bookmarks = api.bookmark.mine.useQuery().data;
   } else {
-    bookmarks = api.bookmark.yours.useQuery(profileData.id).data;
+    bookmarks = api.bookmark.yours.useQuery(profileid).data;
   }
 
   if (bookmarks === undefined) {

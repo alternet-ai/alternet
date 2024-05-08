@@ -1,10 +1,9 @@
 import Image from "next/image";
-
 import { Dialog, DialogContent } from "@acme/ui/dialog";
-
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@acme/ui/tabs";
 import type { User } from "../types";
-
 import Bookmarks from "./bookmarks";
+import Following from "./following";
 
 interface ProfileDialogProps {
   open: boolean;
@@ -34,7 +33,22 @@ const ProfileDialog = ({ open, onClose, profileData }: ProfileDialogProps) => {
               </p>
             </div>
           </div>
-          <Bookmarks profileData={profileData} />
+          <Tabs defaultValue="bookmarks" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="bookmarks" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                Bookmarks
+              </TabsTrigger>
+              <TabsTrigger value="following" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                Following
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value="bookmarks" className="p-4">
+              <Bookmarks profileid={profileData.id} />
+            </TabsContent>
+            <TabsContent value="following" className="p-4">
+              <Following profileid={profileData.id} />
+            </TabsContent>
+          </Tabs>
         </div>
       </DialogContent>
     </Dialog>
