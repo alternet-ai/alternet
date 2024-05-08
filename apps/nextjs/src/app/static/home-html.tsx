@@ -1,146 +1,180 @@
-export const HOME_HTML = `<html>
+export const HOME_HTML = `
+<html>
+
 <head>
   <link rel="canonical" href="https://alternet.ai/home">
   <meta charset="UTF-8">
   <title>home</title>
   <style>
-    @font-face {
-      font-family: 'PressStart2P';
-      src: url('https://fonts.gstatic.com/s/pressstart2p/v14/e3t4euO8T-267oIAQAu6jDQyK3nVivM.woff2') format('woff2');
-    }
+    @import url('https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300;400;500&display=swap');
 
     body {
-      background-color: #000;
-      font-family: 'PressStart2P', monospace;
-      text-align: center;
+      font-family: 'Fira Sans', sans-serif;
+      background-color: #f5f5f5;
+      color: #333;
+      line-height: 1.6;
       margin: 0;
-      padding: 50px;
-      color: #0f0;
-      background-image: radial-gradient(#ffffff 1px, transparent 1px), radial-gradient(#ffffff 1px, transparent 1px);
-      background-position: 0 0, 25px 25px;
-      background-size: 50px 50px;
-      animation: animatedBackground 5s linear infinite;
+      padding: 0;
     }
 
-    @keyframes animatedBackground {
-      0% {
-        background-position: 0 0, 25px 25px;
-      }
-
-      100% {
-        background-position: -50px -50px, -25px -25px;
-      }
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 40px;
     }
 
     h1 {
-      font-size: 32px;
-      color: #f0f;
-      text-shadow: 2px 2px 0 #ff0;
-      margin: 0;
-      padding: 20px;
-      animation: textShadow 1.6s infinite;
+      font-size: 48px;
+      font-weight: 500;
+      margin-bottom: 20px;
+      color: #222;
     }
 
-    @keyframes textShadow {
-      0% {
-        text-shadow: 2px 2px 0 #ff0;
-      }
-
-      25% {
-        text-shadow: -2px 2px 0 #ff0;
-      }
-
-      50% {
-        text-shadow: -2px -2px 0 #ff0;
-      }
-
-      75% {
-        text-shadow: 2px -2px 0 #ff0;
-      }
-
-      100% {
-        text-shadow: 2px 2px 0 #ff0;
-      }
+    h2 {
+      font-size: 28px;
+      font-weight: 500;
+      margin-top: 40px;
+      margin-bottom: 15px;
+      color: #444;
     }
 
     p {
       font-size: 18px;
-      color: #ff0;
-      margin: 20px 0;
+      margin-bottom: 20px;
     }
 
-    .ascii-art {
-      font-family: monospace;
-      white-space: pre;
-      color: #0ff;
+    ul {
+      margin-bottom: 20px;
+      padding-left: 20px;
     }
 
-    footer {
-      margin-top: 300px;
-      margin-bottom: 50px;
-      color: #f0f;
+    li {
+      font-size: 16px;
+      margin-bottom: 10px;
+    }
+
+    pre {
+      background-color: #eee;
+      padding: 10px;
       font-size: 14px;
+      border-radius: 4px;
     }
 
-    .contact-link {
-      display: inline-block;
-      padding: 10px 20px;
-      color: #000;
-      background-color: #0ff;
-      text-decoration: none;
-      margin-top: 20px;
-      font-size: 14px;
-      border: 2px dotted #f0f;
-      box-shadow: 0 0 10px #fff;
-    }
-
-    .visitor-counter {
-      margin-top: 20px;
+    .intro {
       font-size: 24px;
-      color: #ff0;
-      text-shadow: 0 0 5px #f0f;
+      font-weight: 300;
+      margin-bottom: 30px;
     }
+
+    .outro {
+      font-size: 20px;
+      font-weight: 300;
+      margin-top: 40px;
+    }
+
+    .logo {
+      font-weight: 500;
+      color: #1a73e8;
+    }
+    @keyframes wavy {
+      0% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-5px);
+      }
+      100% {
+        transform: translateY(0);
+      }
+    }
+    
   </style>
 </head>
 
 <body>
-  <pre class="ascii-art">
+  <div class="container">
+    <h1>welcome to <span class="logo">alternet</span></h1>
+    <p class="intro">
+      alternet makes pages.
+      <br>alternet is the subconscious of the internet.
+      <br>alternet is something new.
+      <br><span class="logo">dream play create</span></h1>
+    </p>
+    <h2>crafting complex URL structures</h2>
+    <p>
+      thoughtfully constructed URLs allow you to generate highly specific 
+      and immersive pages.
+    </p>
+    <ul>
+      <li>using nested paths to create intricate worlds
+        <pre>https://realm-of-aragon.forest/elven-forest/hidden-glade/ancient-ruins</pre>
+      </li>
+      <li>combining multiple parameters to specify details
+        <pre>https://art-studio.ai?subject=cyberpunk-cityscape&colors=neon-blue,magenta&style=digital-painting&detail=ultra-high</pre>
+      </li>
+      <li>encoding complex instructions directly into the URL path or parameters
+        <pre>https://guided-meditation.calm/script=Imagine a peaceful beach at sunset...</pre>
+      </li>
+    </ul>
 
-          _____                    _____        _____                    _____                    _____                    _____                    _____                _____          
-         /\\    \\                  /\\    \\      /\\    \\                  /\\    \\                  /\\    \\                  /\\    \\                  /\\    \\              /\\    \\         
-        /::\\    \\                /::\\____\\    /::\\    \\                /::\\    \\                /::\\    \\                /::\\____\\                /::\\    \\            /::\\    \\        
-       /::::\\    \\              /:::/    /    \\:::\\    \\              /::::\\    \\              /::::\\    \\              /::::|   |               /::::\\    \\           \\:::\\    \\       
-      /::::::\\    \\            /:::/    /      \\:::\\    \\            /::::::\\    \\            /::::::\\    \\            /:::::|   |              /::::::\\    \\           \\:::\\    \\      
-     /:::/\\:::\\    \\          /:::/    /        \\:::\\    \\          /:::/\\:::\\    \\          /:::/\\:::\\    \\          /::::::|   |             /:::/\\:::\\    \\           \\:::\\    \\     
-    /:::/__\\:::\\    \\        /:::/    /          \\:::\\    \\        /:::/__\\:::\\    \\        /:::/__\\:::\\    \\        /:::/|::|   |            /:::/__\\:::\\    \\           \\:::\\    \\    
-   /::::\\   \\:::\\    \\      /:::/    /           /::::\\    \\      /::::\\   \\:::\\    \\      /::::\\   \\:::\\    \\      /:::/ |::|   |           /::::\\   \\:::\\    \\          /::::\\    \\   
-  /::::::\\   \\:::\\    \\    /:::/    /           /::::::\\    \\    /::::::\\   \\:::\\    \\    /::::::\\   \\:::\\    \\    /:::/  |::|   | _____    /::::::\\   \\:::\\    \\        /::::::\\    \\  
- /:::/\\:::\\   \\:::\\    \\  /:::/    /           /:::/\\:::\\    \\  /:::/\\:::\\   \\:::\\    \\  /:::/\\:::\\   \\:::\\____\\  /:::/   |::|   |/\\    \\  /:::/\\:::\\   \\:::\\    \\      /:::/\\:::\\    \\ 
-/:::/  \\:::\\   \\:::\\____\\/:::/____/           /:::/  \\:::\\____\\/:::/__\\:::\\   \\:::\\____\\/:::/  \\:::\\   \\:::|    |/:: /    |::|   /::\\____\\/:::/__\\:::\\   \\:::\\____\\    /:::/  \\:::\\____\\
-\\::/    \\:::\\  /:::/    /\\:::\\    \\          /:::/    \\::/    /\\:::\\   \\:::\\   \\::/    /\\::/   |::::\\  /:::|____|\\::/    /|::|  /:::/    /\\:::\\   \\:::\\   \\::/    /   /:::/    \\::/    /
- \\/____/ \\:::\\/:::/    /  \\:::\\    \\        /:::/    / \\/____/  \\:::\\   \\:::\\   \\/____/  \\/____|:::::\\/:::/    /  \\/____/ |::| /:::/    /  \\:::\\   \\:::\\   \\/____/   /:::/    / \\/____/ 
-          \\::::::/    /    \\:::\\    \\      /:::/    /            \\:::\\   \\:::\\    \\            |:::::::::/    /           |::|/:::/    /    \\:::\\   \\:::\\    \\      /:::/    /          
-           \\::::/    /      \\:::\\    \\    /:::/    /              \\:::\\   \\:::\\____\\           |::|\\::::/    /            |::::::/    /      \\:::\\   \\:::\\____\\    /:::/    /           
-           /:::/    /        \\:::\\    \\   \\::/    /                \\:::\\   \\::/    /           |::| \\::/____/             |:::::/    /        \\:::\\   \\::/    /    \\::/    /            
-          /:::/    /          \\:::\\    \\   \\/____/                  \\:::\\   \\/____/            |::|  ~|                   |::::/    /          \\:::\\   \\/____/      \\/____/             
-         /:::/    /            \\:::\\    \\                            \\:::\\    \\                |::|   |                   /:::/    /            \\:::\\    \\                              
-        /:::/    /              \\:::\\____\\                            \\:::\\____\\               \\::|   |                  /:::/    /              \\:::\\____\\                             
-        \\::/    /                \\::/    /                             \\::/    /                \\:|   |                  \\::/    /                \\::/    /                             
-         \\/____/                  \\/____/                               \\/____/                  \\|___|                   \\/____/                  \\/____/                              
-                                                                                                                                                                                        
+    <h2>alternative protocols</h2>
+    <p>
+      invent your own unique protocols to customize and contextualize your pages in alternet.
+    </p>
+    <ul>
+    <li>simulating other environments
+    <pre>simulator://windows95.exe/</pre>
+  </li>
+  <li>immersive 3D graphics and virtual reality experiences
+    <pre>xr://immersive-scene.js?skybox=space&objects=planets,asteroids&interactions=orbit,zoom</pre>
+  </li>
+  <li>emulating command line interfaces and running scripts
+    <pre>cmd://dos.exe/?script=echo hello world&style=.dos .login,.dos .sidebar {display:none}</pre>
+  </li>
+  <li>running standalone web applications with custom UIs
+    <pre>app://codemirror.exe?fullscreen&style=.CodeMirror{height:100%}&persistence=local</pre>
+  </li>
+    </ul>
 
-</pre>
+    <h2>regular and iterative prompting</h2>
+    <p>
+      you can also interact with alternet using normal prompts 
+      and iterative prompting techniques.
+    </p>
+    <ul>
+      <li>provide a detailed description of the desired page or experience 
+        directly in the prompt, without using a URL structure.
+        <pre>
+Generate a website for a futuristic space travel agency. Include sections on 
+destinations, spacecraft, pricing, and a booking form. Use a sleek, modern design 
+with a dark color scheme and neon accents.
+        </pre>
+      </li>
+      <li>start with an initial prompt and then refine the generated page
+        through a series of follow-up prompts. provide feedback, additional details, or specific
+        changes you'd like to see in each iteration.
+        <pre>
+Initial prompt: Create a website for a fantasy-themed tavern.
 
-  <h1>AlterNet - Prepare for Launch!</h1>
-  <p>Thanks for being a part of our beginning :)</p>
+Iteration 1: The tavern looks great! Can you add a menu of food and drink items?
 
-  <footer>Copyright &copy; 2024 Alternet AI, Inc</footer>
+Iteration 2: Perfect. Now let's add some background music and sound effects to 
+enhance the atmosphere.
 
-  <marquee scrollamount="20" behavior="alternate">
-    ~ ~ ~ ~ <=>
-      <=>
-        <=> ~ ~ ~ ~
-  </marquee>
+Iteration 3: Awesome. As a final touch, can you add a guestbook where visitors can 
+leave comments in-character as fantasy patrons?
+        </pre>
+      </li>
+    </ul>
+
+    <p class="outro">
+      the possibilities in
+      alternet are boundless - experiment, push boundaries, and let your imagination guide you.
+      thanks for reading and happy hallucinating <3
+      <br> - max & claude
+    </p>
+  </div>
 </body>
 
-</html>`;
+</html>
+`;
