@@ -53,6 +53,7 @@ const ParentComponent = ({
 
     onFinish: (message) => {
       updateCurrentPage(message, true);
+      pageView.mutate(navState.current.history[navState.current.currentIndex]?? "could not find key");
     },
 
     onError: (error) => {
@@ -118,6 +119,19 @@ const ParentComponent = ({
     },
   });
 
+  const pageView = api.pageView.view.useMutation({
+    onSuccess: async (res) => {
+      await utils.bookmark.invalidate();
+    },
+    onError: (err) => {
+      toast.error(
+        err.data?.code === "UNAUTHORIZED"
+          ? "You must be logged in to view a page"
+          : "Failed to view page",
+      );
+    },
+  });
+
   useEffect(() => {
     if (profile) {
       if (!initialPage.userId) {
@@ -171,6 +185,7 @@ const ParentComponent = ({
 
       const newUrl = `/${cacheKey}`;
       window.history.pushState({ path: newUrl }, "", newUrl);
+      pageView.mutate(cacheKey);
     } else {
       throw new Error("Cache key is not valid");
     }

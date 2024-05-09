@@ -23,6 +23,10 @@ export const users = mySqlTable("user", {
   description: text("description"),
   isPublic: boolean("isPublic").default(true).notNull(),
   isBookmarkDefaultPublic: boolean("isBookmarkDefaultPublic").default(true).notNull(),
+  createdAt: timestamp("createdAt", {
+    mode: "date",
+    fsp: 3,
+  }).default(sql`CURRENT_TIMESTAMP(3)`).notNull(),
 });
 
 export const usersRelations = relations(users, ({ many }) => ({
