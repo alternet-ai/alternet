@@ -462,7 +462,7 @@ const ParentComponent = ({
 
   const onCopyLink = (includeProfile: boolean) => {
     const baseUrl =
-      DEPLOYMENT_URL +
+      "https://alternet.ai" + //todo: don't hardcode
       "/" +
       navState.current.history[navState.current.currentIndex];
     const url = includeProfile ? `${baseUrl}?profile` : baseUrl;
