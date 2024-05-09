@@ -15,11 +15,9 @@ import IframeContainer from "./_components/container";
 import EditProfileDialog from "./_components/edit_profile";
 import HistoryPanel from "./_components/history";
 import LeftButtons from "./_components/left_buttons";
-import FloatingLogo from "./_components/logo";
 import ProfileDialog from "./_components/profile";
 import RightButtons from "./_components/right_buttons";
 import { HOME_PAGE } from "./static/constants";
-import { DEPLOYMENT_URL } from "./utils/url";
 
 interface ParentComponentProps {
   initialPage?: Page;
