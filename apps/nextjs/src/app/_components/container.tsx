@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from "react";
+import FloatingLogo from "./logo";
 
 interface IframeContainerProps {
   html: string;
@@ -132,11 +133,14 @@ const IframeContainer: React.FC<IframeContainerProps> = ({
   }, [onNavigate]);
 
   return (
-    <iframe
-      ref={iframeRef}
-      title="Browser Frame"
-      className="w-full h-full"
-    ></iframe>
+    <div className="relative w-full h-full">
+      <iframe
+        ref={iframeRef}
+        title="Browser Frame"
+        className="w-full h-full"
+      ></iframe>
+      <FloatingLogo />
+    </div>
   );
 };
 

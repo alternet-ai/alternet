@@ -493,7 +493,6 @@ const ParentComponent = ({
               onBack={goBack}
               onForward={goForward}
               onRefresh={refresh}
-              onGoHome={goHome}
               disabled={isLoading}
               onCancel={cancelGeneration}
             />
@@ -516,7 +515,9 @@ const ParentComponent = ({
               onViewYourProfile={showOwnProfile}
               onCopyLink={onCopyLink}
               onDownloadPage={onDownloadPage}
+              onGoHome={goHome}
               isLoading={isLoading}
+              pageId={navState.current.history[navState.current.currentIndex]?? ""}
             />
           )}
         </div>
@@ -527,14 +528,12 @@ const ParentComponent = ({
             onNavigate={generatePage}
           />
         </div>
-        <FloatingLogo src="alternet" isPortrait={isPortrait} />
         {isPortrait && (
           <div className="flex items-center justify-around border-b bg-background p-2">
             <LeftButtons
               onBack={goBack}
               onForward={goForward}
               onRefresh={refresh}
-              onGoHome={goHome}
               disabled={isLoading}
               onCancel={cancelGeneration}
             />
@@ -550,7 +549,9 @@ const ParentComponent = ({
               onViewYourProfile={showOwnProfile}
               onCopyLink={onCopyLink}
               onDownloadPage={onDownloadPage}
+              onGoHome={goHome}
               isLoading={isLoading}
+              pageId={navState.current.history[navState.current.currentIndex]?? ""}
             />
           </div>
         )}

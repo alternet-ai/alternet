@@ -1,12 +1,14 @@
 import { authRouter } from "./router/auth";
 import { bookmarkRouter } from "./router/bookmark";
 import { followingRouter } from "./router/following";
+import { feedbackRouter } from "./router/feedback";
 import { createTRPCRouter } from "./trpc";
 
 export const appRouter = createTRPCRouter({
   auth: authRouter,
   bookmark: bookmarkRouter,
-  following: followingRouter
+  following: followingRouter,
+  feedback: feedbackRouter
 });
 
 // export type definition of API

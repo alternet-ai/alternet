@@ -1,6 +1,6 @@
 import React from "react";
 import {
-  Bookmark,
+  Home,
   LogOut,
   Menu,
   User,
@@ -22,14 +22,18 @@ interface HamburgerMenuProps {
   onEditProfile: () => void;
   onViewProfile: () => void;
   onViewYourProfile: () => void;
+  onGoHome: () => void;
   isHome: boolean;
+  isLoading: boolean;
 }
 
 const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
   onEditProfile,
   onViewProfile,
   onViewYourProfile,
+  onGoHome,
   isHome,
+  isLoading,
 }) => {
   return (
     <DropdownMenu>
@@ -39,6 +43,10 @@ const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
+        <DropdownMenuItem onClick={onGoHome} disabled={isLoading}>
+          <Home className="mr-2 h-4 w-4" />
+          <span>home</span>
+        </DropdownMenuItem>
         <DropdownMenuItem onClick={onViewProfile} disabled={isHome}>
           <User className="mr-2 h-4 w-4" />
           <span>page creator</span>

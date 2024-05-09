@@ -12,6 +12,7 @@ import { Input } from "@acme/ui/input";
 import { Label } from "@acme/ui/label";
 import { Switch } from "@acme/ui/switch";
 
+import FeedbackButton from "./feedback";
 import HamburgerMenu from "./hamburger_menu";
 
 interface RightButtonsProps {
@@ -26,7 +27,9 @@ interface RightButtonsProps {
   onViewYourProfile: () => void;
   onCopyLink: (includeProfile: boolean) => void;
   onDownloadPage: () => void;
+  onGoHome: () => void;
   isLoading: boolean;
+  pageId: string;
 }
 
 const fixTitle = (title: string) => {
@@ -48,7 +51,9 @@ const RightButtons: React.FC<RightButtonsProps> = ({
   onViewYourProfile,
   onCopyLink,
   onDownloadPage,
+  onGoHome,
   isLoading,
+  pageId,
 }) => {
   const [title, setTitle] = useState(fixTitle(defaultTitle));
   const [isPublic, setIsPublic] = useState(defaultIsPublic);
@@ -74,8 +79,11 @@ const RightButtons: React.FC<RightButtonsProps> = ({
         onEditProfile={onEditProfile}
         onViewProfile={onViewProfile}
         onViewYourProfile={onViewYourProfile}
+        onGoHome={onGoHome}
         isHome={isHome}
+        isLoading={isLoading}
       />
+      <FeedbackButton pageId={pageId} />
       <Dialog>
         <DialogTrigger asChild>
           <Button variant="ghost" disabled={isHome}>
@@ -151,9 +159,7 @@ const RightButtons: React.FC<RightButtonsProps> = ({
                 />
               </div>
               <DialogClose asChild>
-                <Button onClick={handleAddBookmark}>
-                  Add Bookmark
-                </Button>
+                <Button onClick={handleAddBookmark}>Add Bookmark</Button>
               </DialogClose>
             </div>
           </DialogContent>

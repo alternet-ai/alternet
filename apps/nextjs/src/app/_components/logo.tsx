@@ -1,27 +1,19 @@
 import React from "react";
+import Image from "next/image";
 
-import { Label } from "@acme/ui/label";
-
-const FloatingLogo = ({
-  src,
-  isPortrait,
-}: {
-  src: string;
-  isPortrait: boolean;
-}) => {
+const FloatingLogo = () => {
   return (
-    <Label
+    <Image
+      src="/alternet-cloud.png"
+      alt="alternet.ai watermark"
+      width={200}
+      height={200}
       style={{
-        fontSize: "24px",
-        fontWeight: "bold",
-        textShadow: "2px 2px 2px rgba(0, 0, 0, 0.6)",
         position: "absolute",
-        bottom: isPortrait ? "4rem" : "0.5rem",
-        right: isPortrait ? "1rem" : "1rem",
+        bottom: "1rem",
+        right: "1.5rem",
       }}
-    >
-      {src}
-    </Label>
+    />
   );
 };
 

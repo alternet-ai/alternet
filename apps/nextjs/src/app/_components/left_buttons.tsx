@@ -3,13 +3,10 @@ import { ChevronLeft, ChevronRight, RotateCw, X } from "lucide-react";
 
 import { Button } from "@acme/ui/button";
 
-import HomeButton from "./home_button";
-
 interface LeftButtonsProps {
   onBack: () => void;
   onForward: () => void;
   onRefresh: () => void;
-  onGoHome: () => void;
   disabled: boolean;
   onCancel: () => void;
 }
@@ -18,7 +15,6 @@ const LeftButtons: React.FC<LeftButtonsProps> = ({
   onBack,
   onForward,
   onRefresh,
-  onGoHome,
   disabled,
   onCancel,
 }) => {
@@ -39,7 +35,6 @@ const LeftButtons: React.FC<LeftButtonsProps> = ({
           <RotateCw className="size-[4.5vw] md:size-6" />
         </Button>
       )}
-      <HomeButton onGoHome={onGoHome} disabled={disabled} />
     </div>
   );
 };
