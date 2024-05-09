@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from "react";
+
 import FloatingLogo from "./logo";
 
 interface IframeContainerProps {
@@ -88,31 +89,48 @@ const IframeContainer: React.FC<IframeContainerProps> = ({
         } else {
           iframeDocument.body.innerHTML = html;
 
-          // Extract scripts from the incoming HTML
           const scripts = Array.from(iframeDocument.querySelectorAll("script"));
-          scripts.forEach((script) => {
-            const scriptContent = script.textContent;
-            if (!scriptContent) {
-              console.error(
-                "skipping script",
-                script,
-                "with content",
-                scriptContent,
-              );
-              return;
-            }
-            if (!executedScriptsRef.current.has(scriptContent)) {
-              const newScript = iframeDocument.createElement("script");
+          const externalScripts = scripts.filter((script) => script.src);
+          const inlineScripts = scripts.filter((script) => !script.src);
 
-              newScript.text = scriptContent;
-              if (!script.parentNode) {
-                console.error("Could not find parent node for script", script);
+          // Load external scripts first
+          const loadExternalScripts = () => {
+            externalScripts.forEach((script) => {
+              if (!executedScriptsRef.current.has(script.src)) {
+                const newScript = iframeDocument.createElement("script");
+                newScript.src = script.src;
+                newScript.onload = () => {
+                  executedScriptsRef.current.add(script.src);
+                  executeInlineScripts();
+                };
+                iframeDocument.body.appendChild(newScript);
+              }
+            });
+          };
+
+          // Execute inline scripts after external scripts are loaded
+          const executeInlineScripts = () => {
+            inlineScripts.forEach((script) => {
+              const scriptContent = script.textContent;
+              if (!scriptContent) {
+                console.error(
+                  "skipping script",
+                  script,
+                  "with content",
+                  scriptContent,
+                );
                 return;
               }
-              script.parentNode.replaceChild(newScript, script);
-              executedScriptsRef.current.add(scriptContent); // Mark this script as executed
-            }
-          });
+              if (!executedScriptsRef.current.has(scriptContent)) {
+                const newScript = iframeDocument.createElement("script");
+                newScript.text = scriptContent;
+                iframeDocument.body.appendChild(newScript);
+                executedScriptsRef.current.add(scriptContent);
+              }
+            });
+          };
+
+          loadExternalScripts();
         }
       }
     }
@@ -133,11 +151,11 @@ const IframeContainer: React.FC<IframeContainerProps> = ({
   }, [onNavigate]);
 
   return (
-    <div className="relative w-full h-full">
+    <div className="relative h-full w-full">
       <iframe
         ref={iframeRef}
         title="Browser Frame"
-        className="w-full h-full"
+        className="h-full w-full"
       ></iframe>
       <FloatingLogo />
     </div>
