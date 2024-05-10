@@ -30,9 +30,6 @@ export function generateMetadata() {
       images: [`${imageUrl}`],
     },
   };
-
-  console.log("metadata", metadata);
-
   return metadata;
 }
 

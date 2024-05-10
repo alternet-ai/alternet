@@ -9,12 +9,13 @@ export const runtime = "edge";
 interface MessageRequest {
   messages: CoreMessage[];
   lastIndex: number;
+  model: string;
 }
 
 const LAST_N_SITES = 1;
 
 export async function POST(req: Request) {
-  const { messages, lastIndex } = (await req.json()) as MessageRequest;
+  const { messages, lastIndex, model } = (await req.json()) as MessageRequest;
 
   const startIndex = (lastIndex - LAST_N_SITES + 1) * 2;
   const endIndex = startIndex + 2 * LAST_N_SITES;
@@ -36,9 +37,11 @@ export async function POST(req: Request) {
     truncatedMessages.push(prompt);
   }
 
+  console.log(model);
+
   // Call the language model
   const result = await streamText({
-    model: anthropic("claude-3-sonnet-20240229"), //TODO: allow opus
+    model: anthropic(model),
     system: DEFAULT_PROMPT,
     messages: truncatedMessages,
     temperature: 1,

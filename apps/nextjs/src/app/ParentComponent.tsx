@@ -31,6 +31,7 @@ const ParentComponent = ({
   const { status } = useSession();
   const [isPortrait, setIsPortrait] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
+  const [model, setModel] = useState("claude-3-sonnet-20240229");
   const [isEditProfileDialogOpen, setIsEditProfileDialogOpen] = useState(false);
   const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(profile);
   const [profileData, setProfileData] = useState<User | undefined>(undefined);
@@ -198,7 +199,7 @@ const ParentComponent = ({
         role: "user",
         content: prompt,
       },
-      { options: { body: { lastIndex: navState.current.currentIndex } } },
+      { options: { body: { lastIndex: navState.current.currentIndex, model: model } } },
     );
 
     if (!userMetadata?.id) {
@@ -486,6 +487,10 @@ const ParentComponent = ({
     link.click();
   };
 
+  const changeModel = () => {
+    setModel(model === "claude-3-sonnet-20240229" ? "claude-3-opus-20240229" : "claude-3-sonnet-20240229");
+  };
+
   return (
     <div className="flex h-svh w-full">
       <EditProfileDialog
@@ -514,6 +519,8 @@ const ParentComponent = ({
             currentUrl={currentUrl}
             onAddressEntered={generatePage}
             disabled={isLoading}
+            changeModel={changeModel}
+            model={model}
           />
           {!isPortrait && (
             <RightButtons
