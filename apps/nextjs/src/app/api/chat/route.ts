@@ -17,7 +17,7 @@ const LAST_N_SITES = 1;
 export async function POST(req: Request) {
   const { messages, lastIndex, model } = (await req.json()) as MessageRequest;
 
-  const startIndex = (lastIndex - LAST_N_SITES + 1) * 2;
+  /*const startIndex = (lastIndex - LAST_N_SITES + 1) * 2;
   const endIndex = startIndex + 2 * LAST_N_SITES;
   
   let truncatedMessages: CoreMessage[] = [];
@@ -35,7 +35,9 @@ export async function POST(req: Request) {
       throw new Error("Couldn't get last message - how?");
     }
     truncatedMessages.push(prompt);
-  }
+  }*/
+
+  const truncatedMessages = messages;
 
   console.log(model);
 

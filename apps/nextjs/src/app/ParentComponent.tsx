@@ -360,38 +360,26 @@ const ParentComponent = ({
   };
 
   const updateContent = (edit: string) => {
-    const rawResponse = edit;
-    const startIndex = rawResponse.indexOf("<replacement>");
-    const endIndex = rawResponse.lastIndexOf("</replacement>");
+    let changes = [];
+    const replacementRegex = /<replacement>(.*?)<\/replacement>/gs;
+    const oldContentRegex = /<oldContent>(.*?)<\/oldContent>/s;
+    const newContentRegex = /<newContent>(.*?)<\/newContent>/s;
 
-    if (startIndex === -1 || endIndex === -1) {
+    const matches = edit.match(replacementRegex);
+    if (!matches) {
       return lastPageContent.current;
     }
 
-    const parser = new DOMParser();
+    for (const match of matches) {
+      const oldContentMatch = match.match(oldContentRegex);
+      const newContentMatch = match.match(newContentRegex);
 
-    let changes;
-    try {
-      const xmlString =
-        "<root>" +
-        rawResponse.slice(startIndex, endIndex + "</replacement>".length) +
-        "</root>";
-
-      const xmlDoc = parser.parseFromString(xmlString, "text/xml");
-
-      const rootElement = xmlDoc.documentElement;
-
-      changes = Array.from(rootElement.querySelectorAll("replacement")).map(
-        (replacementElement) => ({
-          oldContent:
-            replacementElement.querySelector("oldContent")?.textContent,
-          newContent:
-            replacementElement.querySelector("newContent")?.textContent,
-        }),
-      );
-    } catch (error) {
-      console.error("error parsing edit response", rawResponse, error);
-      return lastPageContent.current;
+      if (oldContentMatch && newContentMatch) {
+        changes.push({
+          oldContent: oldContentMatch[1],
+          newContent: newContentMatch[1],
+        });
+      }
     }
 
     let modifiedPage = lastPageContent.current;
@@ -400,7 +388,8 @@ const ParentComponent = ({
       const { oldContent, newContent } = change;
       if (!oldContent || !newContent) {
         console.error(
-          "oldContent or newContent is undefined for change: " + change,
+          "oldContent or newContent is undefined for change: ",
+          change,
         );
       } else if (
         modifiedPage.replace(oldContent, newContent) !==
@@ -411,8 +400,6 @@ const ParentComponent = ({
           oldContent,
           "new content: ",
           newContent,
-          "modifiedPage: ",
-          modifiedPage,
         );
       } else if (!modifiedPage.includes(oldContent)) {
         console.error(
@@ -420,8 +407,6 @@ const ParentComponent = ({
           oldContent,
           "new content: ",
           newContent,
-          "modifiedPage: ",
-          modifiedPage,
         );
       } else {
         modifiedPage = modifiedPage.replace(oldContent, newContent);
@@ -431,9 +416,29 @@ const ParentComponent = ({
     return modifiedPage;
   };
 
+  const removeAnalysis = (content: string) => {
+    const analysisStartIndex = content.indexOf("<analysis>");
+    const analysisEndIndex = content.indexOf("</analysis>");
+
+    //analysis started but not ended
+    if (analysisStartIndex !== -1 && analysisEndIndex === -1) {
+      return "";
+      //no analysis
+    } else if (analysisStartIndex === -1 && analysisEndIndex === -1) {
+      return content;
+      //analysis complete
+    } else if (analysisStartIndex !== -1 && analysisEndIndex !== -1) {
+      return content.slice(analysisEndIndex + "</analysis>".length);
+    } else {
+      throw new Error("somehow analysis has been ended but not started?");
+    }
+  };
+
   const updateCurrentPage = (content: string, isFinal?: boolean) => {
-    const isEdit = content.includes("analysisAndIdentification");
-    const newContent = isEdit ? updateContent(content) : content;
+    const isEdit = content.includes("<replacementsToMake>");
+    const newContent = isEdit
+      ? updateContent(content)
+      : removeAnalysis(content);
 
     setHtml(newContent);
 
@@ -519,13 +524,9 @@ const ParentComponent = ({
   };
 
   useEffect(() => {
-    if (messages.length === 0) {
-      return;
-    }
-    const lastMessage = messages
-      .filter((message) => message.role === "assistant")
-      .pop();
-    if (lastMessage) {
+    const lastMessage = messages[messages.length - 1];
+
+    if (lastMessage && lastMessage.role === "assistant") {
       updateCurrentPage(lastMessage.content);
     }
   }, [messages]);
