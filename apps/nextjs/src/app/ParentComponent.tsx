@@ -35,6 +35,7 @@ const ParentComponent = ({
   const [isEditProfileDialogOpen, setIsEditProfileDialogOpen] = useState(false);
   const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(profile);
   const [profileData, setProfileData] = useState<User | undefined>(undefined);
+  const lastPageContent = useRef<string>("");
   const pageCache = useRef<Record<string, Page>>({});
   const userMetadata = api.auth.getOwnMetadata.useQuery().data;
 
@@ -51,8 +52,11 @@ const ParentComponent = ({
     initialMessages: [],
 
     onFinish: (message) => {
-      updateCurrentPage(message, true);
-      pageView.mutate(navState.current.history[navState.current.currentIndex]?? "could not find key");
+      updateCurrentPage(message.content, true);
+      pageView.mutate(
+        navState.current.history[navState.current.currentIndex] ??
+          "could not find key",
+      );
     },
 
     onError: (error) => {
@@ -193,13 +197,27 @@ const ParentComponent = ({
   const generatePage = (prompt: string) => {
     setHtml("");
     setIsBookmarked(false);
+    const lastIndex = navState.current.currentIndex;
+    const lastPageKey = navState.current.history[lastIndex];
+    if (!lastPageKey) {
+      throw new Error("Could not find last page key");
+    }
+    const lastPage = pageCache.current[lastPageKey];
+    if (!lastPage) {
+      throw new Error("Could not find last page");
+    }
+    lastPageContent.current = lastPage.content;
 
     void append(
       {
         role: "user",
         content: prompt,
       },
-      { options: { body: { lastIndex: navState.current.currentIndex, model: model } } },
+      {
+        options: {
+          body: { lastIndex, model },
+        },
+      },
     );
 
     if (!userMetadata?.id) {
@@ -326,7 +344,11 @@ const ParentComponent = ({
 
   const cancelGeneration = () => {
     stop();
-    updateCurrentPage(messages[messages.length - 1] as Message, true);
+    const lastMessage = messages[messages.length - 1];
+    if (!lastMessage) {
+      throw new Error("Could not find last message in cancelGeneration");
+    }
+    updateCurrentPage(lastMessage.content, true);
   };
 
   const openHistory = () => {
@@ -337,18 +359,95 @@ const ParentComponent = ({
     setIsEditProfileDialogOpen(!isEditProfileDialogOpen);
   };
 
-  const updateCurrentPage = (message: Message, isFinal?: boolean) => {
-    setHtml(message.content);
+  const updateContent = (edit: string) => {
+    const rawResponse = edit;
+    const startIndex = rawResponse.indexOf("<replacement>");
+    const endIndex = rawResponse.lastIndexOf("</replacement>");
+
+    if (startIndex === -1 || endIndex === -1) {
+      return lastPageContent.current;
+    }
+
+    const parser = new DOMParser();
+
+    let changes;
+    try {
+      const xmlString =
+        "<root>" +
+        rawResponse.slice(startIndex, endIndex + "</replacement>".length) +
+        "</root>";
+
+      const xmlDoc = parser.parseFromString(xmlString, "text/xml");
+
+      const rootElement = xmlDoc.documentElement;
+
+      changes = Array.from(rootElement.querySelectorAll("replacement")).map(
+        (replacementElement) => ({
+          oldContent:
+            replacementElement.querySelector("oldContent")?.textContent,
+          newContent:
+            replacementElement.querySelector("newContent")?.textContent,
+        }),
+      );
+    } catch (error) {
+      console.error("error parsing edit response", rawResponse, error);
+      return lastPageContent.current;
+    }
+
+    let modifiedPage = lastPageContent.current;
+
+    for (const change of changes) {
+      const { oldContent, newContent } = change;
+      if (!oldContent || !newContent) {
+        console.error(
+          "oldContent or newContent is undefined for change: " + change,
+        );
+      } else if (
+        modifiedPage.replace(oldContent, newContent) !==
+        modifiedPage.replaceAll(oldContent, newContent)
+      ) {
+        console.error(
+          "error applying edit: modification matched multiple sections. old content: ",
+          oldContent,
+          "new content: ",
+          newContent,
+          "modifiedPage: ",
+          modifiedPage,
+        );
+      } else if (!modifiedPage.includes(oldContent)) {
+        console.error(
+          "error applying edit: modification not found in page. old content: ",
+          oldContent,
+          "new content: ",
+          newContent,
+          "modifiedPage: ",
+          modifiedPage,
+        );
+      } else {
+        modifiedPage = modifiedPage.replace(oldContent, newContent);
+      }
+    }
+
+    return modifiedPage;
+  };
+
+  const updateCurrentPage = (content: string, isFinal?: boolean) => {
+    const isEdit = content.includes("analysisAndIdentification");
+    const newContent = isEdit ? updateContent(content) : content;
+
+    setHtml(newContent);
+
     const title =
       "alternet: " +
-      (message.content.match(/<title>([^<]+)<\/title>/)?.[1] ?? "Loading...");
+      (newContent.match(/<title>([^<]+)<\/title>/)?.[1] ?? "Loading...");
     setTitle(title);
     const url =
-      message.content.match(/<link rel="canonical" href="([^"]+)"/)?.[1] ??
+      newContent.match(/<link rel="canonical" href="([^"]+)"/)?.[1] ??
       "Loading...";
     setCurrentUrl(url);
 
     if (isFinal) {
+      console.log(content);
       let finalUrl = url;
       let finalTitle = title;
 
@@ -387,7 +486,7 @@ const ParentComponent = ({
 
       const finalPage = {
         ...currPage,
-        content: message.content,
+        content: newContent,
         fakeUrl: finalUrl,
         title: finalTitle,
       };
@@ -427,7 +526,7 @@ const ParentComponent = ({
       .filter((message) => message.role === "assistant")
       .pop();
     if (lastMessage) {
-      updateCurrentPage(lastMessage);
+      updateCurrentPage(lastMessage.content);
     }
   }, [messages]);
 
@@ -488,7 +587,11 @@ const ParentComponent = ({
   };
 
   const changeModel = () => {
-    setModel(model === "claude-3-sonnet-20240229" ? "claude-3-opus-20240229" : "claude-3-sonnet-20240229");
+    setModel(
+      model === "claude-3-sonnet-20240229"
+        ? "claude-3-opus-20240229"
+        : "claude-3-sonnet-20240229",
+    );
   };
 
   return (
@@ -537,7 +640,9 @@ const ParentComponent = ({
               onDownloadPage={onDownloadPage}
               onGoHome={goHome}
               isLoading={isLoading}
-              pageId={navState.current.history[navState.current.currentIndex]?? ""}
+              pageId={
+                navState.current.history[navState.current.currentIndex] ?? ""
+              }
             />
           )}
         </div>
@@ -571,7 +676,9 @@ const ParentComponent = ({
               onDownloadPage={onDownloadPage}
               onGoHome={goHome}
               isLoading={isLoading}
-              pageId={navState.current.history[navState.current.currentIndex]?? ""}
+              pageId={
+                navState.current.history[navState.current.currentIndex] ?? ""
+              }
             />
           </div>
         )}
