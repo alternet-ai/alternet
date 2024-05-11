@@ -8,50 +8,64 @@ export const runtime = "edge";
 
 interface MessageRequest {
   messages: CoreMessage[];
-  lastIndex: number;
+  basePage: string;
   model: string;
+  lastIndex: number;
 }
 
-const LAST_N_SITES = 1;
 
 export async function POST(req: Request) {
-  const { messages, lastIndex, model } = (await req.json()) as MessageRequest;
+  const { messages, basePage, lastIndex, model } = (await req.json()) as MessageRequest;
 
-  console.log(messages.map((message) => ({ ...message, content: message.content.slice(0, 100) })), lastIndex, model);
 
   let truncatedMessages: CoreMessage[] = [];
 
-  // lastIndex is -1. this implies a refresh of the root page
+  // lastIndex is -1. this implies a refresh of the root page. todo: fix
   if (lastIndex == -1) {
     if (!messages[0]) {
       throw new Error("No messages provided");
     }
     truncatedMessages = [messages[0]];
   } else {
-    const relevantMessages = messages.slice(0, (lastIndex + 1) * 2);
-    const assistantMessages = relevantMessages.filter(
-      (message) => message.role === "assistant",
-    );
-    const siteMessages = assistantMessages.filter((message) =>
-      !message.content.toString().includes("<replacementsToMake>"),
-    );
-    const lastSiteMessage = siteMessages.slice(-1 * LAST_N_SITES)[0];
-    if (!lastSiteMessage) {
-      throw new Error("Could not get last site message");
-    }
 
-    const lastSiteIndex = relevantMessages.indexOf(lastSiteMessage);
+   const prompt = messages[messages.length - 1];
+   if (!prompt) {
+    throw new Error("Couldn't get last message - how?");
+   }
+   if (prompt.role !== "user") {
+    throw new Error("Last message is not a user message");
+   }
+   if (typeof prompt.content !== "string") {
+    throw new Error("Prompt content is not a string");
+   }
 
-    truncatedMessages = relevantMessages.slice(lastSiteIndex-1);
+   const lastUserMessage = messages[lastIndex*2];
+   if (!lastUserMessage) {
+    throw new Error("Couldn't get last user message - how?");
+   }
+   const lastAssistantMessage = messages[(lastIndex*2)+1];
+   if (!lastAssistantMessage) {
+    throw new Error("Couldn't get last assistant message - how?");
+   }
+   if (lastAssistantMessage.role !== "assistant") {
+    throw new Error("Last assistant message is not an assistant message");
+   }
+   if (typeof lastAssistantMessage.content !== "string") {
+    throw new Error("Last assistant message content is not a string");
+   }
 
-    const prompt = messages[messages.length - 1];
-    if (!prompt) {
-      throw new Error("Couldn't get last message - how?");
-    }
-    truncatedMessages.push(prompt);
+   const isEdit = lastAssistantMessage.content.includes("<replacementsToMake>");
+   if (isEdit) {
+    const extendedPromptContent = prompt.content + "\n<currentPage>\n" + basePage + "\n</currentPage>"
+    truncatedMessages = [{...prompt, content: extendedPromptContent}] //the problem here is that it doesn't get the previous edits or the original page
+   } else {
+    truncatedMessages = [lastUserMessage, lastAssistantMessage, prompt];
+   }
   }
 
-  console.log(truncatedMessages.map((message) => ({ ...message, content: message.content.slice(0, 100) })));
+  console.log('params', model, lastIndex, basePage.slice(0, 100))
+  console.log('messages', messages.map((message) => ({ ...message, content: message.content.slice(0, 100).toString()})));
+  console.log('truncatedMessages', truncatedMessages.map((message) => ({ ...message, content: message.content})));
 
   // Call the language model
   const result = await streamText({

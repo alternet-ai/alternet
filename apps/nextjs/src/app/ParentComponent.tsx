@@ -215,7 +215,7 @@ const ParentComponent = ({
       },
       {
         options: {
-          body: { lastIndex, model },
+          body: { basePage: lastPage.content, lastIndex, model },
         },
       },
     );
