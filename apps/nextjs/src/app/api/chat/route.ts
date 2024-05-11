@@ -17,9 +17,8 @@ const LAST_N_SITES = 1;
 export async function POST(req: Request) {
   const { messages, lastIndex, model } = (await req.json()) as MessageRequest;
 
-  /*const startIndex = (lastIndex - LAST_N_SITES + 1) * 2;
-  const endIndex = startIndex + 2 * LAST_N_SITES;
-  
+  console.log(messages.map((message) => ({ ...message, content: message.content.slice(0, 100) })), lastIndex, model);
+
   let truncatedMessages: CoreMessage[] = [];
 
   // lastIndex is -1. this implies a refresh of the root page
@@ -29,17 +28,30 @@ export async function POST(req: Request) {
     }
     truncatedMessages = [messages[0]];
   } else {
-    truncatedMessages = messages.slice(startIndex, endIndex);
+    const relevantMessages = messages.slice(0, (lastIndex + 1) * 2);
+    const assistantMessages = relevantMessages.filter(
+      (message) => message.role === "assistant",
+    );
+    const siteMessages = assistantMessages.filter((message) =>
+      !message.content.toString().includes("<replacementsToMake>"),
+    );
+    const lastSiteMessage = siteMessages.slice(-1 * LAST_N_SITES)[0];
+    if (!lastSiteMessage) {
+      throw new Error("Could not get last site message");
+    }
+
+    const lastSiteIndex = relevantMessages.indexOf(lastSiteMessage);
+
+    truncatedMessages = relevantMessages.slice(lastSiteIndex-1);
+
     const prompt = messages[messages.length - 1];
     if (!prompt) {
       throw new Error("Couldn't get last message - how?");
     }
     truncatedMessages.push(prompt);
-  }*/
+  }
 
-  const truncatedMessages = messages;
-
-  console.log(model);
+  console.log(truncatedMessages.map((message) => ({ ...message, content: message.content.slice(0, 100) })));
 
   // Call the language model
   const result = await streamText({

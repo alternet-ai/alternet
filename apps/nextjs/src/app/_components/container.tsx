@@ -92,20 +92,27 @@ const IframeContainer: React.FC<IframeContainerProps> = ({
           const scripts = Array.from(iframeDocument.querySelectorAll("script"));
           const externalScripts = scripts.filter((script) => script.src);
           const inlineScripts = scripts.filter((script) => !script.src);
-
           // Load external scripts first
           const loadExternalScripts = () => {
-            externalScripts.forEach((script) => {
-              if (!executedScriptsRef.current.has(script.src)) {
-                const newScript = iframeDocument.createElement("script");
-                newScript.src = script.src;
-                newScript.onload = () => {
-                  executedScriptsRef.current.add(script.src);
-                  executeInlineScripts();
-                };
-                iframeDocument.body.appendChild(newScript);
-              }
-            });
+            if (externalScripts.length === 0) {
+              // If there are no external scripts, execute inline scripts immediately
+              executeInlineScripts();
+            } else {
+              externalScripts.forEach((script) => {
+                if (!executedScriptsRef.current.has(script.src)) {
+                  const newScript = iframeDocument.createElement("script");
+                  newScript.src = script.src;
+                  newScript.onload = () => {
+                    executedScriptsRef.current.add(script.src);
+                    // Check if all external scripts have been loaded before executing inline scripts
+                    if (executedScriptsRef.current.size === externalScripts.length) {
+                      executeInlineScripts();
+                    }
+                  };
+                  iframeDocument.body.appendChild(newScript);
+                }
+              });
+            }
           };
 
           // Execute inline scripts after external scripts are loaded

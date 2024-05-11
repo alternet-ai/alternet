@@ -371,18 +371,31 @@ const ParentComponent = ({
     }
 
     for (const match of matches) {
-      const oldContentMatch = match.match(oldContentRegex);
-      const newContentMatch = match.match(newContentRegex);
-
-      if (oldContentMatch && newContentMatch) {
-        changes.push({
-          oldContent: oldContentMatch[1],
-          newContent: newContentMatch[1],
-        });
+      const oldContentMatch = match.match(oldContentRegex)?.[1];
+      const newContentMatch = match.match(newContentRegex)?.[1];
+      if (!oldContentMatch) {
+        throw new Error("Couldn't get old content");
       }
+      if (!newContentMatch) {
+        throw new Error("Couldn't get new content");
+      }
+      const oldContent = oldContentMatch.split("\n").map((line) => {
+        return line.trim();
+      }).join("\n");
+      const newContent = newContentMatch.split("\n").map((line) => {
+        return line.trim();
+      }).join("\n");
+
+        changes.push({
+          oldContent,
+          newContent,
+        });
     }
 
     let modifiedPage = lastPageContent.current;
+    modifiedPage = modifiedPage.split("\n").map((line) => {
+      return line.trim();
+    }).join("\n");
 
     for (const change of changes) {
       const { oldContent, newContent } = change;
@@ -390,16 +403,6 @@ const ParentComponent = ({
         console.error(
           "oldContent or newContent is undefined for change: ",
           change,
-        );
-      } else if (
-        modifiedPage.replace(oldContent, newContent) !==
-        modifiedPage.replaceAll(oldContent, newContent)
-      ) {
-        console.error(
-          "error applying edit: modification matched multiple sections. old content: ",
-          oldContent,
-          "new content: ",
-          newContent,
         );
       } else if (!modifiedPage.includes(oldContent)) {
         console.error(
@@ -409,7 +412,7 @@ const ParentComponent = ({
           newContent,
         );
       } else {
-        modifiedPage = modifiedPage.replace(oldContent, newContent);
+        modifiedPage = modifiedPage.replaceAll(oldContent, newContent);
       }
     }
 
@@ -452,7 +455,6 @@ const ParentComponent = ({
     setCurrentUrl(url);
 
     if (isFinal) {
-      console.log(content);
       let finalUrl = url;
       let finalTitle = title;
 
