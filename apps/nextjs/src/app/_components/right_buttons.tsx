@@ -11,25 +11,23 @@ import {
 import { Input } from "@acme/ui/input";
 import { Label } from "@acme/ui/label";
 import { Switch } from "@acme/ui/switch";
+import { toast } from "@acme/ui/toast";
 
+import { api } from "~/trpc/react";
 import FeedbackButton from "./feedback";
 import HamburgerMenu from "./hamburger_menu";
+import { type User } from "../types";
 
 interface RightButtonsProps {
-  onAddBookmark: (title: string, isPublic: boolean) => void;
-  onDeleteBookmark: () => void;
   onOpenHistory: () => void;
   defaultTitle: string;
-  defaultIsPublic: boolean;
-  isBookmarked: boolean;
-  onEditProfile: () => void;
-  onViewProfile: () => void;
-  onViewYourProfile: () => void;
-  onCopyLink: (includeProfile: boolean) => void;
+  openToProfile: boolean;
   onDownloadPage: () => void;
   onGoHome: () => void;
   isLoading: boolean;
   pageId: string;
+  creatorId: string | undefined;
+  userMetadata: User;
 }
 
 const fixTitle = (title: string) => {
@@ -40,48 +38,109 @@ const fixTitle = (title: string) => {
 };
 
 const RightButtons: React.FC<RightButtonsProps> = ({
-  onAddBookmark,
-  onDeleteBookmark,
   onOpenHistory,
   defaultTitle,
-  defaultIsPublic,
-  isBookmarked,
-  onEditProfile,
-  onViewProfile,
-  onViewYourProfile,
-  onCopyLink,
+  openToProfile,
   onDownloadPage,
   onGoHome,
   isLoading,
   pageId,
+  creatorId,
+  userMetadata,
 }) => {
-  const [title, setTitle] = useState(fixTitle(defaultTitle));
-  const [isPublic, setIsPublic] = useState(defaultIsPublic);
-  const [includeProfile, setIncludeProfile] = useState(true);
+  const utils = api.useUtils();
 
-  const isHome = title === "home";
+  const [title, setTitle] = useState(fixTitle(defaultTitle));
+  const [isPublic, setIsPublic] = useState(userMetadata.isBookmarkDefaultPublic);
+  const [includeProfile, setIncludeProfile] = useState(true);
+  const [isBookmarked, setIsBookmarked] = useState(false);
+
+  const getIsBookmarked = api.bookmark.isBookmarked.useMutation({
+    onSuccess: async (res) => {
+      await utils.bookmark.invalidate();
+      setIsBookmarked(!!res);
+    },
+    onError: (err) => {
+      toast.error(
+        err.data?.code === "UNAUTHORIZED"
+          ? "You must be logged in to check a bookmark"
+          : "Failed to check bookmark",
+      );
+    },
+  });
+
+  const insertBookmark = api.bookmark.insert.useMutation({
+    onSuccess: async () => {
+      await utils.bookmark.invalidate();
+    },
+    onError: (err) => {
+      toast.error(
+        err.data?.code === "UNAUTHORIZED"
+          ? "You must be logged in to update a bookmark"
+          : "Failed to update bookmark",
+      );
+    },
+  });
+
+  const deleteBookmark = api.bookmark.delete.useMutation({
+    onSuccess: async () => {
+      await utils.bookmark.invalidate();
+    },
+    onError: (err) => {
+      toast.error(
+        err.data?.code === "UNAUTHORIZED"
+          ? "You must be logged in to delete a bookmark"
+          : "Failed to delete bookmark",
+      );
+    },
+  });
+
+  const addBookmark = () => {
+    setIsBookmarked(true);
+    insertBookmark.mutate({
+      bookmarkId: pageId,
+      title: title,
+      isPublic: isPublic,
+    });
+  };
+
+  const removeBookmark = () => {
+    setIsBookmarked(false);
+    deleteBookmark.mutate(pageId);
+  };
+
+  useEffect(() => {
+    getIsBookmarked.mutate(pageId);
+  }, [pageId]);
+
+  const isHome = pageId === "home";
 
   useEffect(() => {
     setTitle(fixTitle(defaultTitle));
   }, [defaultTitle]);
 
   useEffect(() => {
-    setIsPublic(defaultIsPublic);
-  }, [defaultIsPublic]);
+    setIsPublic(userMetadata.isBookmarkDefaultPublic);
+  }, [userMetadata]);
 
-  const handleAddBookmark = () => {
-    onAddBookmark(title, isPublic);
+  const onCopyLink = (includeProfile: boolean) => {
+    const baseUrl =
+      "https://alternet.ai" + //todo: don't hardcode
+      "/" +
+      pageId;
+    const url = includeProfile ? `${baseUrl}?profile` : baseUrl;
+    navigator.clipboard.writeText(url);
   };
 
   return (
     <div className="flex">
       <HamburgerMenu
-        onEditProfile={onEditProfile}
-        onViewProfile={onViewProfile}
-        onViewYourProfile={onViewYourProfile}
+        creatorId={creatorId}
+        openToProfile={openToProfile}
         onGoHome={onGoHome}
         isHome={isHome}
         isLoading={isLoading}
+        userMetadata={userMetadata}
       />
       <FeedbackButton pageId={pageId} />
       <Dialog>
@@ -124,7 +183,7 @@ const RightButtons: React.FC<RightButtonsProps> = ({
         </DialogContent>
       </Dialog>
       {isBookmarked ? (
-        <Button variant="ghost" onClick={onDeleteBookmark}>
+        <Button variant="ghost" onClick={removeBookmark}>
           <BookmarkCheck className="size-[4.5vw] md:size-6" />
         </Button>
       ) : (
@@ -159,7 +218,7 @@ const RightButtons: React.FC<RightButtonsProps> = ({
                 />
               </div>
               <DialogClose asChild>
-                <Button onClick={handleAddBookmark}>Add Bookmark</Button>
+                <Button onClick={addBookmark}>Add Bookmark</Button>
               </DialogClose>
             </div>
           </DialogContent>
