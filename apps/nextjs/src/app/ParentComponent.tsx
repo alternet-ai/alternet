@@ -104,7 +104,6 @@ const ParentComponent = ({
 
     while (parentId !== undefined && parentId !== HOME_PAGE.parentId) {
       //todo: deal with undefined better (it's legacy support)
-      console.log("parentId: ", parentId);
       const parentPage = pageCache.current[parentId]; //todo: get parent from remote instead
       if (!parentPage) {
         console.error("Could not find parent page for key: ", parentId);
@@ -122,13 +121,11 @@ const ParentComponent = ({
       );
     }
 
-    console.log("pageAncestors: ", pageAncestors);
 
     const isEdit = currentPage.response?.includes("<replacementsToMake>");
 
     let promptWithContext = prompt;
     if (isEdit) {
-      console.log("isEdit");
       promptWithContext +=
         "\n<currentPage>\n" + currentPage.content + "\n</currentPage>";
     }
@@ -136,12 +133,10 @@ const ParentComponent = ({
     const lastFullPageIndex = pageAncestors.findIndex(
       (page) => !page.response?.includes("<replacementsToMake>"),
     );
-    console.log("lastFullPageIndex: ", lastFullPageIndex);
     if (lastFullPageIndex === -1) {
       console.error("Couldn't get last full page");
     } else {
       pageAncestors = pageAncestors.slice(0, lastFullPageIndex + 1);
-      console.log("pageAncestors after slice: ", pageAncestors);
     }
 
     const newMessages: Message[] = [];
@@ -175,8 +170,6 @@ const ParentComponent = ({
     } as Message;
 
     newMessages.push(promptMsg);
-
-    console.log("newMessages: ", newMessages);
 
     setMessages(newMessages);
   };
@@ -273,7 +266,7 @@ const ParentComponent = ({
   };
 
   useEffect(() => {
-    const isStartPage = currentPage.cacheKey === HOME_PAGE.cacheKey;
+    const isStartPage = currentPage.cacheKey === initialPage.cacheKey;
     if (!isLoading && !isStartPage) {
       console.log("finalizng current page:", currentPage);
       updateCurrentPage(true);
