@@ -131,17 +131,18 @@ const ParentComponent = ({
       console.log("isEdit");
       promptWithContext +=
         "\n<currentPage>\n" + currentPage.content + "\n</currentPage>";
-      const lastFullPageIndex = pageAncestors.findIndex(
-        (page) => !page.response?.includes("<replacementsToMake>"),
-      );
-      if (!lastFullPageIndex) {
-        throw new Error("Couldn't get last full page");
-      }
-
-      pageAncestors = pageAncestors.slice(0, lastFullPageIndex + 1);
     }
 
-    console.log("pageAncestors after slice: ", pageAncestors);
+    const lastFullPageIndex = pageAncestors.findIndex(
+      (page) => !page.response?.includes("<replacementsToMake>"),
+    );
+    console.log("lastFullPageIndex: ", lastFullPageIndex);
+    if (lastFullPageIndex === -1) {
+      console.error("Couldn't get last full page");
+    } else {
+      pageAncestors = pageAncestors.slice(0, lastFullPageIndex + 1);
+      console.log("pageAncestors after slice: ", pageAncestors);
+    }
 
     const newMessages: Message[] = [];
 
