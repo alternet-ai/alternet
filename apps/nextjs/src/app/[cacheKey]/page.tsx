@@ -105,7 +105,7 @@ const CacheKeyPage = async ({
 
   // Check if 'profile' query parameter is present and pass it as a prop
   const profileProp =
-    searchParams?.profile !== undefined ? { profile: true } : {};
+    searchParams?.profile !== undefined ? { openToProfile: true } : {};
 
   return <ParentComponent initialPage={page} {...profileProp} />;
 };

@@ -4,7 +4,9 @@ export interface Page {
   prompt: string;
   content: string;
   cacheKey: string;
-  userId: string;
+  userId?: string;
+  response?: string;
+  parentId?: string;
 }
 
 export interface NavigationState {

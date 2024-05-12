@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useSession } from "next-auth/react";
 
@@ -19,11 +19,14 @@ interface ProfileDialogProps {
 }
 
 const ProfileDialog = ({ open, onClose, profileData }: ProfileDialogProps) => {
-  const [isFollowing, setIsFollowing] = useState(
-    !!api.following.isFollowingUser.useQuery(profileData.id).data,
-  );
+  const [isFollowing, setIsFollowing] = useState(false);
   const { data: session } = useSession();
   const utils = api.useUtils();
+
+  const followingResult = api.following.isFollowingUser.useQuery(profileData.id).data;
+  useEffect(() => {
+    setIsFollowing(!!followingResult);
+  }, [followingResult]);
 
   const followUser = api.following.insert.useMutation({
     onSuccess: async () => {
