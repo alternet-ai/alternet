@@ -268,7 +268,6 @@ const ParentComponent = ({
   useEffect(() => {
     const isStartPage = currentPage.cacheKey === initialPage.cacheKey;
     if (!isLoading && !isStartPage) {
-      console.log("finalizng current page:", currentPage);
       updateCurrentPage(true);
     }
   }, [isLoading]);
