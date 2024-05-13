@@ -38,16 +38,10 @@ const AddressBar: React.FC<AddressBarProps> = ({
   const toastAndChangeModel = () => {
     if (model === "claude-3-sonnet-20240229") {
       toast.info(
-        `you have switched to a slightly smarter, but much slower model.
-        we do not recommend this! the default model works just as well
-        for all but the most demanding scenarios, such as very complex pages,
-        PhD-level academic content, or exceptionally creative writing.`,
-        {
-          duration: 8000,
-        },
+        `switched to genius & slow model`
       );
     } else {
-      toast.info("switched back to the recommended model");
+      toast.info("switched to fast & smart model");
     }
     changeModel();
   };
