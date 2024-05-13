@@ -52,9 +52,7 @@ const IframeContainer: React.FC<IframeContainerProps> = ({
   isLoading,
   onNavigate,
 }) => {
-  //todo: reset scripts between loads
-  //todo: fix jumpiness of screen when writing new text
-  //todo: make loading always visible
+  //todo: fix jumpiness of screen when writing new text. how? maybe don't rerender the whole thing?
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const scriptAddedRef = useRef(false); // Ref to track if the redirect script has been added
   const executedScriptsRef = useRef(new Set()); // Ref to track executed script contents
@@ -146,7 +144,7 @@ const IframeContainer: React.FC<IframeContainerProps> = ({
         //else overlay loading
       } else if (isLoading || html.length === 0) {
         iframeDocument.body.innerHTML =
-          html + `<div style="${DEFAULT_STYLE}">Loading...</div>`;
+          `<div style="${DEFAULT_STYLE}">Loading...</div>` + html;
         //if done loading, just show the page and finally process all the scripts
       } else {
         // Clear existing scripts from the iframe
