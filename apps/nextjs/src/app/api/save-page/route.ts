@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { put } from "@vercel/blob";
 
 import type { Page } from "~/app/types";
+import { api } from "~/trpc/server";
 
 export const runtime = "edge";
 
@@ -13,6 +14,25 @@ export async function POST(request: NextRequest) {
     if (!page.cacheKey) {
       return NextResponse.json({ error: "Invalid page data" }, { status: 400 });
     }
+
+    if (!page.parentId) {
+      console.error("page.parentId is missing for page", page.cacheKey);
+    }
+
+    if (!page.response) {
+      console.error("page.response is missing for page", page.cacheKey);
+    }
+
+    //save to db
+    await api.page.add({
+      title: page.title,
+      fakeUrl: page.fakeUrl,
+      prompt: page.prompt,
+      content: page.content,
+      id: page.cacheKey,
+      response: page.response ?? "",
+      parentId: page.parentId ?? "",
+    });
 
     const pageBlob = Buffer.from(JSON.stringify(page));
 
