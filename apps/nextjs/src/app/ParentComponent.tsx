@@ -185,7 +185,7 @@ const ParentComponent = ({
       title: "Loading...",
       fakeUrl: "Loading...",
       prompt,
-      content: "",
+      content: currentPage.content,
       cacheKey: crypto.randomUUID(),
       userId: userMetadata.id,
       parentId: currentPage.cacheKey,
@@ -345,13 +345,17 @@ const ParentComponent = ({
           "oldContent or newContent is undefined for change: ",
           change,
         );
-        } else if (!modifiedPage.includes(oldContent)) {
-          console.error(
-            "error applying edit: modification not found in page. old content: ",
-            oldContent.length > 100? oldContent.substring(0, 100) + "..." : oldContent,
-            "new content: ",
-            newContent.length > 100? newContent.substring(0, 100) + "..." : newContent,
-          );
+      } else if (!modifiedPage.includes(oldContent)) {
+        console.error(
+          "error applying edit: modification not found in page. old content: ",
+          oldContent.length > 100
+            ? oldContent.substring(0, 100) + "..."
+            : oldContent,
+          "new content: ",
+          newContent.length > 100
+            ? newContent.substring(0, 100) + "..."
+            : newContent,
+        );
       } else {
         modifiedPage = modifiedPage.replaceAll(oldContent, newContent);
       }
@@ -364,18 +368,27 @@ const ParentComponent = ({
     const analysisStartIndex = content.indexOf("<analysis>");
     const analysisEndIndex = content.indexOf("</analysis>");
 
-    //analysis started but not ended
-    if (analysisStartIndex !== -1 && analysisEndIndex === -1) {
       //todo: I thnk this is firing incorrectly
       const lastPage = pageCache.current[currentPage.parentId ?? "invalid"];
+      let lastPageContent = "";
       if (!lastPage) {
         console.error(
           "Could not find last page for cache key: " + currentPage.cacheKey,
         );
-        return "";
       } else {
-        return lastPage.content;
+        lastPageContent = lastPage.content;
       }
+
+    //analysis started but not ended
+    if (analysisStartIndex !== -1 && analysisEndIndex === -1) {
+      return lastPageContent;
+      //no analysis yet
+    } else if (
+      analysisStartIndex === -1 &&
+      analysisEndIndex === -1 &&
+      content.length < "<analysis>".length
+    ) {
+      return lastPageContent;
       //no analysis
     } else if (analysisStartIndex === -1 && analysisEndIndex === -1) {
       return content;
