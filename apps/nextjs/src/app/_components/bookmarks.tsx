@@ -77,7 +77,6 @@ const Bookmarks = ({ profileid }: BookmarksProps) => {
   }
 
   if (bookmarks === undefined) {
-    console.error("Bookmarks not found");
     bookmarks = [];
   }
 

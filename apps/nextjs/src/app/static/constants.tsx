@@ -8,5 +8,8 @@ export const HOME_PAGE: Page = {
   fakeUrl: "https://alternet.ai/home",
   content: HOME_HTML,
   cacheKey: HOME_KEY,
-  userId: "",
+  userId: "6a6560c2-c604-49a3-a4a8-b80f1e17e504",
+  parentId: "none; this is home!",
+  response: HOME_HTML,
 };
+

@@ -8,42 +8,18 @@ export const runtime = "edge";
 
 interface MessageRequest {
   messages: CoreMessage[];
-  lastIndex: number;
   model: string;
 }
 
-const LAST_N_SITES = 1;
 
 export async function POST(req: Request) {
-  const { messages, lastIndex, model } = (await req.json()) as MessageRequest;
-
-  const startIndex = (lastIndex - LAST_N_SITES + 1) * 2;
-  const endIndex = startIndex + 2 * LAST_N_SITES;
-  
-  let truncatedMessages: CoreMessage[] = [];
-
-  // lastIndex is -1. this implies a refresh of the root page
-  if (lastIndex == -1) {
-    if (!messages[0]) {
-      throw new Error("No messages provided");
-    }
-    truncatedMessages = [messages[0]];
-  } else {
-    truncatedMessages = messages.slice(startIndex, endIndex);
-    const prompt = messages[messages.length - 1];
-    if (!prompt) {
-      throw new Error("Couldn't get last message - how?");
-    }
-    truncatedMessages.push(prompt);
-  }
-
-  console.log(model);
+  const { messages, model } = (await req.json()) as MessageRequest;
 
   // Call the language model
   const result = await streamText({
     model: anthropic(model),
     system: DEFAULT_PROMPT,
-    messages: truncatedMessages,
+    messages,
     temperature: 1,
     maxTokens: 4096,
   });

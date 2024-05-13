@@ -52,99 +52,115 @@ const IframeContainer: React.FC<IframeContainerProps> = ({
   isLoading,
   onNavigate,
 }) => {
+  //todo: reset scripts between loads
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const scriptAddedRef = useRef(false); // Ref to track if the redirect script has been added
   const executedScriptsRef = useRef(new Set()); // Ref to track executed script contents
 
-  useEffect(() => {
-    if (iframeRef.current) {
-      const iframeDocument =
-        iframeRef.current.contentDocument ??
-        iframeRef.current.contentWindow?.document;
-      if (iframeDocument) {
-        if (!scriptAddedRef.current) {
-          // Create and append the script element only if it hasn't been added before
-          const script = iframeDocument.createElement("script");
-          script.textContent = REDIRECT_SCRIPT;
-          iframeDocument.body.appendChild(script);
-          scriptAddedRef.current = true; // Mark as script added
-        }
-        //if we're in the style tag, modify the loading div
-        if (
-          isLoading &&
-          html.includes("<style>") &&
-          !html.includes("</style>")
-        ) {
-          //extract the last style tag section
-          const styleSection =
-            DEFAULT_STYLE + html.substring(html.lastIndexOf("{") + 1);
-          //apply style to Loading div and write to innerHtml
-          iframeDocument.body.innerHTML =
-            html +
-            `</style> <div style="${styleSection + ENFORCE_LOCATION_STYLE}">Loading...</div>`;
-          //overlay loading
-        } else if (isLoading || html.length === 0) {
-          iframeDocument.body.innerHTML =
-            html + `<div style="${DEFAULT_STYLE}">Loading...</div>`;
-        } else {
-          iframeDocument.body.innerHTML = html;
-
-          const scripts = Array.from(iframeDocument.querySelectorAll("script"));
-          const externalScripts = scripts.filter((script) => script.src);
-          const inlineScripts = scripts.filter((script) => !script.src);
-
-          // Load external scripts first
-          const loadExternalScripts = () => {
-            if (externalScripts.length === 0) {
-              // If there are no external scripts, execute inline scripts immediately
-              executeInlineScripts();
-            } else {
-              externalScripts.forEach((script) => {
-                if (!executedScriptsRef.current.has(script.src)) {
-                  const newScript = iframeDocument.createElement("script");
-                  newScript.src = script.src;
-                  newScript.onload = () => {
-                    executedScriptsRef.current.add(script.src);
-                    // Check if all external scripts have been loaded before executing inline scripts
-                    if (executedScriptsRef.current.size === externalScripts.length) {
-                      executeInlineScripts();
-                    }
-                  };
-                  iframeDocument.body.appendChild(newScript);
-                }
-              });
+  // Load external scripts first
+  const loadExternalScripts = (
+    externalScripts: HTMLScriptElement[],
+    inlineScripts: HTMLScriptElement[],
+    iframeDocument: Document,
+  ) => {
+    if (externalScripts.length === 0) {
+      // If there are no external scripts, execute inline scripts immediately
+      executeInlineScripts(inlineScripts, iframeDocument);
+    } else {
+      externalScripts.forEach((script) => {
+        if (!executedScriptsRef.current.has(script.src)) {
+          const newScript = iframeDocument.createElement("script");
+          newScript.src = script.src;
+          newScript.onload = () => {
+            executedScriptsRef.current.add(script.src);
+            // Check if all external scripts have been loaded before executing inline scripts
+            if (executedScriptsRef.current.size === externalScripts.length) {
+              executeInlineScripts(inlineScripts, iframeDocument);
             }
           };
-
-          // Execute inline scripts after external scripts are loaded
-          const executeInlineScripts = () => {
-            inlineScripts.forEach((script) => {
-              const scriptContent = script.textContent;
-              if (!scriptContent) {
-                console.error(
-                  "skipping script",
-                  script,
-                  "with content",
-                  scriptContent,
-                );
-                return;
-              }
-              if (!executedScriptsRef.current.has(scriptContent)) {
-                const newScript = iframeDocument.createElement("script");
-                newScript.text = scriptContent;
-                iframeDocument.body.appendChild(newScript);
-                executedScriptsRef.current.add(scriptContent);
-              }
-            });
-          };
-
-          loadExternalScripts();
+          iframeDocument.body.appendChild(newScript);
         }
+      });
+    }
+  };
+
+  // Execute inline scripts after external scripts are loaded
+  const executeInlineScripts = (
+    inlineScripts: HTMLScriptElement[],
+    iframeDocument: Document,
+  ) => {
+    inlineScripts.forEach((script) => {
+      const scriptContent = script.textContent;
+      if (!scriptContent) {
+        console.error("skipping script", script, "with content", scriptContent);
+        return;
+      }
+      if (!executedScriptsRef.current.has(scriptContent)) {
+        const newScript = iframeDocument.createElement("script");
+        newScript.text = scriptContent;
+        iframeDocument.body.appendChild(newScript);
+        executedScriptsRef.current.add(scriptContent);
+      }
+    });
+
+    console.log("executedScriptsRef.current", executedScriptsRef.current);
+  };
+
+  useEffect(() => {
+    if (!iframeRef.current) {
+      //might still be mounting or something
+      console.error("iframeRef.current is null");
+      return;
+    }
+
+    //contentDocument for same origin, contentWindow for cross origin... maybe?
+    const iframeContentDocument = iframeRef.current.contentDocument
+    if (!iframeContentDocument) {
+      console.error("iframeRef.current.contentDocument is null");
+    }
+    const iframeContentWindow = iframeRef.current.contentWindow?.document
+    if (!iframeContentWindow) {
+      console.error("iframeRef.current.contentWindow is null");
+    }
+
+    const iframeDocument = iframeContentDocument ?? iframeContentWindow;
+
+    if (iframeDocument) {
+      if (!scriptAddedRef.current) {
+        // Create and append the script element only if it hasn't been added before
+        const script = iframeDocument.createElement("script");
+        script.textContent = REDIRECT_SCRIPT;
+        iframeDocument.body.appendChild(script);
+        scriptAddedRef.current = true; 
+      }
+
+      //if we're in the style tag, modify the loading div
+      if (isLoading && html.includes("<style>") && !html.includes("</style>")) {
+        //extract the last style tag section
+        const styleSection =
+          DEFAULT_STYLE + html.substring(html.lastIndexOf("{") + 1);
+        //apply style to Loading div and write to innerHtml
+        iframeDocument.body.innerHTML =
+          html +
+          `</style> <div style="${styleSection + ENFORCE_LOCATION_STYLE}">Loading...</div>`;
+        //else overlay loading
+      } else if (isLoading || html.length === 0) {
+        iframeDocument.body.innerHTML =
+          html + `<div style="${DEFAULT_STYLE}">Loading...</div>`;
+      //if done loading, just show the page and finally process all the scripts
+      } else {
+        iframeDocument.body.innerHTML = html;
+
+        const scripts = Array.from(iframeDocument.querySelectorAll("script"));
+        const externalScripts = scripts.filter((script) => script.src);
+        const inlineScripts = scripts.filter((script) => !script.src);
+
+        loadExternalScripts(externalScripts, inlineScripts, iframeDocument);
       }
     }
   }, [html, isLoading]); // Only update when messages or isLoading changes
 
-  // Listen to messages from the iframe
+  // intercept navigation events from the iframe
   useEffect(() => {
     const handleMessage = (event: MessageEvent<MessageEventData>) => {
       if (event.data.type === "navigate" && !isLoading) {
@@ -158,6 +174,7 @@ const IframeContainer: React.FC<IframeContainerProps> = ({
     };
   }, [onNavigate]);
 
+  //todo: broken dragging on win95? why
   return (
     <div className="relative h-full w-full">
       <iframe

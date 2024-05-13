@@ -43,7 +43,6 @@ const Following = ({ profileid }: FollowingProps) => {
   let following = api.following.followingUser.useQuery(profileid).data;
 
   if (following === undefined) {
-    console.error("Following not found");
     following = [];
   }
 
