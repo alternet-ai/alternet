@@ -107,7 +107,7 @@ const ParentComponent = ({
       const parentPage = pageCache.current[parentId]; //todo: get parent from remote instead
       if (!parentPage) {
         console.error("Could not find parent page for key: ", parentId);
-        break
+        break;
       }
 
       pageAncestors.push(parentPage);
@@ -120,7 +120,6 @@ const ParentComponent = ({
         currentPage.cacheKey,
       );
     }
-
 
     const isEdit = currentPage.response?.includes("<replacementsToMake>");
 
@@ -281,9 +280,9 @@ const ParentComponent = ({
     }
 
     let changes = [];
-    const replacementRegex = /<replacement>(.*?)<\/replacement>/gs;
-    const oldContentRegex = /<oldContent>(.*?)<\/oldContent>/s;
-    const newContentRegex = /<newContent>(.*?)<\/newContent>/s;
+    const replacementRegex = /<replacement>([\s\S]*?)(<\/replacement>|$)/gs;
+    const oldContentRegex = /<oldContent>([\s\S]*?)(<\/oldContent>|$)/s;
+    const newContentRegex = /<newContent>([\s\S]*?)(<\/newContent>|$)/s;
 
     const matches = edit.match(replacementRegex);
     if (!matches) {
@@ -292,13 +291,26 @@ const ParentComponent = ({
 
     for (const match of matches) {
       const oldContentMatch = match.match(oldContentRegex)?.[1];
-      const newContentMatch = match.match(newContentRegex)?.[1];
       if (!oldContentMatch) {
-        throw new Error("Couldn't get old content");
+        //console.error("Couldn't get old content from: ", edit);
+        continue;
       }
-      if (!newContentMatch) {
-        throw new Error("Couldn't get new content");
-      }
+
+      //make placeholder that replaces all non-whitespace with xs
+      const placeholder = oldContentMatch
+        .split("\n")
+        .map((line) =>
+          line
+            .split(" ")
+            .map((word) => "x".repeat(word.length))
+            .join(" "),
+        )
+        .join("\n");
+      const newContentMatch = match.match(newContentRegex)?.[1] ?? placeholder;
+      // if (!newContentMatch) {
+      //   console.error("Couldn't get new content from: ", edit);
+      //   continue;
+      // }
       const oldContent = oldContentMatch
         .split("\n")
         .map((line) => {
@@ -328,18 +340,18 @@ const ParentComponent = ({
 
     for (const change of changes) {
       const { oldContent, newContent } = change;
-      if (!oldContent || !newContent) {
+      if (oldContent === undefined || newContent === undefined) {
         console.error(
           "oldContent or newContent is undefined for change: ",
           change,
         );
-      } else if (!modifiedPage.includes(oldContent)) {
-        console.error(
-          "error applying edit: modification not found in page. old content: ",
-          oldContent,
-          "new content: ",
-          newContent,
-        );
+        } else if (!modifiedPage.includes(oldContent)) {
+          console.error(
+            "error applying edit: modification not found in page. old content: ",
+            oldContent.length > 100? oldContent.substring(0, 100) + "..." : oldContent,
+            "new content: ",
+            newContent.length > 100? newContent.substring(0, 100) + "..." : newContent,
+          );
       } else {
         modifiedPage = modifiedPage.replaceAll(oldContent, newContent);
       }
@@ -354,7 +366,16 @@ const ParentComponent = ({
 
     //analysis started but not ended
     if (analysisStartIndex !== -1 && analysisEndIndex === -1) {
-      return "";
+      //todo: I thnk this is firing incorrectly
+      const lastPage = pageCache.current[currentPage.parentId ?? "invalid"];
+      if (!lastPage) {
+        console.error(
+          "Could not find last page for cache key: " + currentPage.cacheKey,
+        );
+        return "";
+      } else {
+        return lastPage.content;
+      }
       //no analysis
     } else if (analysisStartIndex === -1 && analysisEndIndex === -1) {
       return content;
@@ -380,11 +401,12 @@ const ParentComponent = ({
       ? updateContent(content)
       : removeAnalysis(content);
 
-    let title =
-      "alternet: " +
-      (newContent.match(/<title>([^<]+)<\/title>/)?.[1] ?? isFinal
+    const pageTitle = newContent.match(/<title>([^<]+)<\/title>/)?.[1];
+    let title = pageTitle
+      ? "alternet: " + pageTitle
+      : isFinal
         ? currentPage.prompt
-        : currentPage.title);
+        : currentPage.title;
     let url =
       newContent.match(/<link rel="canonical" href="([^"]+)"/)?.[1] ??
       (isFinal ? currentPage.prompt : currentPage.fakeUrl);
@@ -469,7 +491,7 @@ const ParentComponent = ({
     />
   );
 
-  const rightButtons = ( userMetadata &&
+  const rightButtons = userMetadata && (
     <RightButtons
       onOpenHistory={openHistory}
       defaultTitle={currentPage.title}
