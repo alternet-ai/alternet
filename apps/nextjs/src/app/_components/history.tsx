@@ -14,7 +14,6 @@ interface HistoryPanelProps {
   disabled: boolean;
 }
 
-//todo: fix long text exceeding width of history panel
 const HistoryPanel: React.FC<HistoryPanelProps> = ({
   history,
   onSelect,

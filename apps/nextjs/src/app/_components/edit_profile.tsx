@@ -36,7 +36,6 @@ const EditProfileDialog = ({ open, onClose }: EditProfileDialogProps) => {
     },
   });
 
-  //TODO: what happens if you're not logged in?
   const userData = api.auth.getOwnMetadata.useQuery().data;
 
   if (!userData) {

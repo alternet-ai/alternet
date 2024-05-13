@@ -53,6 +53,8 @@ const IframeContainer: React.FC<IframeContainerProps> = ({
   onNavigate,
 }) => {
   //todo: reset scripts between loads
+  //todo: fix jumpiness of screen when writing new text
+  //todo: make loading always visible
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const scriptAddedRef = useRef(false); // Ref to track if the redirect script has been added
   const executedScriptsRef = useRef(new Set()); // Ref to track executed script contents
@@ -102,8 +104,6 @@ const IframeContainer: React.FC<IframeContainerProps> = ({
         executedScriptsRef.current.add(scriptContent);
       }
     });
-
-    console.log("executedScriptsRef.current", executedScriptsRef.current);
   };
 
   useEffect(() => {
@@ -114,11 +114,11 @@ const IframeContainer: React.FC<IframeContainerProps> = ({
     }
 
     //contentDocument for same origin, contentWindow for cross origin... maybe?
-    const iframeContentDocument = iframeRef.current.contentDocument
+    const iframeContentDocument = iframeRef.current.contentDocument;
     if (!iframeContentDocument) {
       console.error("iframeRef.current.contentDocument is null");
     }
-    const iframeContentWindow = iframeRef.current.contentWindow?.document
+    const iframeContentWindow = iframeRef.current.contentWindow?.document;
     if (!iframeContentWindow) {
       console.error("iframeRef.current.contentWindow is null");
     }
@@ -131,7 +131,7 @@ const IframeContainer: React.FC<IframeContainerProps> = ({
         const script = iframeDocument.createElement("script");
         script.textContent = REDIRECT_SCRIPT;
         iframeDocument.body.appendChild(script);
-        scriptAddedRef.current = true; 
+        scriptAddedRef.current = true;
       }
 
       //if we're in the style tag, modify the loading div
@@ -147,8 +147,14 @@ const IframeContainer: React.FC<IframeContainerProps> = ({
       } else if (isLoading || html.length === 0) {
         iframeDocument.body.innerHTML =
           html + `<div style="${DEFAULT_STYLE}">Loading...</div>`;
-      //if done loading, just show the page and finally process all the scripts
+        //if done loading, just show the page and finally process all the scripts
       } else {
+        // Clear existing scripts from the iframe
+        executedScriptsRef.current.clear();
+        const existingScripts = iframeDocument.querySelectorAll("script");
+
+        existingScripts.forEach((script) => script.remove());
+
         iframeDocument.body.innerHTML = html;
 
         const scripts = Array.from(iframeDocument.querySelectorAll("script"));

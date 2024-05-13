@@ -26,7 +26,7 @@ const ParentComponent = ({
   openToProfile = false,
 }: ParentComponentProps) => {
   const [isPortrait, setIsPortrait] = useState(false);
-  const [showHistory, setShowHistory] = useState(true); //todo: false?
+  const [showHistory, setShowHistory] = useState(true);
   const [model, setModel] = useState("claude-3-sonnet-20240229");
 
   const pageCache = useRef<Record<string, Page>>({
@@ -103,7 +103,7 @@ const ParentComponent = ({
     let parentId = currentPage.parentId;
 
     while (parentId !== undefined && parentId !== HOME_PAGE.parentId) {
-      //todo: deal with undefined better (it's legacy support)
+      //todo: deal with undefined better (it's legacy support). do some kinda migration?
       const parentPage = pageCache.current[parentId]; //todo: get parent from remote instead
       if (!parentPage) {
         console.error("Could not find parent page for key: ", parentId);

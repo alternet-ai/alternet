@@ -23,6 +23,7 @@ interface BookmarksProps {
 }
 
 const Bookmarks = ({ profileid }: BookmarksProps) => {
+  const baseUrl = env.NODE_ENV === "development" ? "http://localhost:3000" : "https://alternet.ai";
   const utils = api.useUtils();
 
   const updateBookmark = api.bookmark.update.useMutation({
@@ -150,7 +151,7 @@ const Bookmarks = ({ profileid }: BookmarksProps) => {
         {bookmarks.map((bookmark) => (
           <div key={bookmark.bookmarkId}>
             <div className="flex flex-col items-center space-y-2">
-              <Link href={`https://alternet.ai/${bookmark.bookmarkId}`}>
+              <Link href={`${baseUrl}/${bookmark.bookmarkId}`}>
                 <Image
                   src={`${env.NEXT_PUBLIC_SCREENSHOT_BUCKET_URL}/${bookmark.bookmarkId}.png`}
                   alt={bookmark.title}

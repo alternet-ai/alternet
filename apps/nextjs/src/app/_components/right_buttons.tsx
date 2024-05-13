@@ -125,10 +125,12 @@ const RightButtons: React.FC<RightButtonsProps> = ({
 
   const onCopyLink = (includeProfile: boolean) => {
     const baseUrl =
-      "https://alternet.ai" + //todo: don't hardcode
-      "/" +
-      pageId;
-    const url = includeProfile ? `${baseUrl}?profile` : baseUrl;
+      process.env.NODE_ENV === "development"
+        ? "http://localhost:3000"
+        : "https://alternet.ai";
+    const url = includeProfile
+      ? `${baseUrl}/${pageId}?profile`
+      : `${baseUrl}/${pageId}`;
     navigator.clipboard.writeText(url);
   };
 
