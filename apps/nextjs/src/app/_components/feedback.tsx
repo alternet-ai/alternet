@@ -55,7 +55,7 @@ const FeedbackButton: React.FC<{ pageId: string }> = ({ pageId }) => {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="ghost">
-          <Bug className="size-[4.5vw] md:size-6" />
+          <Bug className="size-[6vw] md:size-6" />
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">

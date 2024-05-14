@@ -402,6 +402,7 @@ const ParentComponent = ({
             if (!res.ok) {
               throw new Error("Failed to save page: " + res.statusText);
             }
+            router.push(`/${page.cacheKey}`);
           })
           .catch((error) => {
             throw error;
@@ -409,8 +410,6 @@ const ParentComponent = ({
       } catch (error) {
         throw new Error("Error saving page: " + error);
       }
-
-      router.push(`/${page.cacheKey}`);
     }
   };
 
