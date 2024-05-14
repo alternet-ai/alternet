@@ -2,7 +2,7 @@ import { auth } from "@acme/auth";
 
 import type { Page } from "../types";
 import LoginComponent from "../_components/login";
-import ParentComponent from "../ParentComponent";
+import ParentComponent from "../_components/ParentComponent";
 import { HOME_KEY, HOME_PAGE } from "../static/constants";
 import { DEPLOYMENT_URL } from "../utils/url";
 

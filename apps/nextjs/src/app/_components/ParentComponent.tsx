@@ -7,14 +7,14 @@ import { useChat } from "ai/react";
 
 import { toast } from "@acme/ui/toast";
 
-import type { Page } from "./types";
+import type { Page } from "../types";
 import { api } from "~/trpc/react";
-import AddressBar from "./_components/address_bar";
-import Buttons from "./_components/buttons";
-import IframeContainer from "./_components/container";
-import { useAppContext } from "./AppContext";
-import { HOME_PAGE } from "./static/constants";
-import { DEPLOYMENT_URL } from "./utils/url";
+import { useAppContext } from "../AppContext";
+import { HOME_PAGE } from "../static/constants";
+import { DEPLOYMENT_URL } from "../utils/url";
+import AddressBar from "./address_bar";
+import Buttons from "./buttons";
+import IframeContainer from "./container";
 
 interface ParentComponentProps {
   initialPage: string;
