@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Bookmark, BookmarkCheck, Clock, Share } from "lucide-react";
+import { Bookmark, BookmarkCheck, Clock, RotateCw, Share, X } from "lucide-react";
 
 import { Button } from "@acme/ui/button";
 import {
@@ -18,8 +18,9 @@ import FeedbackButton from "./feedback";
 import HamburgerMenu from "./hamburger_menu";
 import { type User } from "../types";
 
-interface RightButtonsProps {
-  onOpenHistory: () => void;
+interface ButtonsProps {
+  onRefresh: () => void;
+  onCancel: () => void;
   defaultTitle: string;
   openToProfile: boolean;
   onDownloadPage: () => void;
@@ -37,8 +38,9 @@ const fixTitle = (title: string) => {
   return title;
 };
 
-const RightButtons: React.FC<RightButtonsProps> = ({
-  onOpenHistory,
+const Buttons: React.FC<ButtonsProps> = ({
+  onRefresh,
+  onCancel,
   defaultTitle,
   openToProfile,
   onDownloadPage,
@@ -136,6 +138,15 @@ const RightButtons: React.FC<RightButtonsProps> = ({
 
   return (
     <div className="flex">
+            {isLoading ? (
+        <Button variant="ghost" onClick={onCancel}>
+          <X className="size-[4.5vw] md:size-6" />
+        </Button>
+      ) : (
+        <Button variant="ghost" onClick={onRefresh} disabled={isLoading}>
+          <RotateCw className="size-[4.5vw] md:size-6" />
+        </Button>
+      )}
       <HamburgerMenu
         creatorId={creatorId}
         openToProfile={openToProfile}
@@ -226,11 +237,8 @@ const RightButtons: React.FC<RightButtonsProps> = ({
           </DialogContent>
         </Dialog>
       )}
-      <Button variant="ghost" onClick={onOpenHistory}>
-        <Clock className="size-[4.4.5vw] md:size-6" />
-      </Button>
     </div>
   );
 };
 
-export default RightButtons;
+export default Buttons;

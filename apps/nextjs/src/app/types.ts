@@ -9,11 +9,6 @@ export interface Page {
   parentId?: string;
 }
 
-export interface NavigationState {
-  currentIndex: number;
-  history: string[];
-}
-
 export interface User {
   id: string;
   name: string | null;

@@ -1,54 +1,37 @@
 "use client";
 
 import type { Message } from "ai";
-import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useChat } from "ai/react";
 
-import { Separator } from "@acme/ui/separator";
 import { toast } from "@acme/ui/toast";
 
-import type { NavigationState, Page } from "./types";
+import type { Page } from "./types";
 import { api } from "~/trpc/react";
 import AddressBar from "./_components/address_bar";
+import Buttons from "./_components/buttons";
 import IframeContainer from "./_components/container";
-import HistoryPanel from "./_components/history";
-import LeftButtons from "./_components/left_buttons";
-import RightButtons from "./_components/right_buttons";
+import { useAppContext } from "./AppContext";
 import { HOME_PAGE } from "./static/constants";
+import { DEPLOYMENT_URL } from "./utils/url";
 
 interface ParentComponentProps {
-  initialPage?: Page;
-  openToProfile?: boolean;
+  initialPage: string;
+  openToProfile: boolean;
 }
 
 const ParentComponent = ({
-  initialPage = HOME_PAGE,
-  openToProfile = false,
+  initialPage,
+  openToProfile,
 }: ParentComponentProps) => {
+  const router = useRouter();
+  const { pageCache, setPageCache, model, setModel } = useAppContext();
   const [isPortrait, setIsPortrait] = useState(false);
-  const [showHistory, setShowHistory] = useState(true);
-  const [model, setModel] = useState("claude-3-sonnet-20240229");
-
-  const pageCache = useRef<Record<string, Page>>({
-    [initialPage.cacheKey]: initialPage,
-  });
   const userMetadata = api.auth.getOwnMetadata.useQuery().data;
-
-  const navState = useRef<NavigationState>({
-    currentIndex: 0,
-    history: [initialPage.cacheKey],
-  });
-
-  const [currentPage, setCurrentPage] = useState<Page>(() => {
-    return initialPage;
-  });
-
+  const [currentPage, setCurrentPage] = useState<Page>(HOME_PAGE);
   const { reload, stop, isLoading, messages, setMessages } = useChat({
-    initialMessages: [],
     body: { model },
-    onError: (error) => {
-      throw error;
-    },
   });
 
   const utils = api.useUtils();
@@ -61,7 +44,7 @@ const ParentComponent = ({
       toast.error(
         err.data?.code === "UNAUTHORIZED"
           ? "You must be logged in to view a page"
-          : "Failed to view page",
+          : "Failed to view page: " + err.message,
       );
     },
   });
@@ -83,20 +66,83 @@ const ParentComponent = ({
     };
   }, []);
 
-  const getCachedPage = (cacheKey: string) => {
-    const cachedPage = pageCache.current[cacheKey];
+  const getCachedPage = async (cacheKey: string) => {
+    let page = pageCache[cacheKey];
 
-    if (cachedPage) {
-      pageView.mutate(cacheKey);
+    if (!page) {
+      try {
+        const urlString = `${DEPLOYMENT_URL}/api/load-page?cacheKey=${cacheKey}`;
+        console.log("cache miss: fetching page from", urlString);
+        const response = await fetch(urlString);
+        page = (await response.json()) as Page;
+        setPageCache({
+          ...pageCache,
+          [page.cacheKey]: page,
+        });
+      } catch (error) {
+        console.error(
+          `Error fetching page to serve for key ${cacheKey}: `,
+          error,
+        );
+        router.push(`/home`);
+        //unreachable?
+        return;
+      }
+    }
 
-      setCurrentPage(cachedPage);
+    pageView.mutate(cacheKey);
+    setCurrentPage(page);
+  };
 
-      const newUrl = `/${cacheKey}`;
-      window.history.pushState({ path: newUrl }, "", newUrl);
+  useEffect(() => {
+    getCachedPage(initialPage);
+  }, [initialPage]);
+
+  const generatePage = (prompt: string) => {
+    if (!userMetadata) {
+      throw new Error("User metadata not found");
+    }
+
+    linearizeUniverse(prompt);
+    reload();
+
+    const page: Page = {
+      title: "Loading...",
+      fakeUrl: "Loading...",
+      prompt,
+      content: currentPage.content,
+      cacheKey: crypto.randomUUID(),
+      userId: userMetadata.id,
+      parentId: currentPage.cacheKey,
+      response: "",
+    };
+
+    setCurrentPage(page);
+  };
+
+  const refresh = () => {
+    const prompt = currentPage.prompt;
+
+    if (prompt) {
+      generatePage(prompt);
     } else {
-      throw new Error("Cache key is not valid");
+      throw new Error("Current page prompt undefined while refreshing");
     }
   };
+
+  const goHome = () => {
+    //todo: redirect to /home
+    console.log("getting home page, cache key: ", HOME_PAGE.cacheKey);
+    router.push(`/home`);
+  };
+
+  useEffect(() => {
+    //finalize page if loading changes and we're not on the initial page. todo: better way to do this
+    const isStartPage = currentPage.cacheKey === initialPage;
+    if (!isLoading && !isStartPage) {
+      updateCurrentPage(true);
+    }
+  }, [isLoading]);
 
   const linearizeUniverse = (prompt: string) => {
     let pageAncestors = [currentPage];
@@ -104,7 +150,7 @@ const ParentComponent = ({
 
     while (parentId !== undefined && parentId !== HOME_PAGE.parentId) {
       //todo: deal with undefined better (it's legacy support). do some kinda migration?
-      const parentPage = pageCache.current[parentId]; //todo: get parent from remote instead
+      const parentPage = pageCache[parentId]; //todo: get parent from remote instead
       if (!parentPage) {
         console.error("Could not find parent page for key: ", parentId);
         break;
@@ -173,106 +219,8 @@ const ParentComponent = ({
     setMessages(newMessages);
   };
 
-  const generatePage = (prompt: string) => {
-    if (!userMetadata) {
-      throw new Error("User metadata not found");
-    }
-
-    linearizeUniverse(prompt);
-    reload();
-
-    const page: Page = {
-      title: "Loading...",
-      fakeUrl: "Loading...",
-      prompt,
-      content: currentPage.content,
-      cacheKey: crypto.randomUUID(),
-      userId: userMetadata.id,
-      parentId: currentPage.cacheKey,
-      response: "",
-    };
-
-    navState.current = {
-      currentIndex: navState.current.history.length,
-      history: [...navState.current.history, page.cacheKey],
-    };
-
-    setCurrentPage(page);
-
-    const newUrl = `/${page.cacheKey}`;
-    window.history.pushState({ path: newUrl }, "", newUrl);
-  };
-
-  const refresh = () => {
-    const prompt = currentPage.prompt;
-
-    if (prompt) {
-      generatePage(prompt);
-    } else {
-      throw new Error("Current page prompt undefined while refreshing");
-    }
-  };
-
-  const goBack = () => {
-    if (navState.current.currentIndex > 0) {
-      const newIndex = navState.current.currentIndex - 1;
-      handleSelectHistoryItem(newIndex);
-    }
-  };
-
-  const goForward = () => {
-    if (navState.current.currentIndex < navState.current.history.length - 1) {
-      const newIndex = navState.current.currentIndex + 1;
-      handleSelectHistoryItem(newIndex);
-    }
-  };
-
-  const handleSelectHistoryItem = (index: number) => {
-    const cacheKey = navState.current.history[index];
-    if (!cacheKey) {
-      throw new Error(
-        "Somehow the cache key is undefined when moving in the history",
-      );
-    }
-
-    getCachedPage(cacheKey);
-
-    navState.current = {
-      ...navState.current,
-      currentIndex: index,
-    };
-  };
-
-  const goHome = () => {
-    pageCache.current = {
-      [HOME_PAGE.cacheKey]: HOME_PAGE,
-    };
-    navState.current = {
-      history: [HOME_PAGE.cacheKey],
-      currentIndex: 0,
-    };
-
-    setMessages([
-      { role: "user", content: HOME_PAGE.prompt, id: "1" },
-      {
-        role: "assistant",
-        content: HOME_PAGE.response!,
-        id: "2",
-      },
-    ]);
-
-    getCachedPage(HOME_PAGE.cacheKey);
-  };
-
-  useEffect(() => {
-    const isStartPage = currentPage.cacheKey === initialPage.cacheKey;
-    if (!isLoading && !isStartPage) {
-      updateCurrentPage(true);
-    }
-  }, [isLoading]);
-
   const updateContent = (edit: string) => {
-    const lastPage = pageCache.current[currentPage.parentId ?? "invalid"];
+    const lastPage = pageCache[currentPage.parentId ?? "invalid"];
     if (!lastPage) {
       throw new Error(
         "Could not find last page for cache key: " + currentPage.cacheKey,
@@ -368,16 +316,16 @@ const ParentComponent = ({
     const analysisStartIndex = content.indexOf("<analysis>");
     const analysisEndIndex = content.indexOf("</analysis>");
 
-      //todo: I thnk this is firing incorrectly
-      const lastPage = pageCache.current[currentPage.parentId ?? "invalid"];
-      let lastPageContent = "";
-      if (!lastPage) {
-        console.error(
-          "Could not find last page for cache key: " + currentPage.cacheKey,
-        );
-      } else {
-        lastPageContent = lastPage.content;
-      }
+    //todo: I thnk this is firing incorrectly
+    const lastPage = pageCache[currentPage.parentId ?? "invalid"];
+    let lastPageContent = "";
+    if (!lastPage) {
+      console.error(
+        "Could not find last page for cache key: " + currentPage.cacheKey,
+      );
+    } else {
+      lastPageContent = lastPage.content;
+    }
 
     //analysis started but not ended
     if (analysisStartIndex !== -1 && analysisEndIndex === -1) {
@@ -435,10 +383,10 @@ const ParentComponent = ({
     setCurrentPage(page);
 
     if (isFinal) {
-      pageCache.current = {
-        ...pageCache.current,
+      setPageCache({
+        ...pageCache,
         [page.cacheKey]: page,
-      };
+      });
 
       pageView.mutate(currentPage.cacheKey);
 
@@ -452,15 +400,17 @@ const ParentComponent = ({
         })
           .then((res) => {
             if (!res.ok) {
-              throw new Error("Failed to save page");
+              throw new Error("Failed to save page: " + res.statusText);
             }
           })
           .catch((error) => {
             throw error;
           });
       } catch (error) {
-        console.error("Error saving page:", error);
+        throw new Error("Error saving page: " + error);
       }
+
+      router.push(`/${page.cacheKey}`);
     }
   };
 
@@ -472,13 +422,8 @@ const ParentComponent = ({
     document.title = currentPage.title;
   }, [currentPage.title]);
 
-  const openHistory = () => {
-    setShowHistory(!showHistory); // Toggle visibility of the history panel
-  };
-
   const onDownloadPage = () => {
-    const html = currentPage.content;
-    const blob = new Blob([html], { type: "text/html" });
+    const blob = new Blob([currentPage.content], { type: "text/html" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
@@ -494,19 +439,10 @@ const ParentComponent = ({
     );
   };
 
-  const leftButtons = (
-    <LeftButtons
-      onBack={goBack}
-      onForward={goForward}
+  const buttons = userMetadata && (
+    <Buttons
       onRefresh={refresh}
-      disabled={isLoading}
       onCancel={stop}
-    />
-  );
-
-  const rightButtons = userMetadata && (
-    <RightButtons
-      onOpenHistory={openHistory}
       defaultTitle={currentPage.title}
       openToProfile={openToProfile}
       onDownloadPage={onDownloadPage}
@@ -522,7 +458,6 @@ const ParentComponent = ({
     <div className="flex h-svh w-full">
       <div className="flex flex-1 flex-col">
         <div className="flex items-center justify-between border-b bg-background p-2">
-          {!isPortrait && leftButtons}
           <AddressBar
             currentUrl={currentPage.fakeUrl}
             onAddressEntered={generatePage}
@@ -530,7 +465,7 @@ const ParentComponent = ({
             changeModel={changeModel}
             model={model}
           />
-          {!isPortrait && rightButtons}
+          {!isPortrait && buttons}
         </div>
         <div className="flex flex-1 overflow-hidden">
           <IframeContainer
@@ -541,26 +476,10 @@ const ParentComponent = ({
         </div>
         {isPortrait && (
           <div className="flex items-center justify-around border-b bg-background p-2">
-            {leftButtons}
-            {rightButtons}
+            {buttons}
           </div>
         )}
       </div>
-      {showHistory && (
-        <>
-          <Separator orientation="vertical" />
-          <HistoryPanel
-            history={
-              navState.current.history
-                .map((cacheKey) => pageCache.current[cacheKey])
-                .filter((page) => page !== undefined) as Page[]
-            }
-            onSelect={handleSelectHistoryItem}
-            setOpen={setShowHistory}
-            disabled={isLoading}
-          />
-        </>
-      )}
     </div>
   );
 };

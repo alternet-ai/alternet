@@ -85,29 +85,14 @@ const CacheKeyPage = async ({
     return <LoginComponent />;
   }
 
-  let page: Page | null = null;
-  try {
-    const { cacheKey } = params;
-    const urlString = `${DEPLOYMENT_URL}/api/load-page?cacheKey=${cacheKey}`;
-    console.log("fetching page from", urlString);
-    const response = await fetch(urlString);
-    page = (await response.json()) as Page;
-  } catch (error) {
-    console.error("Error fetching page to serve:", error);
-  }
+  const openToProfile = searchParams?.profile !== undefined;
 
-  if (!page) {
-    if (params.cacheKey !== HOME_KEY) {
-      console.log("page not found for cache key", params.cacheKey);
-    }
-    return <ParentComponent />;
-  }
-
-  // Check if 'profile' query parameter is present and pass it as a prop
-  const profileProp =
-    searchParams?.profile !== undefined ? { openToProfile: true } : {};
-
-  return <ParentComponent initialPage={page} {...profileProp} />;
+  return (
+    <ParentComponent
+      initialPage={params.cacheKey}
+      openToProfile={openToProfile}
+    />
+  );
 };
 
 export default CacheKeyPage;

@@ -12,6 +12,7 @@ import { TRPCReactProvider } from "~/trpc/react";
 import "~/app/globals.css";
 
 import { env } from "~/env";
+import { AppProvider } from "./AppContext";
 
 export const metadata: Metadata = {
   metadataBase: new URL(
@@ -53,10 +54,12 @@ export default function RootLayout(props: { children: React.ReactNode }) {
         )}
         >
         <SessionProvider>
+        <AppProvider>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <TRPCReactProvider>{props.children}</TRPCReactProvider>
           <Toaster />
-        </ThemeProvider>
+          </ThemeProvider>
+        </AppProvider>
         </SessionProvider>
       </body>
     </html>
