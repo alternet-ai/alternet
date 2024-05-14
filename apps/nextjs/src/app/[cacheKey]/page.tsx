@@ -5,6 +5,7 @@ import LoginComponent from "../_components/login";
 import ParentComponent from "../_components/ParentComponent";
 import { HOME_KEY, HOME_PAGE } from "../static/constants";
 import { DEPLOYMENT_URL } from "../utils/url";
+import { api } from "~/trpc/server";
 
 interface SearchParams {
   profile?: string;
@@ -87,6 +88,11 @@ const CacheKeyPage = async ({
 
   const openToProfile = searchParams?.profile !== undefined;
 
+  const res = await api.pageView.view(params.cacheKey);
+  if (!res.insertId) {
+    console.error("Error viewing page:", res);
+  }
+  
   return (
     <ParentComponent
       initialPage={params.cacheKey}

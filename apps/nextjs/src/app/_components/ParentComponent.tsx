@@ -34,21 +34,6 @@ const ParentComponent = ({
     body: { model },
   });
 
-  const utils = api.useUtils();
-
-  const pageView = api.pageView.view.useMutation({
-    onSuccess: async () => {
-      await utils.pageView.invalidate();
-    },
-    onError: (err) => {
-      toast.error(
-        err.data?.code === "UNAUTHORIZED"
-          ? "You must be logged in to view a page"
-          : "Failed to view page: " + err.message,
-      );
-    },
-  });
-
   useLayoutEffect(() => {
     const handleResize = () => {
       setIsPortrait(window.innerWidth < window.innerHeight);
@@ -90,7 +75,6 @@ const ParentComponent = ({
       }
     }
 
-    pageView.mutate(cacheKey);
     setCurrentPage(page);
   };
 
@@ -388,8 +372,6 @@ const ParentComponent = ({
         [page.cacheKey]: page,
       });
 
-      pageView.mutate(currentPage.cacheKey);
-
       try {
         fetch("/api/save-page", {
           method: "POST",
@@ -402,7 +384,6 @@ const ParentComponent = ({
             if (!res.ok) {
               throw new Error("Failed to save page: " + res.statusText);
             }
-            router.push(`/${page.cacheKey}`);
           })
           .catch((error) => {
             throw error;
@@ -410,6 +391,8 @@ const ParentComponent = ({
       } catch (error) {
         throw new Error("Error saving page: " + error);
       }
+
+      router.push(`/${page.cacheKey}`);
     }
   };
 
