@@ -218,16 +218,7 @@ const ParentComponent = ({
     setMessages(newMessages);
   };
 
-  const updateContent = async (edit: string) => {
-    let lastPage: Page;
-    try {
-      lastPage = await getPage(currentPage.parentId);
-    } catch (error) {
-      throw new Error(
-        "Could not find last page for cache key: " + currentPage.id,
-      );
-    }
-
+  const updateContent = (edit: string, lastPageContent: string) => {
     let changes = [];
     const replacementRegex = /<replacement>([\s\S]*?)(<\/replacement>|$)/gs;
     const oldContentRegex = /<oldContent>([\s\S]*?)(<\/oldContent>|$)/s;
@@ -235,7 +226,7 @@ const ParentComponent = ({
 
     const matches = edit.match(replacementRegex);
     if (!matches) {
-      return lastPage.content;
+      return lastPageContent;
     }
 
     for (const match of matches) {
@@ -274,7 +265,7 @@ const ParentComponent = ({
       });
     }
 
-    let modifiedPage = lastPage.content;
+    let modifiedPage = lastPageContent;
     modifiedPage = modifiedPage
       .split("\n")
       .map((line) => {
@@ -308,19 +299,9 @@ const ParentComponent = ({
     return modifiedPage;
   };
 
-  const removeAnalysis = async (content: string) => {
+  const removeAnalysis = (content: string, lastPageContent: string) => {
     const analysisStartIndex = content.indexOf("<analysis>");
     const analysisEndIndex = content.indexOf("</analysis>");
-
-    let lastPageContent = "";
-    try {
-      const lastPage = await getPage(currentPage.parentId);
-      lastPageContent = lastPage.content;
-    } catch (error) {
-      console.error(
-        "Could not find last page for cache key: " + currentPage.id,
-      );
-    }
 
     //analysis started but not ended
     if (analysisStartIndex !== -1 && analysisEndIndex === -1) {
@@ -352,10 +333,20 @@ const ParentComponent = ({
       return;
     }
 
+    let lastPageContent = "";
+    try {
+      const lastPage = await getPage(currentPage.parentId);
+      lastPageContent = lastPage.content;
+    } catch (error) {
+      console.error(
+        "Could not find last page for cache key: " + currentPage.id,
+      );
+    }
+
     const isEdit = content.includes("<replacementsToMake>");
     const newContent = isEdit
-      ? await updateContent(content)
-      : await removeAnalysis(content);
+      ? updateContent(content, lastPageContent)
+      : removeAnalysis(content, lastPageContent);
 
     const pageTitle = newContent.match(/<title>([^<]+)<\/title>/)?.[1];
     let title = pageTitle
