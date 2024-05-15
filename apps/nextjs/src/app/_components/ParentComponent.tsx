@@ -28,7 +28,7 @@ const ParentComponent = ({
   const router = useRouter();
   const { pageCache, setPageCache, model, setModel } = useAppContext();
   const [isPortrait, setIsPortrait] = useState(false);
-  const userMetadata = api.auth.getOwnMetadata.useQuery().data; //todo: handle unauthed
+  const userMetadata = api.auth.getOwnMetadata.useQuery().data;
   const [currentPage, setCurrentPage] = useState<Page>(BLANK_PAGE);
   const { reload, stop, isLoading, messages, setMessages } = useChat({
     body: { model },

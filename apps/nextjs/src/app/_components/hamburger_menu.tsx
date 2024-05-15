@@ -43,7 +43,7 @@ const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
 }) => {
   const [isEditProfileDialogOpen, setIsEditProfileDialogOpen] = useState(false);
   const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(openToProfile);
-  const [profileData, setProfileData] = useState<User | undefined>(undefined); //todo: set profile data after logging in
+  const [profileData, setProfileData] = useState<User | undefined>(undefined);
 
   const utils = api.useUtils();
 

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { useSession } from "next-auth/react";
+import { useSession, signIn } from "next-auth/react";
 
 import { Button } from "@acme/ui/button";
 import { Dialog, DialogContent } from "@acme/ui/dialog";
@@ -57,9 +57,13 @@ const ProfileDialog = ({ open, onClose, profileData }: ProfileDialogProps) => {
     },
   });
 
-  const showFollow = session && session.user.id !== profileData.id;
+  const showFollow = !session || session.user.id !== profileData.id;
 
-  const handleFollowClick = () => {
+  const handleFollowClick = async () => {
+    if (!session) {
+      await signIn("discord");
+      return;
+    }
     if (isFollowing) {
       unFollowUser.mutate(profileData.id);
       setIsFollowing(false);

@@ -7,6 +7,7 @@ import {
   X,
 } from "lucide-react";
 
+import { signIn } from "next-auth/react";
 import { Button } from "@acme/ui/button";
 import {
   Dialog,
@@ -198,7 +199,7 @@ const Buttons: React.FC<ButtonsProps> = ({
       ) : (
         <Dialog>
           <DialogTrigger asChild>
-            <Button variant="ghost" disabled={isHome || isLoading || !userMetadata}>
+            <Button variant="ghost" disabled={isHome || isLoading} onClick={() => !userMetadata ? signIn('discord') : {} }>
               <Bookmark className="size-[6vw] md:size-6" />
             </Button>
           </DialogTrigger>
