@@ -18,14 +18,15 @@ export async function generateMetadata({ params }: { params: { id: string } }) {
   }
   const url = new URL(DEPLOYMENT_URL + "/" + id);
 
-  let page: Page | undefined;
+  let page: Page;
   if (id === HOME_ID) {
     page = HOME_PAGE;
   } else {
-      page = await api.page.load(id);
-      if (!page) {
+      const newPage = await api.page.load(id);
+      if (!newPage) {
         throw new Error("Page not found");
-      }
+    }
+    page = newPage;
   }
 
   const response = await fetch(`${DEPLOYMENT_URL}/api/get-card-image`, {
@@ -75,10 +76,7 @@ const idPage = async ({
 
   const openToProfile = searchParams?.profile !== undefined;
 
-  const res = await api.pageView.view(params.id);
-  if (!res.insertId) {
-    console.error("Error viewing page:", res);
-  }
+  await api.pageView.view(params.id);
 
   return (
     <ParentComponent initialPage={params.id} openToProfile={openToProfile} />
