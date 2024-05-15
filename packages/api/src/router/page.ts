@@ -32,6 +32,15 @@ export const pageRouter = {
       })
   }),
 
+  load: publicProcedure
+  .input(z.string().min(1))
+  .mutation(({ ctx, input }) => {
+    return ctx.db.query.page.findFirst({
+      where: eq(schema.page.id, input),
+    });
+  }),
+
+
   // saveAsUser: protectedProcedure
   // .input(z.object({
   //     title: z.string().min(1),
@@ -57,15 +66,6 @@ export const pageRouter = {
   //       parentId: input.parentId,
   //     })
   // }),
-
-  load: publicProcedure
-  .input(z.string().min(1))
-  .mutation(({ ctx, input }) => {
-    return ctx.db.query.page.findFirst({
-      where: eq(schema.page.id, input),
-    });
-  }),
-
 
   // loadAll: publicProcedure
   // .mutation(({ ctx }) => {
