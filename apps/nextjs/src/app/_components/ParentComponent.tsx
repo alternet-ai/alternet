@@ -48,7 +48,6 @@ const ParentComponent = ({
   const loadPage = api.page.load.useMutation({
     onSuccess: async (res) => {
       await utils.pageView.invalidate();
-      return res;
     },
 
     onError: (err) => {
@@ -132,13 +131,7 @@ const ParentComponent = ({
   };
 
   const refresh = () => {
-    const prompt = currentPage.prompt;
-
-    if (prompt) {
-      generatePage(prompt);
-    } else {
-      throw new Error("Current page prompt undefined while refreshing");
-    }
+      generatePage(currentPage.prompt);
   };
 
   const goHome = () => {
@@ -315,19 +308,18 @@ const ParentComponent = ({
     return modifiedPage;
   };
 
-  const removeAnalysis = (content: string) => {
+  const removeAnalysis = async (content: string) => {
     const analysisStartIndex = content.indexOf("<analysis>");
     const analysisEndIndex = content.indexOf("</analysis>");
 
-    //todo: I thnk this is firing incorrectly
-    const lastPage = pageCache[currentPage.parentId ?? "invalid"];
     let lastPageContent = "";
-    if (!lastPage) {
+    try {
+      const lastPage = await getPage(currentPage.parentId);
+      lastPageContent = lastPage.content;
+    } catch (error) {
       console.error(
         "Could not find last page for cache key: " + currentPage.id,
       );
-    } else {
-      lastPageContent = lastPage.content;
     }
 
     //analysis started but not ended
@@ -363,7 +355,7 @@ const ParentComponent = ({
     const isEdit = content.includes("<replacementsToMake>");
     const newContent = isEdit
       ? await updateContent(content)
-      : removeAnalysis(content);
+      : await removeAnalysis(content);
 
     const pageTitle = newContent.match(/<title>([^<]+)<\/title>/)?.[1];
     let title = pageTitle
