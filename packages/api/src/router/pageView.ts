@@ -3,14 +3,14 @@ import { z } from "zod";
 
 import { schema } from "@acme/db";
 
-import { protectedProcedure } from "../trpc";
+import { publicProcedure } from "../trpc";
 
 export const pageViewRouter = {
-  view: protectedProcedure
+  view: publicProcedure
     .input(z.string().min(1))
     .mutation(({ ctx, input }) => {
       return ctx.db.insert(schema.pageView).values({
-        userId: ctx.session.user.id,
+        userId: ctx.session?.user.id ?? "anonymous",
         pageId: input,
       });
     }),
