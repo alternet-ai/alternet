@@ -1,5 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Bookmark, BookmarkCheck, Clock, Share } from "lucide-react";
+import {
+  Bookmark,
+  BookmarkCheck,
+  RotateCw,
+  Share,
+  X,
+} from "lucide-react";
 
 import { Button } from "@acme/ui/button";
 import {
@@ -14,12 +20,13 @@ import { Switch } from "@acme/ui/switch";
 import { toast } from "@acme/ui/toast";
 
 import { api } from "~/trpc/react";
+import { type User } from "../types";
 import FeedbackButton from "./feedback";
 import HamburgerMenu from "./hamburger_menu";
-import { type User } from "../types";
 
-interface RightButtonsProps {
-  onOpenHistory: () => void;
+interface ButtonsProps {
+  onRefresh: () => void;
+  onCancel: () => void;
   defaultTitle: string;
   openToProfile: boolean;
   onDownloadPage: () => void;
@@ -37,8 +44,9 @@ const fixTitle = (title: string) => {
   return title;
 };
 
-const RightButtons: React.FC<RightButtonsProps> = ({
-  onOpenHistory,
+const Buttons: React.FC<ButtonsProps> = ({
+  onRefresh,
+  onCancel,
   defaultTitle,
   openToProfile,
   onDownloadPage,
@@ -51,7 +59,9 @@ const RightButtons: React.FC<RightButtonsProps> = ({
   const utils = api.useUtils();
 
   const [title, setTitle] = useState(fixTitle(defaultTitle));
-  const [isPublic, setIsPublic] = useState(userMetadata.isBookmarkDefaultPublic);
+  const [isPublic, setIsPublic] = useState(
+    userMetadata.isBookmarkDefaultPublic,
+  );
   const [includeProfile, setIncludeProfile] = useState(true);
   const [isBookmarked, setIsBookmarked] = useState(false);
 
@@ -136,6 +146,15 @@ const RightButtons: React.FC<RightButtonsProps> = ({
 
   return (
     <div className="flex">
+      {isLoading ? (
+        <Button variant="ghost" onClick={onCancel}>
+          <X className="size-[6vw] md:size-6" />
+        </Button>
+      ) : (
+        <Button variant="ghost" onClick={onRefresh} disabled={isLoading}>
+          <RotateCw className="size-[6vw] md:size-6" />
+        </Button>
+      )}
       <HamburgerMenu
         creatorId={creatorId}
         openToProfile={openToProfile}
@@ -148,7 +167,7 @@ const RightButtons: React.FC<RightButtonsProps> = ({
       <Dialog>
         <DialogTrigger asChild>
           <Button variant="ghost" disabled={isHome}>
-            <Share className="size-[4.5vw] md:size-6" />
+            <Share className="size-[6vw] md:size-6" />
             <span className="sr-only">Share</span>
           </Button>
         </DialogTrigger>
@@ -186,13 +205,13 @@ const RightButtons: React.FC<RightButtonsProps> = ({
       </Dialog>
       {isBookmarked ? (
         <Button variant="ghost" onClick={removeBookmark}>
-          <BookmarkCheck className="size-[4.5vw] md:size-6" />
+          <BookmarkCheck className="size-[6vw] md:size-6" />
         </Button>
       ) : (
         <Dialog>
           <DialogTrigger asChild>
             <Button variant="ghost" disabled={isHome || isLoading}>
-              <Bookmark className="size-[4.5vw] md:size-6" />
+              <Bookmark className="size-[6vw] md:size-6" />
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">
@@ -226,11 +245,8 @@ const RightButtons: React.FC<RightButtonsProps> = ({
           </DialogContent>
         </Dialog>
       )}
-      <Button variant="ghost" onClick={onOpenHistory}>
-        <Clock className="size-[4.4.5vw] md:size-6" />
-      </Button>
     </div>
   );
 };
 
-export default RightButtons;
+export default Buttons;

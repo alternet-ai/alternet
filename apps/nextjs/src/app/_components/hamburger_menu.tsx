@@ -79,7 +79,7 @@ const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
     setProfileData(userMetadata);
     toggleProfileDialog();
   };
-  
+
   const showProfile = () => {
     if (!creatorId) {
       toast.error("Creator not found");
@@ -109,7 +109,7 @@ const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost">
-            <Menu className="size-[4.5vw] md:size-6" />
+            <Menu className="size-[6vw] md:size-6" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
