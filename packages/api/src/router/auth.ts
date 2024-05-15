@@ -14,7 +14,7 @@ export const authRouter = {
     return "you can see this secret message!";
   }),
 
-  getUserMetadata: protectedProcedure
+  getUserMetadata: publicProcedure
     .input(z.string().min(1))
     .mutation(({ ctx, input }) => {
       return ctx.db.query.users.findFirst({

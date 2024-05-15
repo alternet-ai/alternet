@@ -27,11 +27,7 @@ const FeedbackButton: React.FC<{ pageId: string }> = ({ pageId }) => {
       toast.success("Feedback submitted successfully!");
     },
     onError: (err) => {
-      toast.error(
-        err.data?.code === "UNAUTHORIZED"
-          ? "You must be logged in to submit feedback"
-          : "Failed to submit feedback",
-      );
+      toast.error("Failed to submit feedback: " + err.message);
     },
   });
 

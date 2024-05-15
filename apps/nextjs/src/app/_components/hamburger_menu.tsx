@@ -7,7 +7,7 @@ import {
   User as UserIcon,
   UserSearch,
 } from "lucide-react";
-import { signOut } from "next-auth/react";
+import { signIn, signOut } from "next-auth/react";
 
 import { Button } from "@acme/ui/button";
 import {
@@ -29,8 +29,8 @@ interface HamburgerMenuProps {
   onGoHome: () => void;
   isHome: boolean;
   isLoading: boolean;
-  creatorId: string | undefined;
-  userMetadata: User;
+  creatorId: string;
+  userMetadata: User | undefined;
 }
 
 const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
@@ -49,25 +49,17 @@ const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
 
   const getProfile = api.auth.getUserMetadata.useMutation({
     onSuccess: async (res) => {
-      await utils.pageView.invalidate();
+      await utils.auth.invalidate();
       setProfileData(res);
     },
     onError: (err) => {
-      toast.error(
-        err.data?.code === "UNAUTHORIZED"
-          ? "You must be logged in to get a profile"
-          : "Failed to get profile",
-      );
+      toast.error("Failed to get profile: " + err.message);
     },
   });
 
   useEffect(() => {
-    if (openToProfile) {
-      if (!creatorId) {
-        toast.error("Creator not found");
-      } else {
-        getProfile.mutate(creatorId);
-      }
+    if (openToProfile && creatorId) {
+      getProfile.mutate(creatorId);
     }
   }, [openToProfile, creatorId]);
 
@@ -95,10 +87,10 @@ const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
 
   return (
     <div>
-      <EditProfileDialog
+      {userMetadata && (<EditProfileDialog
         open={isEditProfileDialogOpen}
         onClose={toggleEditProfileDialog}
-      />
+      />)}
       {isProfileDialogOpen && profileData && (
         <ProfileDialog
           open={isProfileDialogOpen}
@@ -121,18 +113,23 @@ const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
             <UserIcon className="mr-2 h-4 w-4" />
             <span>page creator</span>
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={showOwnProfile}>
+          <DropdownMenuItem onClick={showOwnProfile} disabled={!userMetadata}>
             <UserSearch className="mr-2 h-4 w-4" />
             <span>your profile</span>
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={toggleEditProfileDialog}>
+          <DropdownMenuItem
+            onClick={toggleEditProfileDialog}
+            disabled={!userMetadata}
+          >
             <UserCog className="mr-2 h-4 w-4" />
             <span>edit your profile</span>
           </DropdownMenuItem>
           <ThemeToggle />
-          <DropdownMenuItem onClick={() => signOut()}>
+          <DropdownMenuItem
+            onClick={() => (userMetadata ? signOut() : signIn("discord"))}
+          >
             <LogOut className="mr-2 h-4 w-4" />
-            <span>logout</span>
+            <span>{userMetadata ? "logout" : "login"}</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

@@ -3,10 +3,10 @@ import { z } from "zod";
 
 import { and, eq, schema } from "@acme/db";
 
-import { protectedProcedure } from "../trpc";
+import { protectedProcedure, publicProcedure } from "../trpc";
 
 export const followingRouter = {
-  followingUser: protectedProcedure
+  followingUser: publicProcedure
   .input(z.string().min(1))
   .query(({ ctx, input }) => {
     return ctx.db

@@ -19,29 +19,15 @@ interface FollowingProps {
 const Following = ({ profileid }: FollowingProps) => {
   const utils = api.useUtils();
 
-  const deleteFollowing = api.following.delete.useMutation({
-    onSuccess: async () => {
-      await utils.following.invalidate();
-      toast.success("Unfollowed");
-    },
-    onError: (err) => {
-      toast.error(
-        err.data?.code === "UNAUTHORIZED"
-          ? "You must be logged in to unfollow"
-          : "Failed to unfollow",
-      );
-    },
-  });
-
+  let allowDelete = false;
   const { data: session } = useSession();
-  if (!session) {
-    throw new Error("No session found");
+  if (session) {
+    const userid = session.user.id;
+    allowDelete = userid === profileid;
   }
-  const userid = session.user.id;
 
-  const isOwnProfile = userid === profileid;
+      
   let following = api.following.followingUser.useQuery(profileid).data;
-
   if (following === undefined) {
     following = [];
   }
@@ -49,6 +35,17 @@ const Following = ({ profileid }: FollowingProps) => {
   if (following.length === 0) {
     return <div className="mt-8">not following anyone yet :(</div>;
   }
+
+  const deleteFollowing = api.following.delete.useMutation({
+    onSuccess: async () => {
+      await utils.following.invalidate();
+      toast.success("Unfollowed");
+    },
+    onError: (err) => {
+      toast.error("Failed to unfollow: " + err.message);
+    },
+  });
+
 
   return (
     <div className="mt-8">
@@ -63,7 +60,7 @@ const Following = ({ profileid }: FollowingProps) => {
               className="rounded-full"
             />
             <p>{follow.name}</p>
-            {isOwnProfile && (
+            {allowDelete && (
               <button
                 onClick={() => deleteFollowing.mutate(follow.followingId)}
                 className="text-red-500 hover:text-red-600 focus:outline-none"

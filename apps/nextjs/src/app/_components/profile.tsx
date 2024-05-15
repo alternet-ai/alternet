@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { useSession } from "next-auth/react";
+import { useSession, signIn } from "next-auth/react";
 
 import { Button } from "@acme/ui/button";
 import { Dialog, DialogContent } from "@acme/ui/dialog";
@@ -24,6 +24,7 @@ const ProfileDialog = ({ open, onClose, profileData }: ProfileDialogProps) => {
   const utils = api.useUtils();
 
   const followingResult = api.following.isFollowingUser.useQuery(profileData.id).data;
+  
   useEffect(() => {
     setIsFollowing(!!followingResult);
   }, [followingResult]);
@@ -56,9 +57,13 @@ const ProfileDialog = ({ open, onClose, profileData }: ProfileDialogProps) => {
     },
   });
 
-  const isOwnProfile = session?.user.id === profileData.id;
+  const showFollow = !session || session.user.id !== profileData.id;
 
-  const handleFollowClick = () => {
+  const handleFollowClick = async () => {
+    if (!session) {
+      await signIn("discord");
+      return;
+    }
     if (isFollowing) {
       unFollowUser.mutate(profileData.id);
       setIsFollowing(false);
@@ -88,7 +93,7 @@ const ProfileDialog = ({ open, onClose, profileData }: ProfileDialogProps) => {
                 {profileData.description}
               </p>
             </div>
-            {!isOwnProfile && (
+            {showFollow && (
               <div className="mt-6 flex justify-center">
                 <Button onClick={handleFollowClick}>
                   {isFollowing ? "Unfollow" : "Follow"}

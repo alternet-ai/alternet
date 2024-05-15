@@ -7,6 +7,7 @@ import {
   X,
 } from "lucide-react";
 
+import { signIn } from "next-auth/react";
 import { Button } from "@acme/ui/button";
 import {
   Dialog,
@@ -33,8 +34,8 @@ interface ButtonsProps {
   onGoHome: () => void;
   isLoading: boolean;
   pageId: string;
-  creatorId: string | undefined;
-  userMetadata: User;
+  creatorId: string;
+  userMetadata: User | undefined;
 }
 
 const fixTitle = (title: string) => {
@@ -60,7 +61,7 @@ const Buttons: React.FC<ButtonsProps> = ({
 
   const [title, setTitle] = useState(fixTitle(defaultTitle));
   const [isPublic, setIsPublic] = useState(
-    userMetadata.isBookmarkDefaultPublic,
+    userMetadata?.isBookmarkDefaultPublic ?? false,
   );
   const [includeProfile, setIncludeProfile] = useState(true);
   const [isBookmarked, setIsBookmarked] = useState(false);
@@ -71,11 +72,7 @@ const Buttons: React.FC<ButtonsProps> = ({
       setIsBookmarked(!!res);
     },
     onError: (err) => {
-      toast.error(
-        err.data?.code === "UNAUTHORIZED"
-          ? "You must be logged in to check a bookmark"
-          : "Failed to check bookmark",
-      );
+      toast.error("Failed to check bookmark: " + err);
     },
   });
 
@@ -84,11 +81,7 @@ const Buttons: React.FC<ButtonsProps> = ({
       await utils.bookmark.invalidate();
     },
     onError: (err) => {
-      toast.error(
-        err.data?.code === "UNAUTHORIZED"
-          ? "You must be logged in to update a bookmark"
-          : "Failed to update bookmark",
-      );
+      toast.error("Failed to update bookmark: " + err);
     },
   });
 
@@ -97,11 +90,7 @@ const Buttons: React.FC<ButtonsProps> = ({
       await utils.bookmark.invalidate();
     },
     onError: (err) => {
-      toast.error(
-        err.data?.code === "UNAUTHORIZED"
-          ? "You must be logged in to delete a bookmark"
-          : "Failed to delete bookmark",
-      );
+      toast.error("Failed to delete bookmark: " + err);
     },
   });
 
@@ -120,8 +109,8 @@ const Buttons: React.FC<ButtonsProps> = ({
   };
 
   useEffect(() => {
-    getIsBookmarked.mutate(pageId);
-  }, [pageId]);
+    if (userMetadata) getIsBookmarked.mutate(pageId);
+  }, [pageId, userMetadata]);
 
   const isHome = pageId === "home";
 
@@ -130,7 +119,7 @@ const Buttons: React.FC<ButtonsProps> = ({
   }, [defaultTitle]);
 
   useEffect(() => {
-    setIsPublic(userMetadata.isBookmarkDefaultPublic);
+    setIsPublic(userMetadata?.isBookmarkDefaultPublic ?? false);
   }, [userMetadata]);
 
   const onCopyLink = (includeProfile: boolean) => {
@@ -210,7 +199,7 @@ const Buttons: React.FC<ButtonsProps> = ({
       ) : (
         <Dialog>
           <DialogTrigger asChild>
-            <Button variant="ghost" disabled={isHome || isLoading}>
+            <Button variant="ghost" disabled={isHome || isLoading} onClick={() => !userMetadata ? signIn('discord') : {} }>
               <Bookmark className="size-[6vw] md:size-6" />
             </Button>
           </DialogTrigger>

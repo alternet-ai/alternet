@@ -1,28 +1,28 @@
 import type { TRPCRouterRecord } from "@trpc/server";
 import { z } from "zod";
 
-import { and, desc, eq, schema, sql } from "@acme/db";
+import { and, eq, schema, sql } from "@acme/db";
 import { CreateBookmarkSchema } from "@acme/validators";
 
-import { protectedProcedure } from "../trpc";
+import { protectedProcedure, publicProcedure } from "../trpc";
 
 export const bookmarkRouter = {
-  following: protectedProcedure
-    .query(({ ctx }) => {
-      return ctx.db
-        .select()
-        .from(schema.following)
-        .where(eq(schema.following.userId, ctx.session.user.id))
-        .innerJoin(
-          schema.bookmarks,
-          and(
-            eq(schema.following.followingId, schema.bookmarks.userId),
-            eq(schema.bookmarks.isPublic, true),
-          ),
-        )
-        .orderBy(desc(schema.bookmarks.updatedAt))
-        .limit(10);
-    }),
+  // following: protectedProcedure
+  //   .query(({ ctx }) => {
+  //     return ctx.db
+  //       .select()
+  //       .from(schema.following)
+  //       .where(eq(schema.following.userId, ctx.session.user.id))
+  //       .innerJoin(
+  //         schema.bookmarks,
+  //         and(
+  //           eq(schema.following.followingId, schema.bookmarks.userId),
+  //           eq(schema.bookmarks.isPublic, true),
+  //         ),
+  //       )
+  //       .orderBy(desc(schema.bookmarks.updatedAt))
+  //       .limit(10);
+  //   }),
 
   mine: protectedProcedure.query(({ ctx }) => {
     return ctx.db.query.bookmarks.findMany({
@@ -30,7 +30,7 @@ export const bookmarkRouter = {
     });
   }),
 
-  yours: protectedProcedure.input(z.string().min(1)).query(({ ctx, input }) => {
+  yours: publicProcedure.input(z.string().min(1)).query(({ ctx, input }) => {
     return ctx.db.query.bookmarks.findMany({
       where: and(
         eq(schema.bookmarks.userId, input),

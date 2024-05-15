@@ -14,6 +14,7 @@ import { BLANK_PAGE, HOME_PAGE } from "../static/constants";
 import AddressBar from "./address_bar";
 import Buttons from "./buttons";
 import IframeContainer from "./container";
+import { signIn } from "next-auth/react";
 
 interface ParentComponentProps {
   initialPage: string;
@@ -46,7 +47,7 @@ const ParentComponent = ({
   });
 
   const loadPage = api.page.load.useMutation({
-    onSuccess: async (res) => {
+    onSuccess: async () => {
       await utils.pageView.invalidate();
     },
 
@@ -110,7 +111,8 @@ const ParentComponent = ({
 
   const generatePage = async (prompt: string) => {
     if (!userMetadata) {
-      throw new Error("User metadata not found");
+      signIn("discord")
+      return;
     }
 
     await linearizeUniverse(prompt);
@@ -416,7 +418,7 @@ const ParentComponent = ({
     );
   };
 
-  const buttons = userMetadata && (
+  const buttons = 
     <Buttons
       onRefresh={refresh}
       onCancel={stop}
@@ -428,8 +430,7 @@ const ParentComponent = ({
       pageId={currentPage.id}
       creatorId={currentPage.userId}
       userMetadata={userMetadata}
-    />
-  );
+    /> ;
 
   return (
     <div className="flex h-svh w-full">
