@@ -228,7 +228,7 @@ const ParentComponent = ({
   const updateContent = async (edit: string) => {
     let lastPage: Page;
     try {
-      lastPage = await getPage(currentPage.parentId ?? "invalid");
+      lastPage = await getPage(currentPage.parentId);
     } catch (error) {
       throw new Error(
         "Could not find last page for cache key: " + currentPage.id,
