@@ -14,6 +14,7 @@ import { BLANK_PAGE, HOME_PAGE } from "../static/constants";
 import AddressBar from "./address_bar";
 import Buttons from "./buttons";
 import IframeContainer from "./container";
+import { signIn } from "next-auth/react";
 
 interface ParentComponentProps {
   initialPage: string;
@@ -110,7 +111,8 @@ const ParentComponent = ({
 
   const generatePage = async (prompt: string) => {
     if (!userMetadata) {
-      return; //todo: handle unauthed
+      signIn("discord")
+      return;
     }
 
     await linearizeUniverse(prompt);

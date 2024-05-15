@@ -87,10 +87,10 @@ const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
 
   return (
     <div>
-      <EditProfileDialog
+      {userMetadata && (<EditProfileDialog
         open={isEditProfileDialogOpen}
         onClose={toggleEditProfileDialog}
-      />
+      />)}
       {isProfileDialogOpen && profileData && (
         <ProfileDialog
           open={isProfileDialogOpen}
@@ -126,7 +126,7 @@ const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
           </DropdownMenuItem>
           <ThemeToggle />
           <DropdownMenuItem
-            onClick={() => (userMetadata ? signOut() : signIn())}
+            onClick={() => (userMetadata ? signOut() : signIn("discord"))}
           >
             <LogOut className="mr-2 h-4 w-4" />
             <span>{userMetadata ? "logout" : "login"}</span>
