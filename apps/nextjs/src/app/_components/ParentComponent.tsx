@@ -25,7 +25,7 @@ const ParentComponent = ({
   openToProfile,
 }: ParentComponentProps) => {
   const router = useRouter();
-  const { pageCache, setPageCache, model, setModel } = useAppContext();
+  const { pageCache, model, setModel } = useAppContext();
   const [isPortrait, setIsPortrait] = useState(false);
   const userMetadata = api.auth.getOwnMetadata.useQuery().data;
   const [currentPage, setCurrentPage] = useState<Page>(BLANK_PAGE);
@@ -73,7 +73,7 @@ const ParentComponent = ({
   }, []);
 
   const getPage = async (id: string) => {
-    let page = pageCache[id];
+    let page = pageCache.current[id];
 
     if (!page) {
       console.log("cache miss: fetching page for ", id);
@@ -82,10 +82,10 @@ const ParentComponent = ({
         throw new Error("Page not found");
       }
 
-      setPageCache({
-        ...pageCache,
+      pageCache.current = {
+        ...pageCache.current,
         [page.id]: page,
-      });
+      };
     }
     return page;
   };
@@ -372,10 +372,10 @@ const ParentComponent = ({
     }
 
     if (isFinal) {
-      setPageCache({
-        ...pageCache,
+      pageCache.current = {
+        ...pageCache.current,
         [page.id]: page,
-      });
+      };
 
       savePage.mutate({
         title: page.title,

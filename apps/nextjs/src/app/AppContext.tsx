@@ -1,13 +1,12 @@
 "use client";
 
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useRef, useState } from "react";
 
 import type { Page } from "./types";
 import { HOME_PAGE } from "./static/constants";
 
 interface AppContextType {
-  pageCache: Record<string, Page>;
-  setPageCache: React.Dispatch<React.SetStateAction<Record<string, Page>>>;
+  pageCache: React.MutableRefObject<Record<string, Page>>;
   model: string;
   setModel: React.Dispatch<React.SetStateAction<string>>;
 }
@@ -27,13 +26,13 @@ interface AppProviderProps {
 }
 
 export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
-  const [pageCache, setPageCache] = useState<Record<string, Page>>({
+  const pageCache = useRef<Record<string, Page>>({
     [HOME_PAGE.id]: HOME_PAGE,
   });
   const [model, setModel] = useState("claude-3-sonnet-20240229");
 
   return (
-    <AppContext.Provider value={{ pageCache, setPageCache, model, setModel }}>
+    <AppContext.Provider value={{ pageCache, model, setModel }}>
       {children}
     </AppContext.Provider>
   );
