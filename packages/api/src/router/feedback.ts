@@ -15,7 +15,7 @@ export const feedbackRouter = {
     return ctx.db
       .insert(schema.feedback)
       .values({
-        userId: ctx.session?.user.id ?? "",
+        userId: ctx.session?.user.id ?? "anonymous",
         pageId: input.pageId,
         feedback: input.feedback,
       })
