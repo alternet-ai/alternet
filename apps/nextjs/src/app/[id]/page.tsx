@@ -1,44 +1,31 @@
 import { auth } from "@acme/auth";
 
 import type { Page } from "../types";
+import { api } from "~/trpc/server";
 import LoginComponent from "../_components/login";
 import ParentComponent from "../_components/ParentComponent";
-import { HOME_KEY, HOME_PAGE } from "../static/constants";
+import { HOME_ID, HOME_PAGE } from "../static/constants";
 import { DEPLOYMENT_URL } from "../utils/url";
-import { api } from "~/trpc/server";
 
 interface SearchParams {
   profile?: string;
 }
 
-export async function generateMetadata({
-  params,
-}: {
-  params: { cacheKey: string };
-}) {
-  let cacheKey = params.cacheKey;
-  if (!cacheKey) {
-    cacheKey = HOME_KEY;
+export async function generateMetadata({ params }: { params: { id: string } }) {
+  let id = params.id;
+  if (!id) {
+    id = HOME_ID;
   }
-  const url = new URL(DEPLOYMENT_URL + "/" + cacheKey);
+  const url = new URL(DEPLOYMENT_URL + "/" + id);
 
-  let page;
-  if (cacheKey === HOME_KEY) {
+  let page: Page | undefined;
+  if (id === HOME_ID) {
     page = HOME_PAGE;
   } else {
-    try {
-      const response = await fetch(
-        `${DEPLOYMENT_URL}/api/load-page?cacheKey=${cacheKey}`,
-      );
-      page = (await response.json()) as Page;
-    } catch (error) {
-      console.error("Error fetching page for metadata:", error);
-    }
-  }
-
-  if (!page?.content) {
-    //page not ready yet
-    return {};
+      page = await api.page.load(id);
+      if (!page) {
+        throw new Error("Page not found");
+      }
   }
 
   const response = await fetch(`${DEPLOYMENT_URL}/api/get-card-image`, {
@@ -46,7 +33,7 @@ export async function generateMetadata({
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ cacheKey }),
+    body: JSON.stringify({ id }),
   });
 
   const { imageUrl } = (await response.json()) as { imageUrl: string };
@@ -73,11 +60,11 @@ export async function generateMetadata({
   return metadata;
 }
 
-const CacheKeyPage = async ({
+const idPage = async ({
   params,
   searchParams,
 }: {
-  params: { cacheKey: string };
+  params: { id: string };
   searchParams?: SearchParams;
 }) => {
   const session = await auth();
@@ -88,17 +75,14 @@ const CacheKeyPage = async ({
 
   const openToProfile = searchParams?.profile !== undefined;
 
-  const res = await api.pageView.view(params.cacheKey);
+  const res = await api.pageView.view(params.id);
   if (!res.insertId) {
     console.error("Error viewing page:", res);
   }
-  
+
   return (
-    <ParentComponent
-      initialPage={params.cacheKey}
-      openToProfile={openToProfile}
-    />
+    <ParentComponent initialPage={params.id} openToProfile={openToProfile} />
   );
 };
 
-export default CacheKeyPage;
+export default idPage;

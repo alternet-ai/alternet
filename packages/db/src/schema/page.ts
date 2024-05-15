@@ -5,8 +5,8 @@ import { mySqlTable } from "./_table";
 
 export const page = mySqlTable("page", {
   title: varchar("title", { length: 255 }).notNull(),
-  fakeUrl: varchar("fakeUrl", { length: 255 }).notNull(),
-  prompt: varchar("prompt", { length: 255 }).notNull(),
+  fakeUrl: text("fakeUrl").notNull(),
+  prompt: text("prompt").notNull(),
   content: text("content").notNull(),
   id: varchar("id", { length: 255 }).primaryKey(),
   response: text("response").notNull(),

@@ -3,11 +3,22 @@ export interface Page {
   fakeUrl: string;
   prompt: string;
   content: string;
-  cacheKey: string;
-  userId?: string;
-  response?: string;
-  parentId?: string;
+  id: string;
+  userId: string;
+  response: string;
+  parentId: string;
 }
+
+// export interface OldPage {
+//   title: string;
+//   fakeUrl: string;
+//   prompt: string;
+//   content: string;
+//   cacheKey: string;
+//   userId?: string;
+//   response?: string;
+//   parentId?: string;
+// }
 
 export interface User {
   id: string;
