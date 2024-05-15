@@ -5,7 +5,7 @@ import { api } from "~/trpc/server";
 import LoginComponent from "../_components/login";
 import ParentComponent from "../_components/ParentComponent";
 import { HOME_ID, HOME_PAGE } from "../static/constants";
-import { DEPLOYMENT_URL } from "../utils/url";
+import { DEPLOYMENT_URL, genericMetadata } from "../utils/url";
 
 interface SearchParams {
   profile?: string;
@@ -24,7 +24,8 @@ export async function generateMetadata({ params }: { params: { id: string } }) {
   } else {
       const newPage = await api.page.load(id);
       if (!newPage) {
-        throw new Error("Page not found");
+        console.error("Page not found");
+        return genericMetadata();
     }
     page = newPage;
   }
