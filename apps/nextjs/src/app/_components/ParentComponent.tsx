@@ -27,7 +27,7 @@ const ParentComponent = ({
   const router = useRouter();
   const { pageCache, setPageCache, model, setModel } = useAppContext();
   const [isPortrait, setIsPortrait] = useState(false);
-  const userMetadata = api.auth.getOwnMetadata.useQuery().data;
+  const userMetadata = api.auth.getOwnMetadata.useQuery().data; //todo: handle unauthed
   const [currentPage, setCurrentPage] = useState<Page>(BLANK_PAGE);
   const { reload, stop, isLoading, messages, setMessages } = useChat({
     body: { model },
@@ -46,7 +46,7 @@ const ParentComponent = ({
   });
 
   const loadPage = api.page.load.useMutation({
-    onSuccess: async (res) => {
+    onSuccess: async () => {
       await utils.pageView.invalidate();
     },
 
@@ -110,7 +110,7 @@ const ParentComponent = ({
 
   const generatePage = async (prompt: string) => {
     if (!userMetadata) {
-      throw new Error("User metadata not found");
+      return; //todo: handle unauthed
     }
 
     await linearizeUniverse(prompt);
@@ -416,7 +416,7 @@ const ParentComponent = ({
     );
   };
 
-  const buttons = userMetadata && (
+  const buttons = 
     <Buttons
       onRefresh={refresh}
       onCancel={stop}
@@ -428,8 +428,7 @@ const ParentComponent = ({
       pageId={currentPage.id}
       creatorId={currentPage.userId}
       userMetadata={userMetadata}
-    />
-  );
+    /> ;
 
   return (
     <div className="flex h-svh w-full">

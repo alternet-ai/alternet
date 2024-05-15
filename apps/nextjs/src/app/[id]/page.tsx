@@ -2,7 +2,6 @@ import { auth } from "@acme/auth";
 
 import type { Page } from "../types";
 import { api } from "~/trpc/server";
-import LoginComponent from "../_components/login";
 import ParentComponent from "../_components/ParentComponent";
 import { HOME_ID, HOME_PAGE } from "../static/constants";
 import { DEPLOYMENT_URL } from "../utils/url";
@@ -70,14 +69,11 @@ const idPage = async ({
 }) => {
   const session = await auth();
 
-  if (!session) {
-    return <LoginComponent />;
+  if (session) {
+    await api.pageView.view(params.id);
   }
 
   const openToProfile = searchParams?.profile !== undefined;
-
-  await api.pageView.view(params.id);
-
   return (
     <ParentComponent initialPage={params.id} openToProfile={openToProfile} />
   );

@@ -3,10 +3,10 @@ import { z } from "zod";
 
 import { schema } from "@acme/db";
 
-import { protectedProcedure } from "../trpc";
+import { publicProcedure } from "../trpc";
 
 export const feedbackRouter = {
-  submit: protectedProcedure
+  submit: publicProcedure
   .input(z.object({
     pageId: z.string().min(1),
     feedback: z.string().min(1),
@@ -15,7 +15,7 @@ export const feedbackRouter = {
     return ctx.db
       .insert(schema.feedback)
       .values({
-        userId: ctx.session.user.id,
+        userId: ctx.session?.user.id ?? "",
         pageId: input.pageId,
         feedback: input.feedback,
       })

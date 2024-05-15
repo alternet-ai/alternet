@@ -26,50 +26,17 @@ const Bookmarks = ({ profileid }: BookmarksProps) => {
   const baseUrl = env.NODE_ENV === "development" ? "http://localhost:3000" : "https://alternet.ai";
   const utils = api.useUtils();
 
-  const updateBookmark = api.bookmark.update.useMutation({
-    onSuccess: async () => {
-      await utils.bookmark.invalidate();
-      toast.success("Bookmark updated");
-    },
-    onError: (err) => {
-      toast.error(
-        err.data?.code === "UNAUTHORIZED"
-          ? "You must be logged in to update a bookmark"
-          : "Failed to update bookmark",
-      );
-    },
-  });
-
-  const deleteBookmark = api.bookmark.delete.useMutation({
-    onSuccess: async () => {
-      await utils.bookmark.invalidate();
-      toast.success("Bookmark deleted");
-    },
-    onError: (err) => {
-      toast.error(
-        err.data?.code === "UNAUTHORIZED"
-          ? "You must be logged in to delete a bookmark"
-          : "Failed to delete bookmark",
-      );
-    },
-  });
-
+  let isOwnProfile = false;
   const { data: session } = useSession();
-  if (!session) {
-    throw new Error("No session found");
+  if (session) {
+    const userid = session.user.id;
+    isOwnProfile = userid === profileid;
   }
-  const userid = session.user.id;
+
 
   const titleRefs = useRef<Record<string, HTMLParagraphElement | null>>({});
 
-  const handleUpdate = useCallback(
-    (bookmarkId: string, title: string, isPublic: boolean) => {
-      updateBookmark.mutate({ bookmarkId, title, isPublic });
-    },
-    [updateBookmark],
-  );
 
-  const isOwnProfile = userid === profileid;
   let bookmarks: Bookmark[] | undefined;
   if (isOwnProfile) {
     bookmarks = api.bookmark.mine.useQuery().data;
@@ -95,6 +62,33 @@ const Bookmarks = ({ profileid }: BookmarksProps) => {
       console.error(err);
     });
   });
+
+  const updateBookmark = api.bookmark.update.useMutation({
+    onSuccess: async () => {
+      await utils.bookmark.invalidate();
+      toast.success("Bookmark updated");
+    },
+    onError: (err) => {
+      toast.error("Failed to update bookmark: " + err.message);
+    },
+  });
+
+  const deleteBookmark = api.bookmark.delete.useMutation({
+    onSuccess: async () => {
+      await utils.bookmark.invalidate();
+      toast.success("Bookmark deleted");
+    },
+    onError: (err) => {
+      toast.error("Failed to delete bookmark: " + err.message);
+    },
+  });
+
+  const handleUpdate = useCallback(
+    (bookmarkId: string, title: string, isPublic: boolean) => {
+      updateBookmark.mutate({ bookmarkId, title, isPublic });
+    },
+    [updateBookmark],
+  );
 
   useEffect(() => {
     const currentTitleRefs = titleRefs.current;

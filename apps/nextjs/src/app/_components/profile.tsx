@@ -24,6 +24,7 @@ const ProfileDialog = ({ open, onClose, profileData }: ProfileDialogProps) => {
   const utils = api.useUtils();
 
   const followingResult = api.following.isFollowingUser.useQuery(profileData.id).data;
+  
   useEffect(() => {
     setIsFollowing(!!followingResult);
   }, [followingResult]);
@@ -56,7 +57,7 @@ const ProfileDialog = ({ open, onClose, profileData }: ProfileDialogProps) => {
     },
   });
 
-  const isOwnProfile = session?.user.id === profileData.id;
+  const showFollow = session && session.user.id !== profileData.id;
 
   const handleFollowClick = () => {
     if (isFollowing) {
@@ -88,7 +89,7 @@ const ProfileDialog = ({ open, onClose, profileData }: ProfileDialogProps) => {
                 {profileData.description}
               </p>
             </div>
-            {!isOwnProfile && (
+            {showFollow && (
               <div className="mt-6 flex justify-center">
                 <Button onClick={handleFollowClick}>
                   {isFollowing ? "Unfollow" : "Follow"}
