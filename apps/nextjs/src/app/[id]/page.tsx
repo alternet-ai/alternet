@@ -35,7 +35,11 @@ export async function generateMetadata({ params }: { params: { id: string } }) {
     body: JSON.stringify({ id }),
   });
 
-  const { imageUrl } = (await response.json()) as { imageUrl: string };
+  const { imageUrl } = await response.json() as { imageUrl: string | undefined };
+  if (!imageUrl) {
+    console.error("Image not found");
+    return genericMetadata();
+  }
 
   const metadata = {
     metadataBase: new URL(DEPLOYMENT_URL),

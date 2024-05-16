@@ -21,12 +21,12 @@ export async function POST(req: Request) {
   if (imageExistsResponse.ok) {
     imageUrl = existingImageUrl;
   } else {
-    const page = await api.page.load(id);
-    if (!page) {
-      throw new Error("Page not found");
-    }
-
     try {
+      const page = await api.page.load(id);
+      if (!page) {
+        throw new Error("Page not found");
+      }
+
       // Fetching card image and page data from the API if not exists
       const cardImagesResponse = await fetch(
         `${env.SCREENSHOT_API_BASE_URL}/screenshot`,
@@ -44,7 +44,9 @@ export async function POST(req: Request) {
       );
 
       if (!cardImagesResponse.ok) {
-        throw new Error(`Error fetching card image: ${cardImagesResponse.statusText}`);
+        throw new Error(
+          `Error fetching card image: ${cardImagesResponse.statusText}`,
+        );
       }
 
       const imageData = (await cardImagesResponse.json()) as {
@@ -53,6 +55,12 @@ export async function POST(req: Request) {
       imageUrl = imageData.imageUrl;
     } catch (error) {
       console.error(error);
+      return new Response(JSON.stringify({ imageUrl: null }), {
+        status: 500,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
     }
   }
 
