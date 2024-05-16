@@ -29,7 +29,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const pageCache = useRef<Record<string, Page>>({
     [HOME_PAGE.id]: HOME_PAGE,
   });
-  const [model, setModel] = useState("claude-3-sonnet-20240229");
+  const [model, setModel] = useState("claude-3-opus-20240229");
 
   return (
     <AppContext.Provider value={{ pageCache, model, setModel }}>
