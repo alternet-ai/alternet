@@ -34,6 +34,8 @@ const ParentComponent = ({
     body: { model },
   });
 
+  const [isWaiting, setIsWaiting] = useState(isLoading);
+
   const utils = api.useUtils();
 
   const savePage = api.page.save.useMutation({
@@ -141,6 +143,9 @@ const ParentComponent = ({
   };
 
   useEffect(() => {
+    if (isLoading) {
+      setIsWaiting(true);
+    }
     //finalize page if loading changes and we're not on the initial page. todo: better way to do this
     const isStartPage = currentPage.id === initialPage;
     if (!isLoading && !isStartPage) {
@@ -426,7 +431,7 @@ const ParentComponent = ({
       openToProfile={openToProfile}
       onDownloadPage={onDownloadPage}
       onGoHome={goHome}
-      isLoading={isLoading}
+      isLoading={isWaiting}
       pageId={currentPage.id}
       creatorId={currentPage.userId}
       userMetadata={userMetadata}
@@ -439,7 +444,7 @@ const ParentComponent = ({
           <AddressBar
             currentUrl={currentPage.fakeUrl}
             onAddressEntered={generatePage}
-            disabled={isLoading}
+            disabled={isWaiting}
             changeModel={changeModel}
             model={model}
           />
@@ -448,7 +453,7 @@ const ParentComponent = ({
         <div className="flex flex-1 overflow-hidden">
           <IframeContainer
             html={currentPage.content}
-            isLoading={isLoading}
+            isLoading={isWaiting}
             onNavigate={generatePage}
           />
         </div>

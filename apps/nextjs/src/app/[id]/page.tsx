@@ -30,7 +30,7 @@ export async function generateMetadata({ params }: { params: { id: string } }) {
   let imageUrl;
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000); // 5000ms timeout
+    const timeoutId = setTimeout(() => controller.abort(), 1000); // 1s timeout
 
     const response = await fetch(`${DEPLOYMENT_URL}/api/get-card-image`, {
       method: "POST",

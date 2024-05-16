@@ -101,64 +101,71 @@ export const HOME_HTML = `
       <br>alternet is something new.
       <br><span class="logo">dream play create</span></h1>
     </p>
-    <h2>crafting complex URL structures</h2>
+    <h2>get creative</h2>
     <p>
-      thoughtfully constructed URLs allow you to generate highly specific 
-      and immersive pages.
+      thoughtfully constructed prompts allow you to generate intriguing
+      and immersive pages:
     </p>
     <ul>
-      <li>using nested paths to create intricate worlds
-        <pre>https://realm-of-aragon.forest/elven-forest/hidden-glade/ancient-ruins</pre>
+    <li>shift to an alternate reality
+      <pre><a href="https://wikipedia.org?world-ruler=pizza-rat">https://wikipedia.org?world-ruler=pizza-rat</a></pre>
+    </li>
+    <li>engage with fictional entities
+      <pre><a href="https://career-advice.org?personality=slavoj-zizek&intoxicant=mushrooms&interactive=true">https://career-advice.org?personality=slavoj-zizek&intoxicant=mushrooms&interactive=true</a></pre>
+    </li>
+    <li>make custom tools & apps
+      <pre><a href="live weather status for sf.
+        the api is https://api.open-meteo.com/v1/forecast?latitude=37.79&longitude=-122.40&current=temperature_2m,wind_speed_10m&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m
+        and the format is {
+        "current": {
+          "time": "2022-01-01T15:00"
+          "temperature_2m": 2.4,
+          "wind_speed_10m": 11.9,
+        },
+        "hourly": {
+          "time": ["2022-07-01T00:00","2022-07-01T01:00", ...]
+          "wind_speed_10m": [3.16,3.02,3.3,3.14,3.2,2.95, ...],
+          "temperature_2m": [13.7,13.3,12.8,12.3,11.8, ...],
+          "relative_humidity_2m": [82,83,86,85,88,88,84,76, ...],
+        }
+      }">live weather status for sf.
+the api is https://api.open-meteo.com/v1/forecast?latitude=37.79&longitude=-122.40&current=temperature_2m,wind_speed_10m&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m
+and the format is
+{
+  "current": {
+    "time": "2022-01-01T15:00"
+    "temperature_2m": 2.4,
+    "wind_speed_10m": 11.9,
+  },
+  "hourly": {
+    "time": ["2022-07-01T00:00","2022-07-01T01:00", ...]
+    "wind_speed_10m": [3.16,3.02,3.3,3.14,3.2,2.95, ...],
+    "temperature_2m": [13.7,13.3,12.8,12.3,11.8, ...],
+    "relative_humidity_2m": [82,83,86,85,88,88,84,76, ...],
+  }
+}</a></pre>
+    </li>
+    <li>explore infinite versions of real websites
+      <pre><a href="https://scp-wiki.wikidot.com/">https://scp-wiki.wikidot.com/</a></pre>
+    </li>
+      <li>play text adventures in imagined worlds
+        <pre><a href="https://itch.io/lord-of-the-rings/the-shire/frodo?choices=4&free-input=">https://itch.io/lord-of-the-rings/the-shire/frodo?choices=4&free-input=</a></pre>
       </li>
-      <li>combining multiple parameters to specify details
-        <pre>https://art-studio.ai?subject=cyberpunk-cityscape&colors=neon-blue,magenta&style=digital-painting&detail=ultra-high</pre>
+      <li>create vividly drawn scenes
+        <pre><a href="https://art-studio.ai?subject=cyberpunk-cityscape&colors=neon-blue,magenta&style=digital-painting&detail=ultra-high">https://art-studio.ai?subject=cyberpunk-cityscape&colors=neon-blue,magenta&style=digital-painting&detail=ultra-high</a></pre>
       </li>
-      <li>encoding complex instructions directly into the URL path or parameters
-        <pre>https://guided-meditation.calm/script=Imagine a peaceful beach at sunset...</pre>
-      </li>
-    </ul>
-
-    <h2>alternative protocols</h2>
-    <p>
-      invent your own unique protocols to customize and contextualize your pages in alternet.
-    </p>
-    <ul>
-    <li>simulating other environments
-    <pre>simulator://windows95.exe/</pre>
-  </li>
-  <li>immersive 3D graphics and virtual reality experiences
-    <pre>xr://immersive-scene.js?skybox=space&objects=planets,asteroids&interactions=orbit,zoom</pre>
-  </li>
-  <li>emulating command line interfaces and running scripts
-    <pre>cmd://dos.exe/?script=echo hello world&style=.dos .login,.dos .sidebar {display:none}</pre>
-  </li>
-  <li>running standalone web applications with custom UIs
-    <pre>app://codemirror.exe?fullscreen&style=.CodeMirror{height:100%}&persistence=local</pre>
-  </li>
-    </ul>
-
-    <h2>regular and iterative prompting</h2>
-    <p>
-      you can also interact with alternet using normal prompts 
-      and iterative prompting techniques.
-    </p>
-    <ul>
-      <li>provide a detailed description of the desired page or experience 
-        directly in the prompt, without using a URL structure.
-        <pre>
-Generate a website for a futuristic space travel agency. Include sections on destinations, spacecraft, pricing, and a booking form. Use a sleek, modern design with a dark color scheme and neon accents.</pre>
-      </li>
+    
       <li>start with an initial prompt and then refine the generated page
         through a series of follow-up prompts. provide feedback, additional details, or specific
         changes you'd like to see in each iteration.
         <pre>
-Initial prompt: Create a website for a fantasy-themed tavern.
+Initial prompt: <a href="Homepage for a My Little Pony themed anarchist collective.">Homepage for a My Little Pony themed anarchist collective.</a>
 
-Iteration 1: The tavern looks great! Can you add a menu of food and drink items?
+Iteration 1: The collective looks great! Can you add a manifesto outlining the group's core principles and goals?
 
-Iteration 2: Perfect. Now let's add some background music and sound effects to enhance the atmosphere.
+Iteration 2: Perfect. Now let's add some colorful banners and graphics featuring the ponies promoting mutual aid and direct action.
 
-Iteration 3: Awesome. As a final touch, can you add a guestbook where visitors can leave comments in-character as fantasy patrons?</pre>
+Iteration 3: Awesome. As a final touch, can you add a link to a forum where members can discuss organizing efforts and share resources in-character as the ponies?</pre>
       </li>
     </ul>
 
