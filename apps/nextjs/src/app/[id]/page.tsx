@@ -1,5 +1,3 @@
-import { auth } from "@acme/auth";
-
 import type { Page } from "../types";
 import { api } from "~/trpc/server";
 import ParentComponent from "../_components/ParentComponent";
@@ -68,11 +66,8 @@ const idPage = async ({
   params: { id: string };
   searchParams?: SearchParams;
 }) => {
-  const session = await auth();
 
-  if (session) {
-    await api.pageView.view(params.id);
-  }
+  await api.pageView.view(params.id);
 
   const openToProfile = searchParams?.profile !== undefined;
   return (
