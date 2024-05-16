@@ -24,13 +24,13 @@ export const bookmarkRouter = {
   //       .limit(10);
   //   }),
 
-  mine: protectedProcedure.query(({ ctx }) => {
+  mine: protectedProcedure.mutation(({ ctx }) => {
     return ctx.db.query.bookmarks.findMany({
       where: eq(schema.bookmarks.userId, ctx.session.user.id),
     });
   }),
 
-  yours: publicProcedure.input(z.string().min(1)).query(({ ctx, input }) => {
+  yours: publicProcedure.input(z.string().min(1)).mutation(({ ctx, input }) => {
     return ctx.db.query.bookmarks.findMany({
       where: and(
         eq(schema.bookmarks.userId, input),

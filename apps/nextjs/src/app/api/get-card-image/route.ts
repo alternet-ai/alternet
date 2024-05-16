@@ -26,24 +26,34 @@ export async function POST(req: Request) {
       throw new Error("Page not found");
     }
 
-    // Fetching card image and page data from the API if not exists
-    const cardImagesResponse = await fetch(
-      `${env.SCREENSHOT_API_BASE_URL}/screenshot`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+    try {
+      // Fetching card image and page data from the API if not exists
+      const cardImagesResponse = await fetch(
+        `${env.SCREENSHOT_API_BASE_URL}/screenshot`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            apiKey: env.SCREENSHOT_API_KEY,
+            html: page.content,
+            cacheKey: id,
+          }),
         },
-        body: JSON.stringify({
-          apiKey: env.SCREENSHOT_API_KEY,
-          html: page.content,
-          id: id,
-        }),
-      },
-    );
+      );
 
-    const imageData = (await cardImagesResponse.json()) as { imageUrl: string };
-    imageUrl = imageData.imageUrl;
+      if (!cardImagesResponse.ok) {
+        throw new Error(`Error fetching card image: ${cardImagesResponse.statusText}`);
+      }
+
+      const imageData = (await cardImagesResponse.json()) as {
+        imageUrl: string;
+      };
+      imageUrl = imageData.imageUrl;
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   return new Response(JSON.stringify({ imageUrl }), {
