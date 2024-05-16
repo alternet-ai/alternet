@@ -27,17 +27,29 @@ export async function generateMetadata({ params }: { params: { id: string } }) {
     page = newPage;
   }
 
-  const response = await fetch(`${DEPLOYMENT_URL}/api/get-card-image`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ id }),
-  });
+  let imageUrl;
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 5000ms timeout
 
-  const { imageUrl } = await response.json() as { imageUrl: string | undefined };
-  if (!imageUrl) {
-    console.error("Image not found");
+    const response = await fetch(`${DEPLOYMENT_URL}/api/get-card-image`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ id }),
+      signal: controller.signal,
+    });
+    clearTimeout(timeoutId);
+
+    const { imageUrl: imageUrlResponse } = await response.json() as { imageUrl: string | undefined };
+    if (!imageUrlResponse) {
+      console.error("Image not found");
+      return genericMetadata();
+    }
+    imageUrl = imageUrlResponse;
+  } catch (error) {
+    console.error(error);
     return genericMetadata();
   }
 
