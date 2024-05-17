@@ -18,4 +18,5 @@ export const page = mySqlTable("page", {
   })
     .default(sql`CURRENT_TIMESTAMP(3)`)
     .notNull(),
+  model: varchar("model", { length: 255 }),
 });

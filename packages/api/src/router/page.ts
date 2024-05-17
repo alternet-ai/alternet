@@ -16,6 +16,7 @@ export const pageRouter = {
       id: z.string().min(1),
       response: z.string().min(0),
       parentId: z.string().min(0),
+      model: z.string().min(1),
   }))
   .mutation(({ ctx, input }) => {
     return ctx.db
@@ -29,6 +30,7 @@ export const pageRouter = {
         content: input.content,
         response: input.response,
         parentId: input.parentId,
+        model: input.model,
       })
   }),
 

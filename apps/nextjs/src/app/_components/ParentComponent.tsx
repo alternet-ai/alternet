@@ -120,6 +120,12 @@ const ParentComponent = ({
     await linearizeUniverse(prompt);
     reload();
 
+    let model = MODELS[modelIndex];
+    if (!model) {
+      console.error("Could not find model for logging while generating");
+      model = "not-found";
+    }
+
     const page: Page = {
       title: "Loading...",
       fakeUrl: "Loading...",
@@ -129,6 +135,7 @@ const ParentComponent = ({
       userId: userMetadata.id,
       parentId: currentPage.id,
       response: "",
+      model,
     };
 
     setCurrentPage(page);
@@ -384,6 +391,12 @@ const ParentComponent = ({
         [page.id]: page,
       };
 
+      let model = page.model;
+      if (!model) {
+        console.error("Could not find model for logging while saving");
+        model = "not-found";
+      }
+
       savePage.mutate({
         title: page.title,
         fakeUrl: page.fakeUrl,
@@ -392,6 +405,7 @@ const ParentComponent = ({
         id: page.id,
         response: page.response,
         parentId: page.parentId,
+        model,
       });
 
       router.push(`/${page.id}`);

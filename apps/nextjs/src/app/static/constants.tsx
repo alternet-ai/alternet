@@ -11,6 +11,7 @@ export const HOME_PAGE: Page = {
   userId: "6a6560c2-c604-49a3-a4a8-b80f1e17e504",
   parentId: "none; this is home!",
   response: HOME_HTML,
+  model: "unknown",
 };
 
 export const BLANK_PAGE: Page = {
@@ -22,6 +23,7 @@ export const BLANK_PAGE: Page = {
   userId: "",
   parentId: "",
   response: "",
+  model: "unknown",
 };
 
 export const MODELS = [

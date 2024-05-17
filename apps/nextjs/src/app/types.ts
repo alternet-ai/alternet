@@ -7,6 +7,7 @@ export interface Page {
   userId: string;
   response: string;
   parentId: string;
+  model: string | null;
 }
 
 // export interface OldPage {
