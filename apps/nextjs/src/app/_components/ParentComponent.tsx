@@ -10,7 +10,7 @@ import { toast } from "@acme/ui/toast";
 import type { Page } from "../types";
 import { api } from "~/trpc/react";
 import { useAppContext } from "../AppContext";
-import { BLANK_PAGE, HOME_PAGE } from "../static/constants";
+import { BLANK_PAGE, HOME_PAGE, MODELS } from "../static/constants";
 import AddressBar from "./address_bar";
 import Buttons from "./buttons";
 import IframeContainer from "./container";
@@ -26,12 +26,12 @@ const ParentComponent = ({
   openToProfile,
 }: ParentComponentProps) => {
   const router = useRouter();
-  const { pageCache, model, setModel } = useAppContext();
+  const { pageCache, modelIndex, setModelIndex } = useAppContext();
   const [isPortrait, setIsPortrait] = useState(false);
   const userMetadata = api.auth.getOwnMetadata.useQuery().data;
   const [currentPage, setCurrentPage] = useState<Page>(BLANK_PAGE);
   const { reload, stop, isLoading, messages, setMessages } = useChat({
-    body: { model },
+    body: { model: MODELS[modelIndex] },
   });
 
   const [isWaiting, setIsWaiting] = useState(isLoading);
@@ -416,11 +416,7 @@ const ParentComponent = ({
   };
 
   const changeModel = () => {
-    setModel(
-      model === "claude-3-sonnet-20240229"
-        ? "claude-3-opus-20240229"
-        : "claude-3-sonnet-20240229",
-    );
+    setModelIndex(modelIndex === MODELS.length - 1 ? 0 : modelIndex + 1);
   };
 
   const buttons = 
@@ -446,7 +442,7 @@ const ParentComponent = ({
             onAddressEntered={generatePage}
             disabled={isWaiting}
             changeModel={changeModel}
-            model={model}
+            modelIndex={modelIndex}
           />
           {!isPortrait && buttons}
         </div>

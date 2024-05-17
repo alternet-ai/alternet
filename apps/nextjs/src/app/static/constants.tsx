@@ -24,3 +24,9 @@ export const BLANK_PAGE: Page = {
   response: "",
 };
 
+export const MODELS = [
+  "claude-3-haiku-20240307",
+  "claude-3-sonnet-20240229",
+  "claude-3-opus-20240229"
+]
+

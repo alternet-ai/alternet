@@ -7,8 +7,8 @@ import { HOME_PAGE } from "./static/constants";
 
 interface AppContextType {
   pageCache: React.MutableRefObject<Record<string, Page>>;
-  model: string;
-  setModel: React.Dispatch<React.SetStateAction<string>>;
+  modelIndex: number;
+  setModelIndex: React.Dispatch<React.SetStateAction<number>>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -29,10 +29,10 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const pageCache = useRef<Record<string, Page>>({
     [HOME_PAGE.id]: HOME_PAGE,
   });
-  const [model, setModel] = useState("claude-3-opus-20240229");
+  const [modelIndex, setModelIndex] = useState(2);
 
   return (
-    <AppContext.Provider value={{ pageCache, model, setModel }}>
+    <AppContext.Provider value={{ pageCache, modelIndex, setModelIndex }}>
       {children}
     </AppContext.Provider>
   );
