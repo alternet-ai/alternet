@@ -457,6 +457,7 @@ const ParentComponent = ({
             disabled={isWaiting}
             changeModel={changeModel}
             modelIndex={modelIndex}
+            pageId={currentPage.id}
           />
           {!isPortrait && buttons}
         </div>

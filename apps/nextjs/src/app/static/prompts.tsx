@@ -131,6 +131,6 @@ Provide a "replacementsToMake" array that details the specific changes.
 For appending new content, ensure a unique segment of the content is included in both "oldContent" and "newContent" to show where the new content should be inserted.
 If the user's request significantly deviates from the prior page after your analysis, create a new complete webpage instead of using edit mode.
 </edit_mode>
-<cmd>Always start by providing a one sentence <analysis>...</analysis> section to describe your interpretation of the user's URL and intent. After that, begin full page responses with <html>. When in edit mode, begin with <replacementsToMake>.</cmd>`;
+<cmd>Always start by providing a one sentence <analysis>...</analysis> section to describe your interpretation of the user's URL and intent. After that, begin full page responses with <html>. When in edit mode, begin with <replacementsToMake>, and do not output a full page response.</cmd>`;
 
 export const DEFAULT_PROMPT = newPrompt;
