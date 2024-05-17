@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
 import { Lightbulb, LightbulbOff, Sparkle, Sparkles, Wind } from "lucide-react";
+import { useSession } from "next-auth/react";
 
 import { Button } from "@acme/ui/button";
 import {
@@ -35,6 +36,8 @@ const AddressBar: React.FC<AddressBarProps> = ({
   const [address, setAddress] = useState(currentUrl);
   const [suggestions, setSuggestions] = useState<string[]>([]);
 
+  const session = useSession();
+
   const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setAddress(e.target.value);
   };
@@ -50,7 +53,7 @@ const AddressBar: React.FC<AddressBarProps> = ({
 
   useEffect(() => {
     const fetchSuggestions = async () => {
-      if (!pageId) return;
+      if (!pageId || session.status !== "authenticated") return;
       try {
         const response = await fetch(`/api/get-suggestions?id=${pageId}`);
         const data = (await response.json()) as { suggestions: string[] };
@@ -61,7 +64,7 @@ const AddressBar: React.FC<AddressBarProps> = ({
     };
 
     void fetchSuggestions();
-  }, [pageId]);
+  }, [pageId, session.status]);
 
   const toastAndChangeModel = () => {
     if (MODELS[modelIndex] === "claude-3-haiku-20240307") {
@@ -98,12 +101,9 @@ const AddressBar: React.FC<AddressBarProps> = ({
             type="button"
             variant="ghost"
             className="absolute right-16 top-1/2 -translate-y-1/2"
+            disabled={!suggestions.length}
           >
-            {suggestions.length ? (
-              <Lightbulb className="h-6 w-6" />
-            ) : (
-              <LightbulbOff className="h-6 w-6" />
-            )}
+            <Lightbulb className="h-6 w-6" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent style={{ maxWidth: "100vw" }}>
