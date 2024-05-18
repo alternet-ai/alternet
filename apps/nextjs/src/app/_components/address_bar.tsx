@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
-import { Lightbulb, LightbulbOff, Sparkle, Sparkles, Wind } from "lucide-react";
+import { Lightbulb, Sparkle, Sparkles, Wind } from "lucide-react";
 import { useSession } from "next-auth/react";
 
 import { Button } from "@acme/ui/button";
@@ -51,20 +51,16 @@ const AddressBar: React.FC<AddressBarProps> = ({
     setAddress(currentUrl);
   }, [currentUrl]);
 
-  useEffect(() => {
-    const fetchSuggestions = async () => {
-      if (!pageId || session.status !== "authenticated") return;
-      try {
-        const response = await fetch(`/api/get-suggestions?id=${pageId}`);
-        const data = (await response.json()) as { suggestions: string[] };
-        setSuggestions(data.suggestions);
-      } catch (error) {
-        console.error("Error fetching suggestions:", error);
-      }
-    };
-
-    void fetchSuggestions();
-  }, [pageId, session.status]);
+  const fetchSuggestions = async () => {
+    if (!pageId || session.status !== "authenticated") return;
+    try {
+      const response = await fetch(`/api/get-suggestions?id=${pageId}`);
+      const data = (await response.json()) as { suggestions: string[] };
+      setSuggestions(data.suggestions);
+    } catch (error) {
+      console.error("Error fetching suggestions:", error);
+    }
+  };
 
   const toastAndChangeModel = () => {
     if (MODELS[modelIndex] === "claude-3-haiku-20240307") {
@@ -95,27 +91,38 @@ const AddressBar: React.FC<AddressBarProps> = ({
         disabled={disabled}
       />
 
-      <DropdownMenu>
+      <DropdownMenu onOpenChange={(open) => {
+        if (open) {
+          setSuggestions([]);
+          void fetchSuggestions();
+        }
+      }}>
         <DropdownMenuTrigger asChild>
           <Button
             type="button"
             variant="ghost"
             className="absolute right-16 top-1/2 -translate-y-1/2"
-            disabled={!suggestions.length}
+            disabled={disabled}
           >
             <Lightbulb className="h-6 w-6" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent style={{ maxWidth: "100vw" }}>
-          {suggestions.map((suggestion, index) => (
-            <DropdownMenuItem
-              key={index}
-              onClick={() => handleSuggestionClick(suggestion)}
-              style={{ wordBreak: "break-word" }}
-            >
-              {suggestion}
+          {!suggestions.length ? (
+            <DropdownMenuItem disabled>
+              Loading suggestions...
             </DropdownMenuItem>
-          ))}
+          ) : (
+            suggestions.map((suggestion, index) => (
+              <DropdownMenuItem
+                key={index}
+                onClick={() => handleSuggestionClick(suggestion)}
+                style={{ wordBreak: "break-word" }}
+              >
+                {suggestion}
+              </DropdownMenuItem>
+            ))
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
 
