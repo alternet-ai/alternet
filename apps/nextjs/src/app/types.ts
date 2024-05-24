@@ -10,21 +10,10 @@ export interface Page {
   model: string | null;
 }
 
-// export interface OldPage {
-//   title: string;
-//   fakeUrl: string;
-//   prompt: string;
-//   content: string;
-//   cacheKey: string;
-//   userId?: string;
-//   response?: string;
-//   parentId?: string;
-// }
-
 export interface User {
   id: string;
   name: string | null;
-  email: string;
+  email: string | null;
   emailVerified: Date | null;
   image: string | null;
   description: string | null;

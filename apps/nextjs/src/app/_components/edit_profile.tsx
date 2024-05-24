@@ -106,7 +106,7 @@ const EditProfileDialog = ({ open, onClose }: EditProfileDialogProps) => {
             <Input
               id="email"
               name="email"
-              defaultValue={userData.email}
+              defaultValue={userData.email ?? "" }
               disabled
             />
           </div>
