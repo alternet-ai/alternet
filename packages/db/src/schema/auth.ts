@@ -14,7 +14,7 @@ import { mySqlTable } from "./_table";
 export const users = mySqlTable("user", {
   id: varchar("id", { length: 255 }).notNull().primaryKey(),
   name: varchar("name", { length: 255 }),
-  email: varchar("email", { length: 255 }).default(""),
+  email: varchar("email", { length: 255 }).notNull().default(""),
   emailVerified: timestamp("emailVerified", {
     mode: "date",
     fsp: 3,
