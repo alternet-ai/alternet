@@ -15,6 +15,7 @@ import AddressBar from "./address_bar";
 import Buttons from "./buttons";
 import IframeContainer from "./container";
 import { signIn } from "next-auth/react";
+import { DEPLOYMENT_URL } from "../utils/url";
 
 interface ParentComponentProps {
   initialPage: string;
@@ -94,10 +95,6 @@ const ParentComponent = ({
   };
 
   const getCachedPage = async (id: string) => {
-    // const urlString = `${DEPLOYMENT_URL}/api/load-page?cacheKey=${id}`;
-    // console.log("running delete", urlString);
-    // await fetch(urlString);
-
     try {
       const page = await getPage(id);
       setCurrentPage(page);
