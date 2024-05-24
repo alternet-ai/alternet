@@ -13,7 +13,7 @@ export interface Page {
 export interface User {
   id: string;
   name: string | null;
-  email: string | null;
+  email: string;
   emailVerified: Date | null;
   image: string | null;
   description: string | null;
