@@ -15,7 +15,7 @@ Do a few normal ones, then a few zany ones.
 All edits should be possible by modifying the current page with simple html/css/javascript. Do not use other resources (videos, audio, images, etc).
 Make each edit distinct and engaging.
 Edits should be very short, direct, and to the point - no filler words. Try for 10 words or less.
-Return the edits as an array of quoted strings, like this: ["edit", "another edit", "some third edit"].`;
+Return the edits as a bracketed array of quoted strings, like this: ["edit", "another edit", "some third edit"].`;
 
 export async function GET(req: Request) {
   const url = new URL(req.url);
