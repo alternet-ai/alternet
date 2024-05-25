@@ -10,12 +10,15 @@ export const runtime = "edge";
 const VARIANTS_PROMPT = `You will be given the full contents of a web page.
 Based on the contents, generate about six specific ideas for edits to the current page.
 These edits should offer different styles, layouts, or changes to the current page content.
-Some might be visual, some might be creative, some might be expansions of the current content.
 Do a few normal ones, then a few zany ones.
-All edits should be possible by modifying the current page with simple html/css/javascript. Do not use other resources (videos, audio, images, etc).
 Make each edit distinct and engaging.
+<cmd>
+All edits must be possible by modifying the current page with simple html/css/javascript.
+They must not require a persistent database or backend, external API calls, or invoke external resources (video, images, audio, live data, chat, etc).
+They can, however, link to other pages.
 Edits should be very short, direct, and to the point - no filler words. Try for 10 words or less.
-Return the edits as a bracketed array of quoted strings, like this: ["edit", "another edit", "some third edit"].`;
+Write a one sentence analysis describing your thought process, then return the edits as a bracketed array of quoted strings, like this: ["edit", "another edit", "some third edit"].
+</cmd>`;
 
 export async function GET(req: Request) {
   const url = new URL(req.url);
