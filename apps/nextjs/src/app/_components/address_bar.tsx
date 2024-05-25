@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
-import { Lightbulb, Sparkle, Sparkles, Wind } from "lucide-react";
+import { Lightbulb, Palette, Sparkle, Sparkles, Wind } from "lucide-react";
 import { useSession } from "next-auth/react";
 
 import { Button } from "@acme/ui/button";
@@ -35,6 +35,7 @@ const AddressBar: React.FC<AddressBarProps> = ({
 
   const [address, setAddress] = useState(currentUrl);
   const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [variants, setVariants] = useState<string[]>([]);
 
   const session = useSession();
 
@@ -60,6 +61,22 @@ const AddressBar: React.FC<AddressBarProps> = ({
     } catch (error) {
       console.error("Error fetching suggestions:", error);
     }
+  };
+
+  const fetchVariants = async () => {
+    if (!pageId || session.status !== "authenticated") return;
+    try {
+      const response = await fetch(`/api/get-variants?id=${pageId}`);
+      const data = (await response.json()) as { variants: string[] };
+      setVariants(data.variants);
+    } catch (error) {
+      console.error("Error fetching variants:", error);
+    }
+  };
+
+  const handleVariantClick = (variant: string) => {
+    setAddress("change to " + variant);
+    onAddressEntered("change to " + variant);
   };
 
   const toastAndChangeModel = () => {
@@ -90,7 +107,7 @@ const AddressBar: React.FC<AddressBarProps> = ({
         onChange={handleAddressChange}
         disabled={disabled}
       />
-
+{/* 
       <DropdownMenu onOpenChange={(open) => {
         if (open) {
           setSuggestions([]);
@@ -120,6 +137,41 @@ const AddressBar: React.FC<AddressBarProps> = ({
                 style={{ wordBreak: "break-word" }}
               >
                 {suggestion}
+              </DropdownMenuItem>
+            ))
+          )}
+        </DropdownMenuContent>
+      </DropdownMenu> */}
+
+      <DropdownMenu onOpenChange={(open) => { //todo: load immediately
+        if (open) {
+          setVariants([]);
+          void fetchVariants();
+        }
+      }}>
+        <DropdownMenuTrigger asChild>
+          <Button
+            type="button"
+            variant="ghost"
+            className="absolute right-16 top-1/2 -translate-y-1/2"
+            disabled={disabled}
+          >
+            <Palette className="h-6 w-6" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent style={{ maxWidth: "100vw" }}>
+          {!variants.length ? (
+            <DropdownMenuItem disabled>
+              Loading variants...
+            </DropdownMenuItem>
+          ) : (
+            variants.map((variant, index) => (
+              <DropdownMenuItem
+                key={index}
+                onClick={() => handleVariantClick(variant)}
+                style={{ wordBreak: "break-word" }}
+              >
+                {variant}
               </DropdownMenuItem>
             ))
           )}
