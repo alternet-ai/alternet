@@ -154,7 +154,7 @@ const AddressBar: React.FC<AddressBarProps> = ({
             type="button"
             variant="ghost"
             className="absolute right-16 top-1/2 -translate-y-1/2"
-            disabled={disabled}
+            disabled={disabled || session.status !== "authenticated"}
           >
             <Palette className="h-6 w-6" />
           </Button>
