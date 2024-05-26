@@ -21,6 +21,14 @@ export const authConfig = {
   }),
   providers: [Discord],
   callbacks: {
+    signIn({ profile }) {
+      // Only allow sign in for users with email addresses
+      if (!profile?.email) {
+        return "/no-email";
+      } else {
+        return true;
+      }
+    },
     session: (opts) => {
       if (!("user" in opts)) throw "unreachable with session strategy";
 
